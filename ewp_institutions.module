@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Contains ewp_institutions.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function ewp_institutions_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the ewp_institutions module.
+    case 'help.page.ewp_institutions':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Drupal implementation of the EWP Institutions API') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+// function ewp_institutions_theme() {
+//   return [
+//     'ewp_institutions' => [
+//       'render element' => 'children',
+//     ],
+//   ];
+// }
+
+/**
+ * Implements hook_theme().
+ */
+function ewp_institutions_theme() {
+  $theme = [];
+  $theme['org'] = [
+    'render element' => 'elements',
+    'file' => 'org.page.inc',
+    'template' => 'org',
+  ];
+  $theme['org_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'org.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function ewp_institutions_theme_suggestions_org(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#org'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'org__' . $sanitized_view_mode;
+  $suggestions[] = 'org__' . $entity->bundle();
+  $suggestions[] = 'org__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'org__' . $entity->id();
+  $suggestions[] = 'org__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}

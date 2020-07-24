@@ -1,0 +1,7 @@
+ewp_institutions.admin:
+  path: '/admin/ewp/institutions'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'EWP Institutions'
+  requirements:
+    _permission: 'administer organization entities'

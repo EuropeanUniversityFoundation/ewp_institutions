@@ -1,0 +1,10 @@
+entity.org.add_form:
+  route_name: entity.org.add_page
+  title: 'Add Organization'
+  appears_on:
+    - entity.org.collection
+entity.org_type.add_form:
+  route_name: entity.org_type.add_form
+  title: 'Add Organization type'
+  appears_on:
+    - entity.org_type.collection

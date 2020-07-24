@@ -1,0 +1,22 @@
+# EWP Institutions menu parent
+ewp_institutions.admin:
+  title: 'EWP Institutions API'
+  route_name: ewp_courses.admin
+  description: 'Erasmus Without Paper specifications for Higher Education Institutions and Organizational Units.'
+  parent: ewp_core.admin
+
+# Organization type menu items definition
+entity.org_type.collection:
+  title: 'Organization types'
+  route_name: entity.org_type.collection
+  description: 'List Organization types (bundles)'
+  parent: ewp_institutions.admin
+  weight: 1
+
+# Organization menu items definition
+entity.org.collection:
+  title: 'Organization list'
+  route_name: entity.org.collection
+  description: 'List Organization entities'
+  parent: ewp_institutions.admin
+  weight: 2

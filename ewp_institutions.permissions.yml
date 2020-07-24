@@ -1,0 +1,22 @@
+add organization entities:
+  title: 'Create new Organization entities'
+
+administer organization entities:
+  title: 'Administer Organization entities'
+  description: 'Allow to access the administration form to configure Organization entities.'
+  restrict access: true
+
+delete organization entities:
+  title: 'Delete Organization entities'
+
+edit organization entities:
+  title: 'Edit Organization entities'
+
+view published organization entities:
+  title: 'View published Organization entities'
+
+view unpublished organization entities:
+  title: 'View unpublished Organization entities'
+
+permission_callbacks:
+  - \Drupal\ewp_institutions\OrgEntityPermissions::generatePermissions
