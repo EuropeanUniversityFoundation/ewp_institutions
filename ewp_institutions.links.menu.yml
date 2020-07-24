@@ -1,7 +1,7 @@
 # EWP Institutions menu parent
 ewp_institutions.admin:
   title: 'EWP Institutions API'
-  route_name: ewp_courses.admin
+  route_name: ewp_institutions.admin
   description: 'Erasmus Without Paper specifications for Higher Education Institutions and Organizational Units.'
   parent: ewp_core.admin
 

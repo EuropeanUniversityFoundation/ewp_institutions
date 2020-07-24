@@ -26,17 +26,6 @@ function ewp_institutions_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_theme().
  */
-// function ewp_institutions_theme() {
-//   return [
-//     'ewp_institutions' => [
-//       'render element' => 'children',
-//     ],
-//   ];
-// }
-
-/**
- * Implements hook_theme().
- */
 function ewp_institutions_theme() {
   $theme = [];
   $theme['org'] = [
@@ -66,4 +55,15 @@ function ewp_institutions_theme_suggestions_org(array $variables) {
   $suggestions[] = 'org__' . $entity->id();
   $suggestions[] = 'org__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
+}
+
+/**
+ * Implements hook_entity_bundle_field_info_alter().
+ */
+function ewp_institutions_entity_bundle_field_info_alter(&$fields, \Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle) {
+  if ($bundle === 'hei') {
+    if (isset($fields['field_hei_id'])) {
+      $fields['field_hei_id']->addConstraint('UniqueField', []);
+    }
+  }
 }

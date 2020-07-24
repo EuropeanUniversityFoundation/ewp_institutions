@@ -46,12 +46,12 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *     "published" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/ewp/org/{org}",
- *     "add-page" = "/admin/ewp/org/add",
- *     "add-form" = "/admin/ewp/org/add/{org_type}",
- *     "edit-form" = "/admin/ewp/org/{org}/edit",
- *     "delete-form" = "/admin/ewp/org/{org}/delete",
- *     "collection" = "/admin/ewp/org",
+ *     "canonical" = "/ewp/org/{org}",
+ *     "add-page" = "/ewp/org/add",
+ *     "add-form" = "/ewp/org/add/{org_type}",
+ *     "edit-form" = "/ewp/org/{org}/edit",
+ *     "delete-form" = "/ewp/org/{org}/delete",
+ *     "collection" = "/admin/ewp/org/list",
  *   },
  *   bundle_entity_type = "org_type",
  *   field_ui_base_route = "entity.org_type.edit_form"
@@ -110,22 +110,22 @@ class OrgEntity extends ContentEntityBase implements OrgEntityInterface {
       ])
       ->setDefaultValue('')
       ->setDisplayOptions('view', [
-        'label' => 'above',
+        'label' => 'hidden',
         'type' => 'string',
-        'weight' => -4,
+        'weight' => -20,
       ])
       ->setDisplayOptions('form', [
         'type' => 'string_textfield',
-        'weight' => -4,
+        'weight' => -20,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired(TRUE);
 
-    $fields['status']->setDescription(t('A boolean indicating whether the Organization is published.'))
+    $fields['status']
       ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',
-        'weight' => -3,
+        'weight' => 20,
       ]);
 
     $fields['created'] = BaseFieldDefinition::create('created')
