@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.hei.mailing_address
+  module:
+    - ewp_flexible_address
+    - ewp_institutions
+id: hei.hei.mailing_address
+field_name: mailing_address
+entity_type: hei
+bundle: hei
+label: 'Mailing address'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: ewp_flexible_address

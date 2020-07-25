@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ewp_flexible_address
+    - ewp_institutions
+id: hei.street_address
+field_name: street_address
+entity_type: hei
+type: ewp_flexible_address
+settings:
+  max_length_long: '255'
+  max_length_short: '16'
+module: ewp_flexible_address
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

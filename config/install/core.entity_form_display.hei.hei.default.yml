@@ -1,0 +1,102 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.hei.hei.abbreviation
+    - field.field.hei.hei.contact
+    - field.field.hei.hei.hei_id
+    - field.field.hei.hei.logo_url
+    - field.field.hei.hei.mailing_address
+    - field.field.hei.hei.mobility_factsheet_url
+    - field.field.hei.hei.name
+    - field.field.hei.hei.street_address
+    - field.field.hei.hei.website_url
+  module:
+    - ewp_core
+    - ewp_flexible_address
+    - ewp_institutions
+id: hei.hei.default
+targetEntityType: hei
+bundle: hei
+mode: default
+content:
+  abbreviation:
+    weight: -16
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  contact:
+    weight: -10
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+    region: content
+  hei_id:
+    weight: -19
+    settings:
+      size: 64
+      placeholder: ''
+    third_party_settings: {  }
+    type: ascii_identifier_default
+    region: content
+  logo_url:
+    weight: -12
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_https_default
+    region: content
+  mailing_address:
+    weight: -14
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_flexible_address_default
+    region: content
+  mobility_factsheet_url:
+    weight: -11
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_http_lang_default
+    region: content
+  name:
+    weight: -17
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: ewp_string_lang_default
+    region: content
+  street_address:
+    weight: -15
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_flexible_address_default
+    region: content
+  website_url:
+    weight: -13
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_http_lang_default
+    region: content
+  label:
+    type: string_textfield
+    weight: -20
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 10
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
+hidden: {  }

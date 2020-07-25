@@ -37,7 +37,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
  *   admin_permission = "administer institution entities",
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "name",
+ *     "label" = "label",
  *     "uuid" = "uuid",
  *     "langcode" = "langcode",
  *     "published" = "status",
@@ -62,14 +62,14 @@ class InstitutionEntity extends ContentEntityBase implements InstitutionEntityIn
    * {@inheritdoc}
    */
   public function getName() {
-    return $this->get('name')->value;
+    return $this->get('label')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setName($name) {
-    $this->set('name', $name);
+    $this->set('label', $name);
     return $this;
   }
 
@@ -97,9 +97,9 @@ class InstitutionEntity extends ContentEntityBase implements InstitutionEntityIn
     // Add the published field.
     $fields += static::publishedBaseFieldDefinitions($entity_type);
 
-    $fields['name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Institution entity.'))
+    $fields['label'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Label'))
+      ->setDescription(t('The internal label of the Institution entity.'))
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,

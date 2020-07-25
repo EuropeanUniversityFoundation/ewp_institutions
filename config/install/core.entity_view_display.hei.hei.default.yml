@@ -1,0 +1,97 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.hei.hei.abbreviation
+    - field.field.hei.hei.contact
+    - field.field.hei.hei.hei_id
+    - field.field.hei.hei.logo_url
+    - field.field.hei.hei.mailing_address
+    - field.field.hei.hei.mobility_factsheet_url
+    - field.field.hei.hei.name
+    - field.field.hei.hei.street_address
+    - field.field.hei.hei.website_url
+  module:
+    - ewp_core
+    - ewp_flexible_address
+    - ewp_institutions
+id: hei.hei.default
+targetEntityType: hei
+bundle: hei
+mode: default
+content:
+  abbreviation:
+    weight: -17
+    label: inline
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: content
+  contact:
+    weight: -11
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: content
+  hei_id:
+    weight: -19
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    type: ascii_identifier_default
+    region: content
+  logo_url:
+    weight: -13
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_https_default
+    region: content
+  mailing_address:
+    weight: -15
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_flexible_address_default
+    region: content
+  mobility_factsheet_url:
+    weight: -12
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_http_lang_default
+    region: content
+  name:
+    weight: -18
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_string_lang_default
+    region: content
+  street_address:
+    weight: -16
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_flexible_address_default
+    region: content
+  website_url:
+    weight: -14
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: ewp_http_lang_default
+    region: content
+  label:
+    label: hidden
+    type: string
+    weight: -20
+    region: content
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+hidden:
+  langcode: true

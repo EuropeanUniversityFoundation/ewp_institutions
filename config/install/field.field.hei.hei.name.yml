@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.hei.name
+  module:
+    - ewp_core
+    - ewp_institutions
+id: hei.hei.name
+field_name: name
+entity_type: hei
+bundle: hei
+label: Name
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: ewp_string_lang

@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.hei.abbreviation
+  module:
+    - ewp_institutions
+id: hei.hei.abbreviation
+field_name: abbreviation
+entity_type: hei
+bundle: hei
+label: Abbreviation
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

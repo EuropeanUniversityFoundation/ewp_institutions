@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.hei.hei_id
+  module:
+    - ewp_core
+    - ewp_institutions
+id: hei.hei.hei_id
+field_name: hei_id
+entity_type: hei
+bundle: hei
+label: 'HEI ID'
+description: 'The SCHAC identifier of this HEI.'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: ascii_identifier

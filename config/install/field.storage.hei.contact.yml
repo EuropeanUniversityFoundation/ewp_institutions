@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ewp_contact
+    - ewp_institutions
+id: hei.contact
+field_name: contact
+entity_type: hei
+type: entity_reference
+settings:
+  target_type: contact
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

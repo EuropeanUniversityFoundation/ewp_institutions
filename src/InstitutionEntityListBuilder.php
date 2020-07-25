@@ -18,7 +18,7 @@ class InstitutionEntityListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['id'] = $this->t('Institution ID');
-    $header['name'] = $this->t('Name');
+    $header['label'] = $this->t('Label');
     return $header + parent::buildHeader();
   }
 
@@ -28,7 +28,7 @@ class InstitutionEntityListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $row['id'] = $entity->id();
-    $row['name'] = Link::createFromRoute(
+    $row['label'] = Link::createFromRoute(
       $entity->label(),
       'entity.hei.edit_form',
       ['hei' => $entity->id()]

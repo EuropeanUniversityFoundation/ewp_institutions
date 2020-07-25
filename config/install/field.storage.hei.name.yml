@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ewp_core
+    - ewp_institutions
+id: hei.name
+field_name: name
+entity_type: hei
+type: ewp_string_lang
+settings:
+  max_length: '255'
+module: ewp_core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

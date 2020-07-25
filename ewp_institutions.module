@@ -52,9 +52,9 @@ function ewp_institutions_theme_suggestions_org(array $variables) {
  * Implements hook_entity_bundle_field_info_alter().
  */
 function ewp_institutions_entity_bundle_field_info_alter(&$fields, \Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle) {
-  // if ($bundle === 'hei') {
-    if (isset($fields['field_hei_id'])) {
-      $fields['field_hei_id']->addConstraint('UniqueField', []);
+  if ($entity_type === 'hei') {
+    if (isset($fields['hei_id'])) {
+      $fields['hei_id']->addConstraint('UniqueField', []);
     }
-  // }
+  }
 }

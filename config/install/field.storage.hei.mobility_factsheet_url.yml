@@ -1,0 +1,18 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ewp_core
+    - ewp_institutions
+id: hei.mobility_factsheet_url
+field_name: mobility_factsheet_url
+entity_type: hei
+type: ewp_http_lang
+settings: {  }
+module: ewp_core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
