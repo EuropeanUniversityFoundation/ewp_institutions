@@ -14,9 +14,24 @@
     {
       "type": "vcs",
       "url": "https://github.com/EuropeanUniversityFoundation/ewp_core"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/EuropeanUniversityFoundation/ewp_flexible_address"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/EuropeanUniversityFoundation/ewp_phone_number"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/EuropeanUniversityFoundation/ewp_contact"
     }
   ],
   "require": {
-    "euf/ewp_core": "dev-master"
+    "euf/ewp_core": "dev-master",
+    "euf/ewp_flexible_address": "dev-master",
+    "euf/ewp_phone_number": "dev-master",
+    "euf/ewp_contact": "dev-master"
   }
 }

@@ -1,17 +1,21 @@
-# Organization routing definition
+# Institution routing definition
+hei.settings_tab:
+  route_name: hei.settings
+  title: 'Settings'
+  base_route: hei.settings
 
-entity.org.canonical:
-  route_name: entity.org.canonical
-  base_route: entity.org.canonical
+entity.hei.canonical:
+  route_name: entity.hei.canonical
+  base_route: entity.hei.canonical
   title: 'View'
 
-entity.org.edit_form:
-  route_name: entity.org.edit_form
-  base_route: entity.org.canonical
+entity.hei.edit_form:
+  route_name: entity.hei.edit_form
+  base_route: entity.hei.canonical
   title: 'Edit'
 
-entity.org.delete_form:
-  route_name:  entity.org.delete_form
-  base_route:  entity.org.canonical
+entity.hei.delete_form:
+  route_name:  entity.hei.delete_form
+  base_route:  entity.hei.canonical
   title: Delete
   weight: 10

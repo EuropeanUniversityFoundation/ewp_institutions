@@ -6,11 +6,11 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class OrgEntitySettingsForm.
+ * Class InstitutionEntitySettingsForm.
  *
  * @ingroup ewp_institutions
  */
-class OrgEntitySettingsForm extends FormBase {
+class InstitutionEntitySettingsForm extends FormBase {
 
   /**
    * Returns a unique string identifying the form.
@@ -19,7 +19,7 @@ class OrgEntitySettingsForm extends FormBase {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'orgentity_settings';
+    return 'institutionentity_settings';
   }
 
   /**
@@ -35,7 +35,7 @@ class OrgEntitySettingsForm extends FormBase {
   }
 
   /**
-   * Defines the settings form for Organization entities.
+   * Defines the settings form for Institution entities.
    *
    * @param array $form
    *   An associative array containing the structure of the form.
@@ -46,7 +46,7 @@ class OrgEntitySettingsForm extends FormBase {
    *   Form definition array.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['orgentity_settings']['#markup'] = 'Settings form for Organization entities. Manage field settings here.';
+    $form['institutionentity_settings']['#markup'] = 'Settings form for Institution entities. Manage field settings here.';
     return $form;
   }
 

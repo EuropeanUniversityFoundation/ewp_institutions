@@ -5,9 +5,9 @@ namespace Drupal\ewp_institutions\Entity;
 use Drupal\views\EntityViewsData;
 
 /**
- * Provides Views data for Organization entities.
+ * Provides Views data for Institution entities.
  */
-class OrgEntityViewsData extends EntityViewsData {
+class InstitutionEntityViewsData extends EntityViewsData {
 
   /**
    * {@inheritdoc}

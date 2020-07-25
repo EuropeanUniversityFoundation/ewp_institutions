@@ -1,10 +1,6 @@
-entity.org.add_form:
-  route_name: entity.org.add_page
-  title: 'Add Organization'
+entity.hei.add_form:
+  route_name: entity.hei.add_form
+  title: 'Add Institution'
   appears_on:
-    - entity.org.collection
-entity.org_type.add_form:
-  route_name: entity.org_type.add_form
-  title: 'Add Organization type'
-  appears_on:
-    - entity.org_type.collection
+    - hei.settings
+    - entity.hei.collection

@@ -27,18 +27,11 @@ function ewp_institutions_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_theme().
  */
 function ewp_institutions_theme() {
-  $theme = [];
-  $theme['org'] = [
-    'render element' => 'elements',
-    'file' => 'org.page.inc',
-    'template' => 'org',
+  return [
+    'ewp_contact' => [
+      'render element' => 'children',
+    ],
   ];
-  $theme['org_content_add_list'] = [
-    'render element' => 'content',
-    'variables' => ['content' => NULL],
-    'file' => 'org.page.inc',
-  ];
-  return $theme;
 }
 
 /**
@@ -46,14 +39,12 @@ function ewp_institutions_theme() {
  */
 function ewp_institutions_theme_suggestions_org(array $variables) {
   $suggestions = [];
-  $entity = $variables['elements']['#org'];
+  $entity = $variables['elements']['#hei'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
-  $suggestions[] = 'org__' . $sanitized_view_mode;
-  $suggestions[] = 'org__' . $entity->bundle();
-  $suggestions[] = 'org__' . $entity->bundle() . '__' . $sanitized_view_mode;
-  $suggestions[] = 'org__' . $entity->id();
-  $suggestions[] = 'org__' . $entity->id() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'hei__' . $sanitized_view_mode;
+  $suggestions[] = 'hei__' . $entity->id();
+  $suggestions[] = 'hei__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
 }
 
@@ -61,9 +52,9 @@ function ewp_institutions_theme_suggestions_org(array $variables) {
  * Implements hook_entity_bundle_field_info_alter().
  */
 function ewp_institutions_entity_bundle_field_info_alter(&$fields, \Drupal\Core\Entity\EntityTypeInterface $entity_type, $bundle) {
-  if ($bundle === 'hei') {
+  // if ($bundle === 'hei') {
     if (isset($fields['field_hei_id'])) {
       $fields['field_hei_id']->addConstraint('UniqueField', []);
     }
-  }
+  // }
 }

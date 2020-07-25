@@ -7,12 +7,12 @@ use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 use Symfony\Component\Routing\Route;
 
 /**
- * Provides routes for Organization entities.
+ * Provides routes for Institution entities.
  *
  * @see \Drupal\Core\Entity\Routing\AdminHtmlRouteProvider
  * @see \Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider
  */
-class OrgEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
+class InstitutionEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
 
   /**
    * {@inheritdoc}
@@ -40,10 +40,10 @@ class OrgEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getSettingsFormRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->getBundleEntityType()) {
-      $route = new Route("/admin/structure/{$entity_type->id()}/settings");
+      $route = new Route("/admin/ewp/{$entity_type->id()}/settings");
       $route
         ->setDefaults([
-          '_form' => 'Drupal\ewp_institutions\Form\OrgEntitySettingsForm',
+          '_form' => 'Drupal\ewp_institutions\Form\InstitutionEntitySettingsForm',
           '_title' => "{$entity_type->getLabel()} settings",
         ])
         ->setRequirement('_permission', $entity_type->getAdminPermission())

@@ -1,22 +1,49 @@
 # EWP Institutions menu parent
 ewp_institutions.admin:
-  title: 'EWP Institutions API'
+  title: 'EWP Institutions'
   route_name: ewp_institutions.admin
-  description: 'Erasmus Without Paper specifications for Higher Education Institutions and Organizational Units.'
+  description: 'Settings for EWP Institutions'
   parent: ewp_core.admin
 
-# Organization type menu items definition
-entity.org_type.collection:
-  title: 'Organization types'
-  route_name: entity.org_type.collection
-  description: 'List Organization types (bundles)'
+# Institutions menu items definition
+hei.add_form:
+  title: 'Add Institution'
+  route_name: entity.hei.add_form
+  description: 'Add a new Institution entity'
+  parent: ewp_institutions.admin
+  weight: -10
+
+hei.settings:
+  title: 'Institution settings'
+  description: 'Configure Institution entities'
+  route_name: hei.settings
   parent: ewp_institutions.admin
   weight: 1
 
-# Organization menu items definition
-entity.org.collection:
-  title: 'Organization list'
-  route_name: entity.org.collection
-  description: 'List Organization entities'
+hei.fields:
+  title: 'Manage fields'
+  description: 'Manage the fields of Institution entities'
+  route_name: entity.hei.field_ui_fields
   parent: ewp_institutions.admin
   weight: 2
+
+hei.form:
+  title: 'Manage form display'
+  description: 'Manage the form display of Institution entities'
+  route_name: entity.entity_form_display.hei.default
+  parent: ewp_institutions.admin
+  weight: 3
+
+hei.display:
+  title: 'Manage display'
+  description: 'Manage the display of Institution entities'
+  route_name: entity.entity_view_display.hei.default
+  parent: ewp_institutions.admin
+  weight: 4
+
+hei.collection:
+  title: 'Institution list'
+  route_name: entity.hei.collection
+  description: 'List Institution entities'
+  parent: ewp_institutions.admin
+  weight: 10

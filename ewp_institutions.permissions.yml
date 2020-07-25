@@ -1,22 +1,19 @@
-add organization entities:
-  title: 'Create new Organization entities'
+add institution entities:
+  title: 'Create new Institution entities'
 
-administer organization entities:
-  title: 'Administer Organization entities'
-  description: 'Allow to access the administration form to configure Organization entities.'
+administer institution entities:
+  title: 'Administer Institution entities'
+  description: 'Allow to access the administration form to configure Institution entities.'
   restrict access: true
 
-delete organization entities:
-  title: 'Delete Organization entities'
+delete institution entities:
+  title: 'Delete Institution entities'
 
-edit organization entities:
-  title: 'Edit Organization entities'
+edit institution entities:
+  title: 'Edit Institution entities'
 
-view published organization entities:
-  title: 'View published Organization entities'
+view published institution entities:
+  title: 'View published Institution entities'
 
-view unpublished organization entities:
-  title: 'View unpublished Organization entities'
-
-permission_callbacks:
-  - \Drupal\ewp_institutions\OrgEntityPermissions::generatePermissions
+view unpublished institution entities:
+  title: 'View unpublished Institution entities'

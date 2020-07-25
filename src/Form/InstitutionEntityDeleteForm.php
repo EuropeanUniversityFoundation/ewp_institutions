@@ -5,11 +5,11 @@ namespace Drupal\ewp_institutions\Form;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 
 /**
- * Provides a form for deleting Organization entities.
+ * Provides a form for deleting Institution entities.
  *
  * @ingroup ewp_institutions
  */
-class OrgEntityDeleteForm extends ContentEntityDeleteForm {
+class InstitutionEntityDeleteForm extends ContentEntityDeleteForm {
 
 
 }

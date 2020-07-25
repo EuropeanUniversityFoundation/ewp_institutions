@@ -7,11 +7,11 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Form controller for Organization edit forms.
+ * Form controller for Institution edit forms.
  *
  * @ingroup ewp_institutions
  */
-class OrgEntityForm extends ContentEntityForm {
+class InstitutionEntityForm extends ContentEntityForm {
 
   /**
    * The current user account.
@@ -34,7 +34,7 @@ class OrgEntityForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /* @var \Drupal\ewp_institutions\Entity\OrgEntity $entity */
+    /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form = parent::buildForm($form, $form_state);
 
     return $form;
@@ -50,17 +50,17 @@ class OrgEntityForm extends ContentEntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        $this->messenger()->addMessage($this->t('Created the %label Organization.', [
+        $this->messenger()->addMessage($this->t('Created the %label Institution.', [
           '%label' => $entity->label(),
         ]));
         break;
 
       default:
-        $this->messenger()->addMessage($this->t('Saved the %label Organization.', [
+        $this->messenger()->addMessage($this->t('Saved the %label Institution.', [
           '%label' => $entity->label(),
         ]));
     }
-    $form_state->setRedirect('entity.org.canonical', ['org' => $entity->id()]);
+    $form_state->setRedirect('entity.hei.canonical', ['hei' => $entity->id()]);
   }
 
 }

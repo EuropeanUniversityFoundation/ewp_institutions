@@ -9,55 +9,51 @@ use Drupal\Core\Entity\EntityPublishedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
- * Defines the Organization entity.
+ * Defines the Institution entity.
  *
  * @ingroup ewp_institutions
  *
  * @ContentEntityType(
- *   id = "org",
- *   label = @Translation("Organization"),
- *   bundle_label = @Translation("Organization type"),
+ *   id = "hei",
+ *   label = @Translation("Institution"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\ewp_institutions\OrgEntityListBuilder",
- *     "views_data" = "Drupal\ewp_institutions\Entity\OrgEntityViewsData",
+ *     "list_builder" = "Drupal\ewp_institutions\InstitutionEntityListBuilder",
+ *     "views_data" = "Drupal\ewp_institutions\Entity\InstitutionEntityViewsData",
  *
  *     "form" = {
- *       "default" = "Drupal\ewp_institutions\Form\OrgEntityForm",
- *       "add" = "Drupal\ewp_institutions\Form\OrgEntityForm",
- *       "edit" = "Drupal\ewp_institutions\Form\OrgEntityForm",
- *       "delete" = "Drupal\ewp_institutions\Form\OrgEntityDeleteForm",
+ *       "default" = "Drupal\ewp_institutions\Form\InstitutionEntityForm",
+ *       "add" = "Drupal\ewp_institutions\Form\InstitutionEntityForm",
+ *       "edit" = "Drupal\ewp_institutions\Form\InstitutionEntityForm",
+ *       "delete" = "Drupal\ewp_institutions\Form\InstitutionEntityDeleteForm",
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\ewp_institutions\OrgEntityHtmlRouteProvider",
+ *       "html" = "Drupal\ewp_institutions\InstitutionEntityHtmlRouteProvider",
  *     },
- *     "access" = "Drupal\ewp_institutions\OrgEntityAccessControlHandler",
+ *     "access" = "Drupal\ewp_institutions\InstitutionEntityAccessControlHandler",
  *   },
- *   base_table = "org",
+ *   base_table = "hei",
  *   translatable = FALSE,
- *   permission_granularity = "bundle",
- *   admin_permission = "administer organization entities",
+ *   admin_permission = "administer institution entities",
  *   entity_keys = {
  *     "id" = "id",
- *     "bundle" = "type",
  *     "label" = "name",
  *     "uuid" = "uuid",
  *     "langcode" = "langcode",
  *     "published" = "status",
  *   },
  *   links = {
- *     "canonical" = "/ewp/org/{org}",
- *     "add-page" = "/ewp/org/add",
- *     "add-form" = "/ewp/org/add/{org_type}",
- *     "edit-form" = "/ewp/org/{org}/edit",
- *     "delete-form" = "/ewp/org/{org}/delete",
- *     "collection" = "/admin/ewp/org/list",
+ *     "canonical" = "/ewp/hei/{hei}",
+ *     "add-form" = "/ewp/hei/add",
+ *     "edit-form" = "/ewp/hei/{hei}/edit",
+ *     "delete-form" = "/ewp/hei/{hei}/delete",
+ *     "collection" = "/admin/ewp/hei/list",
  *   },
- *   bundle_entity_type = "org_type",
- *   field_ui_base_route = "entity.org_type.edit_form"
+ *   field_ui_base_route = "hei.settings",
+ *   common_reference_target = TRUE,
  * )
  */
-class OrgEntity extends ContentEntityBase implements OrgEntityInterface {
+class InstitutionEntity extends ContentEntityBase implements InstitutionEntityInterface {
 
   use EntityChangedTrait;
   use EntityPublishedTrait;
@@ -103,7 +99,7 @@ class OrgEntity extends ContentEntityBase implements OrgEntityInterface {
 
     $fields['name'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Organization entity.'))
+      ->setDescription(t('The name of the Institution entity.'))
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,

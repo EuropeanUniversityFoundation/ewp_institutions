@@ -7,17 +7,17 @@ use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
 
 /**
- * Defines a class to build a listing of Organization entities.
+ * Defines a class to build a listing of Institution entities.
  *
  * @ingroup ewp_institutions
  */
-class OrgEntityListBuilder extends EntityListBuilder {
+class InstitutionEntityListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['id'] = $this->t('Organization ID');
+    $header['id'] = $this->t('Institution ID');
     $header['name'] = $this->t('Name');
     return $header + parent::buildHeader();
   }
@@ -26,12 +26,12 @@ class OrgEntityListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var \Drupal\ewp_institutions\Entity\OrgEntity $entity */
+    /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.org.edit_form',
-      ['org' => $entity->id()]
+      'entity.hei.edit_form',
+      ['hei' => $entity->id()]
     );
     return $row + parent::buildRow($entity);
   }
