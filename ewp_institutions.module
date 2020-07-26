@@ -58,3 +58,22 @@ function ewp_institutions_entity_bundle_field_info_alter(&$fields, \Drupal\Core\
     }
   }
 }
+
+/**
+ * Get Other ID types.
+ *
+ * Get associative array of Other HEI identifier types from a source file.
+ *
+ * @return array $options
+ */
+function ewp_institutions_get_other_id_types() {
+  $source_file = 'other_id_types.inc';
+  include $source_file;
+
+  $options = [];
+  foreach ($other_id_types as $key => $value) {
+    $options[$key] = $value;
+  }
+
+  return $options;
+}

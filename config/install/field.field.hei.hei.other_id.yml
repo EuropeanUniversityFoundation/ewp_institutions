@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.hei.other_id
+  module:
+    - ewp_institutions
+id: hei.hei.other_id
+field_name: other_id
+entity_type: hei
+bundle: hei
+label: 'Other IDs'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: ewp_other_hei_id

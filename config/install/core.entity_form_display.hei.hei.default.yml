@@ -9,6 +9,7 @@ dependencies:
     - field.field.hei.hei.mailing_address
     - field.field.hei.hei.mobility_factsheet_url
     - field.field.hei.hei.name
+    - field.field.hei.hei.other_id
     - field.field.hei.hei.street_address
     - field.field.hei.hei.website_url
   module:
@@ -46,6 +47,21 @@ content:
     third_party_settings: {  }
     type: ascii_identifier_default
     region: content
+  label:
+    type: string_textfield
+    weight: -20
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  langcode:
+    type: language_select
+    weight: 10
+    region: content
+    settings:
+      include_locked: true
+    third_party_settings: {  }
   logo_url:
     weight: -12
     settings: {  }
@@ -72,6 +88,14 @@ content:
     third_party_settings: {  }
     type: ewp_string_lang_default
     region: content
+  other_id:
+    weight: -18
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: ewp_other_hei_id_default
+    region: content
   street_address:
     weight: -15
     settings: {  }
@@ -84,19 +108,4 @@ content:
     third_party_settings: {  }
     type: ewp_http_lang_default
     region: content
-  label:
-    type: string_textfield
-    weight: -20
-    region: content
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-  langcode:
-    type: language_select
-    weight: 10
-    region: content
-    settings:
-      include_locked: true
-    third_party_settings: {  }
 hidden: {  }
