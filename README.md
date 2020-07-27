@@ -31,4 +31,4 @@ Finally, install the module:
 
 A custom content entity named **Institution** is provided with initial configuration to match the EWP specification. It can be configured like any other fieldable entity on the system. The administration paths are placed under `/admin/ewp/`.
 
-The **Othe HEI ID** field type becomes available in the Field UI so it can be added to any fieldable entity like any other field type.
+The **Other HEI ID** field type becomes available in the Field UI so it can be added to any fieldable entity like any other field type.
