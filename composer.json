@@ -1,5 +1,5 @@
 {
-  "name": "ewp_institutions",
+  "name": "euf/ewp_institutions",
   "type": "drupal-module",
   "description": "Drupal implementation of the EWP Institutions API",
   "keywords": [
