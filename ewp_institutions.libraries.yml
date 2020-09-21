@@ -1,0 +1,5 @@
+other_id:
+  version: 1.x
+  css:
+    theme:
+      css/other-id.css: {}

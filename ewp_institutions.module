@@ -31,6 +31,9 @@ function ewp_institutions_theme() {
     'ewp_contact' => [
       'render element' => 'children',
     ],
+    'other_id' => [
+      'variables' => ['value' => NULL, 'type' => NULL],
+    ],
   ];
 }
 

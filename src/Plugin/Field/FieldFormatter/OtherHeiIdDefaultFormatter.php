@@ -61,8 +61,13 @@ class OtherHeiIdDefaultFormatter extends FormatterBase {
       $value = $item->value;
       $type = $item->type;
       // $elements[$delta] = ['#markup' => $options[$value]];
-      $elements[$delta] = ['#markup' => $other_id_types[$type] . ': ' . $value];
+      $elements[$delta] = [
+        '#theme' => 'other_id',
+        '#value' => $value,
+        '#type' => $other_id_types[$type]->render(),
+      ];
     }
+    dpm($elements);
     return $elements;
   }
 

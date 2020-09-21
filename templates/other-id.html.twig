@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Default theme implementation of an Other ID element.
+ *
+ * Available variables:
+ * - value: the Other ID string.
+ * - type: the type of the Other ID, used as a label.
+ *
+ * @see template_preprocess()
+ *
+ * @ingroup themeable
+ */
+#}
+{{ attach_library('ewp_institutions/other_id') }}
+<div class="other-id">
+  <span class="field__label other-id-type">{{ type }}: </span>
+  <span class="field__content other-id-value">{{ value }}</span>
+</div>

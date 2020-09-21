@@ -1,0 +1,4 @@
+/* Preserve whitespace found in Erasmus codes and the like */
+.other-id .other-id-value {
+  white-space: pre-wrap;
+}
