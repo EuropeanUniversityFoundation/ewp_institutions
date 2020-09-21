@@ -67,7 +67,6 @@ class OtherHeiIdDefaultFormatter extends FormatterBase {
         '#type' => $other_id_types[$type]->render(),
       ];
     }
-    dpm($elements);
     return $elements;
   }
 
