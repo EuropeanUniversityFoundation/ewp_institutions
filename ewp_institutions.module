@@ -39,7 +39,7 @@ function ewp_institutions_theme($existing, $type, $theme, $path) {
       'path' => $path . '/templates',         // template directory in module or theme
       'template'  => 'hei',                   // defines base template as /hei.html.twig
       'render element' => 'elements',         // Theme API call to define the container of the entity in the render array
-                                              // The entity will be prefixed with a hash sign as ['elements']['#artwork']
+                                              // The entity will be prefixed with a hash sign as ['elements']['#hei']
     ],
     'other_id' => [
       'variables' => ['value' => NULL, 'type' => NULL],
@@ -50,7 +50,7 @@ function ewp_institutions_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function ewp_institutions_theme_suggestions_org(array $variables) {
+function ewp_institutions_theme_suggestions_hei(array $variables) {
   $suggestions = [];
   $entity = $variables['elements']['#hei'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
