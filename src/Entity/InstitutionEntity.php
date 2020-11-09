@@ -101,7 +101,7 @@ class InstitutionEntity extends ContentEntityBase implements InstitutionEntityIn
       ->setLabel(t('Label'))
       ->setDescription(t('The internal label of the Institution entity.'))
       ->setSettings([
-        'max_length' => 50,
+        'max_length' => 255,
         'text_processing' => 0,
       ])
       ->setDefaultValue('')

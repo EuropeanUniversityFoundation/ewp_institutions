@@ -1,0 +1,39 @@
+<?php
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Increase the max length of the entity label to 255 characters.
+ */
+function ewp_institutions_update_8101() {
+  $field_spec = [
+    'type' => 'varchar',
+    'length' => '255',
+    'not null' => TRUE,
+  ];
+  \Drupal::database()->schema()->changeField('hei', 'label', 'label', $field_spec);
+
+  $definition = BaseFieldDefinition::create('string')
+    ->setLabel(t('Label'))
+    ->setDescription(t('The internal label of the Institution entity.'))
+    ->setSettings([
+      'max_length' => 255,
+      'text_processing' => 0,
+    ])
+    ->setDefaultValue('')
+    ->setDisplayOptions('view', [
+      'label' => 'hidden',
+      'type' => 'string',
+      'weight' => -20,
+    ])
+    ->setDisplayOptions('form', [
+      'type' => 'string_textfield',
+      'weight' => -20,
+    ])
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE)
+    ->setRequired(TRUE);
+
+  \Drupal::entityDefinitionUpdateManager()
+    ->installFieldStorageDefinition('label', 'hei', 'hei', $definition);
+}
