@@ -77,7 +77,7 @@ function template_preprocess_hei(array &$variables) {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
-  /** @var ContactEntityInterface $entity */
+  /** @var InstitutionEntityInterface $entity */
   $entity = $variables['elements']['#hei'];
   //provide the label
   $variables['label'] = $entity->label();
