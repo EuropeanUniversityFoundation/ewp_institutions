@@ -7,6 +7,9 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Access\AccessResult;
 
 /**
  * Implements hook_help().
@@ -112,4 +115,24 @@ function ewp_institutions_get_other_id_types() {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_jsonapi_entity_filter_access() for 'hei'.
+ */
+function ewp_institutions_jsonapi_entity_filter_access(EntityTypeInterface $entity_type, AccountInterface $account) {
+  return ([
+    JSONAPI_FILTER_AMONG_ALL => AccessResult::allowed()
+  ]);
+}
+
+/**
+ * Implements hook_jsonapi_ENTITY_TYPE_filter_access() for 'hei'.
+ */
+function ewp_institutions_jsonapi_contact_filter_access(EntityTypeInterface $entity_type, AccountInterface $account) {
+  return ([
+    JSONAPI_FILTER_AMONG_ALL => AccessResult::allowedIfHasPermission($account, 'view unpublished institution entities'),
+    JSONAPI_FILTER_AMONG_PUBLISHED => AccessResult::allowedIfHasPermission($account, 'view published institution entities'),
+    JSONAPI_FILTER_AMONG_OWN => AccessResult::allowedIfHasPermission($account, 'view published institution entities')
+  ]);
 }
