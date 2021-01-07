@@ -91,7 +91,7 @@ function template_preprocess_hei(array &$variables) {
  * Implements hook_entity_bundle_field_info_alter().
  */
 function ewp_institutions_entity_bundle_field_info_alter(&$fields, EntityTypeInterface $entity_type, $bundle) {
-  if ($entity_type === 'hei') {
+  if ($entity_type->id() === 'hei') {
     if (isset($fields['hei_id'])) {
       $fields['hei_id']->addConstraint('UniqueField', []);
     }
