@@ -17,3 +17,7 @@ view published institution entities:
 
 view unpublished institution entities:
   title: 'View unpublished Institution entities'
+
+access institution entities overview:
+  title: 'Access the Institutions overview page'
+  description: 'Should be combined with Access the Content overview page.'
