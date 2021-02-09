@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\ewp_institutions_get\DataTransform;
 
 class TestForm extends FormBase {
 
@@ -94,6 +95,8 @@ class TestForm extends FormBase {
     $decoded = json_decode($response);
     $encoded = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     $message = ($response) ? htmlspecialchars($encoded) : 'Nothing to display.' ;
+    // $processed = DataTransform::toTable($response);
+    // $message = ($response) ? $processed : 'Nothing to display.' ;
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
