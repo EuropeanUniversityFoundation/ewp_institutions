@@ -12,3 +12,10 @@ ewp_institutions_get.settings:
   parent: ewp_institutions_get.admin
   route_name: ewp_institutions_get.settings
   weight: 1
+
+ewp_institutions_get.test:
+  title: 'Test'
+  description: 'Test the connection to the external API'
+  parent: ewp_institutions_get.admin
+  route_name: ewp_institutions_get.test
+  weight: 2
