@@ -12,7 +12,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  */
 function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the ewp_institutions module.
+    // Main module help for the ewp_institutions_get module.
     case 'help.page.ewp_institutions_get':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';

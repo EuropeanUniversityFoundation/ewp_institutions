@@ -1,0 +1,7 @@
+ewp_institutions_get.admin:
+  path: '/admin/ewp/hei/get'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'EWP Institutions GET'
+  requirements:
+    _permission: 'administer institution entities'
