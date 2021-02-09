@@ -1,0 +1,7 @@
+ewp_institutions_get.settings:
+  type: config_object
+  label: 'External API settings'
+  mapping:
+    index_endpoint:
+      type: text
+      label: 'Index endpoint'

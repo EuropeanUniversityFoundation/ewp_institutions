@@ -1,7 +1,17 @@
+# Parent admin route
 ewp_institutions_get.admin:
   path: '/admin/ewp/hei/get'
   defaults:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'EWP Institutions GET'
+  requirements:
+    _permission: 'administer institution entities'
+
+# Settings form
+ewp_institutions_get.settings:
+  path: '/admin/ewp/hei/get/settings'
+  defaults:
+    _form: '\Drupal\ewp_institutions_get\Form\SettingsForm'
+    _title: 'Settings'
   requirements:
     _permission: 'administer institution entities'
