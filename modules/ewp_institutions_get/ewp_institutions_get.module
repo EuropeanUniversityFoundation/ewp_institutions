@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains ewp_institutions_get.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the ewp_institutions module.
+    case 'help.page.ewp_institutions_get':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Populate EWP Institution entities with data from an external API') . '</p>';
+      return $output;
+
+    default:
+  }
+}
