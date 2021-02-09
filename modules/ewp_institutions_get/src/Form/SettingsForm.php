@@ -39,22 +39,25 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Initialize an HTTP client
-    $client = \Drupal::httpClient();
-    $status = NULL;
+    $endpoint = $form_state->getValue('index_endpoint');
 
-    // Build the HTTP request
-    try {
-      $request = $client->get($form_state->getValue('index_endpoint'));
-      $status = $request->getStatusCode();
-    } catch (GuzzleException $e) {
-      $status = $e->getResponse()->getStatusCode();
-    } catch (Exception $e) {
-      watchdog_exception('ewp_institutions_get', $e->getMessage());
-    }
+    if ($endpoint) {
+      // Initialize an HTTP client
+      $client = \Drupal::httpClient();
+      $status = NULL;
+      // Build the HTTP request
+      try {
+        $request = $client->get($endpoint);
+        $status = $request->getStatusCode();
+      } catch (GuzzleException $e) {
+        $status = $e->getResponse()->getStatusCode();
+      } catch (Exception $e) {
+        watchdog_exception('ewp_institutions_get', $e->getMessage());
+      }
 
-    if ($status != '200') {
-      $form_state->setErrorByName('index_endpoint', $this->t('The given endpoint is invalid.'));
+      if ($status != '200') {
+        $form_state->setErrorByName('index_endpoint', $this->t('The given endpoint is invalid.'));
+      }
     }
 
   }
