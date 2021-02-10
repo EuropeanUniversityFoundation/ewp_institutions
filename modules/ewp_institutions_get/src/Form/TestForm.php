@@ -58,14 +58,9 @@ class TestForm extends FormBase {
       ],
     ];
 
-    $form['message'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Request and response'),
-    ];
-
-    $form['message']['markup'] = [
+    $form['data'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="result_message"></div>',
+      '#markup' => '<div class="response_data"></div>',
       '#weight' => '-6',
     ];
 
@@ -92,20 +87,12 @@ class TestForm extends FormBase {
       watchdog_exception('ewp_institutions_get', $e->getMessage());
     }
 
-    $decoded = json_decode($response);
-    $encoded = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    $message = ($response) ? htmlspecialchars($encoded) : 'Nothing to display.' ;
-    // $processed = DataTransform::toTable($response);
-    // $message = ($response) ? $processed : 'Nothing to display.' ;
+    $processed = DataTransform::toTable($response);
+    $message = ($response) ? $processed : 'Nothing to display.' ;
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
-     new HtmlCommand(
-       '.result_message', '<hr>' .
-       '<p>' . t('Request') . ': <code>GET ' . $endpoint . '</code></p>' .
-       '<p>' . t('Response') . ':</p>' .
-       '<pre>' . $message . '</pre>'),
-    );
+     new HtmlCommand('.response_data', $message));
     return $ajax_response;
 
   }
