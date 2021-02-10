@@ -39,9 +39,9 @@ class TestForm extends FormBase {
       '#weight' => '-7',
     ];
 
-    $form['actions']['call'] = [
+    $form['actions']['get'] = [
       '#type' => 'button',
-      '#value' => $this->t('Perform API request'),
+      '#value' => $this->t('GET API Index'),
       '#attributes' => [
         'class' => [
           'button--primary',
@@ -53,7 +53,7 @@ class TestForm extends FormBase {
         ],
       ],
       '#ajax' => [
-        'callback' => '::performRequest',
+        'callback' => '::getIndex',
       ],
     ];
 
@@ -69,7 +69,7 @@ class TestForm extends FormBase {
   /**
   * Make the API call
   */
-  public function performRequest(array $form, FormStateInterface $form_state) {
+  public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
     // Initialize an HTTP client
@@ -111,8 +111,7 @@ class TestForm extends FormBase {
 
     $decoded = json_decode($data, TRUE);
 
-    // $data = $decoded['data'];
-    $data = $decoded;
+    $data = $decoded['data'];
 
     if ($data) {
       $processed .= '<table>';
@@ -124,17 +123,12 @@ class TestForm extends FormBase {
       $processed .= '</tr></thead>';
       $processed .= '<tbody>';
 
-      foreach ($decoded as $item => $fields) {
+      foreach ($data as $item => $fields) {
         $processed .= '<tr>';
-        // $processed .= '<td>' . $fields['type'] . '</td>';
-        $processed .= '<td>' . 'country' . '</td>';
-        // $processed .= '<td>' . $fields['id'] . '</td>';
-        $processed .= '<td>' . $fields['iso_code'] . '</td>';
-        // $processed .= '<td>' . $fields['attributes']['title'] . '</td>';
-        $processed .= '<td>' . $fields['name'] . '</td>';
-        // $url = $fields['links']['self'];
-        $url = 'https://hei.dev.uni-foundation.eu/sites/default/files/json/';
-        $url .= $fields['iso_code'] . '.json';
+        $processed .= '<td>' . $fields['type'] . '</td>';
+        $processed .= '<td>' . $fields['id'] . '</td>';
+        $processed .= '<td>' . $fields['attributes']['label'] . '</td>';
+        $url = $fields['links']['self'];
         $link = '<a href="' . $url . '" target="_blank">' . $url . '</a>';
         $processed .= '<td>' . $link . '</td>';
         $processed .= '</tr>';
