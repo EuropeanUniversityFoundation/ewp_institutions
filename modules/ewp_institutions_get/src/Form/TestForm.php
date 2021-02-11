@@ -104,41 +104,50 @@ class TestForm extends FormBase {
   }
 
   /**
-   * Convent JSON:API data to HTML table
+   * Convert JSON:API data to HTML table
    */
-  protected function toTable($data) {
-    $processed = '';
+  protected function toTable($json) {
+    $decoded = json_decode($json, TRUE);
 
-    $decoded = json_decode($data, TRUE);
+    if (array_key_exists('data', $decoded)) {
+      $data = $decoded['data'];
 
-    $data = $decoded['data'];
+      $header = [
+        'type' => t('Type'),
+        'id' => t('ID'),
+        'label' => t('Label'),
+        'url' => t('URL'),
+      ];
 
-    if ($data) {
-      $processed .= '<table>';
-      $processed .= '<thead><tr>';
-      $processed .= '<th>type</th>';
-      $processed .= '<th>id</th>';
-      $processed .= '<th>attributes:title</th>';
-      $processed .= '<th>links:self</th>';
-      $processed .= '</tr></thead>';
-      $processed .= '<tbody>';
+      $rows = [];
 
       foreach ($data as $item => $fields) {
-        $processed .= '<tr>';
-        $processed .= '<td>' . $fields['type'] . '</td>';
-        $processed .= '<td>' . $fields['id'] . '</td>';
-        $processed .= '<td>' . $fields['attributes']['label'] . '</td>';
+        $type = $fields['type'];
+        $id = $fields['id'];
+        $label = $fields['attributes']['label'];
         $url = $fields['links']['self'];
-        $link = '<a href="' . $url . '" target="_blank">' . $url . '</a>';
-        $processed .= '<td>' . $link . '</td>';
-        $processed .= '</tr>';
+
+        $rows[] = [$type, $id, $label, $url];
       }
 
-      $processed .= '</tbody>';
-      $processed .= '</table>';
+      $build['table'] = [
+        '#type' => 'table',
+        '#header' => $header,
+        '#rows' => $rows,
+      ];
+
+      return [
+        '#type' => '#markup',
+        '#markup' => render($build)
+      ];
+
+    } else {
+      return [
+        '#type' => '#markup',
+        '#markup' => t('No data was returned.'),
+      ];
     }
 
-    return $processed;
   }
 
 }
