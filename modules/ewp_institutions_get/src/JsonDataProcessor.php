@@ -12,31 +12,27 @@ class JsonDataProcessor {
    */
   public function validate($json) {
     $decoded = json_decode($json, TRUE);
+    $message = '';
     $status = TRUE;
 
-    //  data key must be present
     if (array_key_exists('data', $decoded)) {
       foreach ($decoded['data'] as $key => $value) {
-        // type key must be present
-        if (! array_key_exists('type', $decoded['data'])) {
-          $status = FALSE;
-          watchdog_exception('ewp_institutions_get', 'type key does not exist!');
-        // if key must be present
-        } elseif (! array_key_exists('id', $decoded['data'])) {
-          $status = FALSE;
-          watchdog_exception('ewp_institutions_get', 'id key does not exist!');
+        if (! array_key_exists('type', $decoded['data'][0])) {
+          $message = t('Type key is not present.');
+        } elseif (! array_key_exists('id', $decoded['data'][0])) {
+          $message = t('ID key is not present.');
         }
       }
     } else {
-      $status = FALSE;
-      watchdog_exception('ewp_institutions_get', 'data key does not exist!');
+      $message = t('Data key is not present.');
     }
 
-    $data = ($status) ? $decoded['data'] : [] ;
+    if ($message) {
+      \Drupal::logger('ewp_institutions_get')->notice($message);
+      $status = FALSE;
+    }
 
-    $output['status'] = $status;
-    $output['data'] = $data;
-    return $output;
+    return $status;
   }
 
 }

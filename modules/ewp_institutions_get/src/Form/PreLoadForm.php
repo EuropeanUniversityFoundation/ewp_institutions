@@ -152,7 +152,7 @@ class PreLoadForm extends FormBase {
     // Validate the response
     $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
-    if ($validated['status']) {
+    if ($validated) {
       $processed = $this->toTable($response);
       $message = $processed;
     } else {
@@ -161,7 +161,7 @@ class PreLoadForm extends FormBase {
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
-     new HtmlCommand('.response_data', $message));
+      new HtmlCommand('.response_data', $message));
     return $ajax_response;
 
   }
