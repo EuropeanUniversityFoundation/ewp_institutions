@@ -35,4 +35,41 @@ class JsonDataProcessor {
     return $status;
   }
 
+  /**
+   * Convert JSON:API data to HTML table
+   */
+  public function toTable($json) {
+    $decoded = json_decode($json, TRUE);
+
+    $data = $decoded['data'];
+
+    $header = [
+      'type' => t('Type'),
+      'id' => t('ID'),
+      'label' => t('Label'),
+    ];
+
+    $rows = [];
+
+    foreach ($data as $item => $fields) {
+      $type = $fields['type'];
+      $id = $fields['id'];
+      $label = $fields['attributes']['label'];
+
+      $rows[] = [$type, $id, $label];
+    }
+
+    $build['table'] = [
+      '#type' => 'table',
+      '#header' => $header,
+      '#rows' => $rows,
+    ];
+
+    return [
+      '#type' => '#markup',
+      '#markup' => render($build)
+    ];
+
+  }
+
 }

@@ -153,7 +153,7 @@ class PreLoadForm extends FormBase {
     $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
     if ($validated) {
-      $processed = $this->toTable($response);
+      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
       $message = $processed;
     } else {
       $message = $this->t('Nothing to display.');
@@ -171,51 +171,6 @@ class PreLoadForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Nothing to do here...
-  }
-
-  /**
-   * Convert JSON:API data to HTML table
-   */
-  protected function toTable($json) {
-    $decoded = json_decode($json, TRUE);
-
-    if (array_key_exists('data', $decoded)) {
-      $data = $decoded['data'];
-
-      $header = [
-        'type' => t('Type'),
-        'id' => t('ID'),
-        'label' => t('Label'),
-      ];
-
-      $rows = [];
-
-      foreach ($data as $item => $fields) {
-        $type = $fields['type'];
-        $id = $fields['id'];
-        $label = $fields['attributes']['label'];
-
-        $rows[] = [$type, $id, $label];
-      }
-
-      $build['table'] = [
-        '#type' => 'table',
-        '#header' => $header,
-        '#rows' => $rows,
-      ];
-
-      return [
-        '#type' => '#markup',
-        '#markup' => render($build)
-      ];
-
-    } else {
-      return [
-        '#type' => '#markup',
-        '#markup' => t('No data was returned.'),
-      ];
-    }
-
   }
 
 }

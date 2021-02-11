@@ -86,8 +86,15 @@ class TestForm extends FormBase {
       watchdog_exception('ewp_institutions_get', $e->getMessage());
     }
 
-    $processed = $this->toTable($response);
-    $message = ($response) ? $processed : 'Nothing to display.' ;
+    // Validate the response
+    $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
+
+    if ($validated) {
+      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
+      $message = $processed;
+    } else {
+      $message = $this->t('Nothing to display.');
+    }
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
@@ -101,53 +108,6 @@ class TestForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Nothing to do here...
-  }
-
-  /**
-   * Convert JSON:API data to HTML table
-   */
-  protected function toTable($json) {
-    $decoded = json_decode($json, TRUE);
-
-    if (array_key_exists('data', $decoded)) {
-      $data = $decoded['data'];
-
-      $header = [
-        'type' => t('Type'),
-        'id' => t('ID'),
-        'label' => t('Label'),
-        'url' => t('URL'),
-      ];
-
-      $rows = [];
-
-      foreach ($data as $item => $fields) {
-        $type = $fields['type'];
-        $id = $fields['id'];
-        $label = $fields['attributes']['label'];
-        $url = $fields['links']['self'];
-
-        $rows[] = [$type, $id, $label, $url];
-      }
-
-      $build['table'] = [
-        '#type' => 'table',
-        '#header' => $header,
-        '#rows' => $rows,
-      ];
-
-      return [
-        '#type' => '#markup',
-        '#markup' => render($build)
-      ];
-
-    } else {
-      return [
-        '#type' => '#markup',
-        '#markup' => t('No data was returned.'),
-      ];
-    }
-
   }
 
 }
