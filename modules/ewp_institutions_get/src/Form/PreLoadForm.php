@@ -149,8 +149,15 @@ class PreLoadForm extends FormBase {
       watchdog_exception('ewp_institutions_get', $e->getMessage());
     }
 
-    $processed = $this->toTable($response);
-    $message = ($response) ? $processed : 'Nothing to display.' ;
+    // Validate the response
+    $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
+
+    if ($validated['status']) {
+      $processed = $this->toTable($response);
+      $message = $processed;
+    } else {
+      $message = $this->t('Nothing to display.');
+    }
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
