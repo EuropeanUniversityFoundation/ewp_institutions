@@ -59,6 +59,11 @@ class JsonDataProcessor {
       $rows[] = [$type, $id, $label];
     }
 
+    $build['header'] = [
+      '#type' => 'markup',
+      '#markup' => '<p><strong>' . t('Total') . ': </strong>' . count($data) . '</p>',
+    ];
+
     $build['table'] = [
       '#type' => 'table',
       '#header' => $header,
