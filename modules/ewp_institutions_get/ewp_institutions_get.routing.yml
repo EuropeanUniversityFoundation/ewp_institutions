@@ -24,3 +24,12 @@ ewp_institutions_get.test:
     _title: 'Test'
   requirements:
     _permission: 'administer institution entities'
+
+# Pre-load form
+ewp_institutions_get.preload:
+  path: '/admin/ewp/hei/get/preload'
+  defaults:
+    _form: '\Drupal\ewp_institutions_get\Form\PreLoadForm'
+    _title: 'Pre-load'
+  requirements:
+    _permission: 'administer institution entities'
