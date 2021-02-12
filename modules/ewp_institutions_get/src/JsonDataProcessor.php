@@ -36,6 +36,59 @@ class JsonDataProcessor {
   }
 
   /**
+   * Create an array of id => attributes['label'] or similar
+   */
+  public function idLabel($json) {
+    $decoded = json_decode($json, TRUE);
+
+    $data = $decoded['data'];
+
+    $index = [];
+
+    foreach ($data as $item => $fields) {
+      if (array_key_exists('attributes', $fields)) {
+        if (array_key_exists('label', $fields['attributes'])) {
+          // the expectation is to find an entity label
+          $index[$fields['id']] = $fields['attributes']['label'];
+        } elseif (array_key_exists('title', $fields['attributes'])) {
+          // alternatively one might find a node title instead
+          $index[$fields['id']] = $fields['attributes']['title'];
+        } else {
+          // when none of these attributes can be found, use the ID itself
+          $index[$fields['id']] = $fields['id'];
+        }
+      } else {
+        // when no attribute object can be found, use the ID itself
+        $index[$fields['id']] = $fields['id'];
+      }
+    }
+
+    return $index;
+  }
+
+  /**
+   * Create an array of id => links
+   */
+  public function idLinks($json) {
+    $decoded = json_decode($json, TRUE);
+
+    $data = $decoded['data'];
+
+    $index = [];
+
+    foreach ($data as $item => $fields) {
+      if (array_key_exists('links', $fields) && array_key_exists('self', $fields['links'])) {
+        $index[$fields['id']] = $fields['links']['self'];
+      } else {
+        // when no link can be found, leave it empty
+        $index[$fields['id']] = '';
+      }
+    }
+
+    return $index;
+  }
+
+  /**
    * Convert JSON:API data to HTML table
    */
   public function toTable($json) {

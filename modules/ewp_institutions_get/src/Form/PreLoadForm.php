@@ -38,41 +38,37 @@ class PreLoadForm extends FormBase {
     // Load the settings.
     $config = \Drupal::config('ewp_institutions_get.settings');
     $this->index_endpoint = $config->get('ewp_institutions_get.index_endpoint');
-
-    // Initialize an HTTP client
-    $client = \Drupal::httpClient();
-    $response = NULL;
-
-    // Build the HTTP request
-    try {
-      $request = $client->get($this->index_endpoint);
-      $response = $request->getBody();
-    } catch (GuzzleException $e) {
-      $response = $e->getResponse()->getBody();
-    } catch (Exception $e) {
-      watchdog_exception('ewp_institutions_get', $e->getMessage());
-    }
-
     $this->api_index = [];
     $this->index_items = [];
 
-    // Extract the index from the API response
-    if ($response) {
-      $decoded = json_decode($response, TRUE);
+    if (! empty($this->index_endpoint)) {
+      // Initialize an HTTP client
+      $client = \Drupal::httpClient();
+      $response = NULL;
 
-      if (array_key_exists('data', $decoded)) {
-        $data = $decoded['data'];
-        foreach ($data as $item => $fields) {
-          $id = $fields['id'];
-          $label = $fields['attributes']['label'];
-          $url = $fields['links']['self'];
-
-          $this->api_index[$id] = $url;
-          $this->index_items[$id] = $label;
-        }
-
+      // Build the HTTP request
+      try {
+        $request = $client->get($this->index_endpoint);
+        $response = $request->getBody();
+      } catch (GuzzleException $e) {
+        $response = $e->getResponse()->getBody();
+      } catch (Exception $e) {
+        watchdog_exception('ewp_institutions_get', $e->getMessage());
       }
+
+      // Validate the response
+      $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
+
+      // Build the index and the item list
+      if ($validated) {
+        $this->api_index = \Drupal::service('ewp_institutions_get.json')->idLinks($response);
+        $this->index_items = \Drupal::service('ewp_institutions_get.json')->idLabel($response);
+      }
+    } else {
+      $warning = $this->t("Index endpoint is not defined.");
+      \Drupal::service('messenger')->addWarning($warning);
     }
+
   }
 
   /**
@@ -139,24 +135,28 @@ class PreLoadForm extends FormBase {
     $client = \Drupal::httpClient();
     $response = NULL;
 
-    // Build the HTTP request
-    try {
-      $request = $client->get($endpoint);
-      $response = $request->getBody();
-    } catch (GuzzleException $e) {
-      $response = $e->getResponse()->getBody();
-    } catch (Exception $e) {
-      watchdog_exception('ewp_institutions_get', $e->getMessage());
-    }
+    if (! empty($endpoint)) {
+      // Build the HTTP request
+      try {
+        $request = $client->get($endpoint);
+        $response = $request->getBody();
+      } catch (GuzzleException $e) {
+        $response = $e->getResponse()->getBody();
+      } catch (Exception $e) {
+        watchdog_exception('ewp_institutions_get', $e->getMessage());
+      }
 
-    // Validate the response
-    $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
+      // Validate the response
+      $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
-    if ($validated) {
-      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
-      $message = $processed;
+      if ($validated) {
+        $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
+        $message = $processed;
+      } else {
+        $message = $this->t('Nothing to display.');
+      }
     } else {
-      $message = $this->t('Nothing to display.');
+      $message = $this->t('This endpoint is not defined.');
     }
 
     $ajax_response = new AjaxResponse();
