@@ -91,30 +91,95 @@ class JsonDataProcessor {
   /**
    * Convert JSON:API data to HTML table
    */
-  public function toTable($json) {
+  public function toTable($title, $json, $columns = [], $show_attr = TRUE) {
     $decoded = json_decode($json, TRUE);
 
     $data = $decoded['data'];
 
-    $header = [
-      'type' => t('Type'),
-      'id' => t('ID'),
-      'label' => t('Label'),
-    ];
+    $header = ['type','id'];
+
+    // Additional columns
+    if (!empty($columns)) {
+      foreach ($columns as $key => $value) {
+        $header[] = $value;
+      }
+    }
+
+    // Attributes overview
+    if ($show_attr) {
+      $header[] = 'attributes';
+    }
 
     $rows = [];
 
     foreach ($data as $item => $fields) {
+      // Load the default columns first
       $type = $fields['type'];
       $id = $fields['id'];
-      $label = $fields['attributes']['label'];
+      $row = [$type, $id];
 
-      $rows[] = [$type, $id, $label];
+      // Load the additional columns, if any
+      foreach ($columns as $key => $value) {
+        $cell = '';
+
+        if (array_key_exists('attributes', $fields)) {
+          if (array_key_exists($value, $fields['attributes'])) {
+            if (is_array($fields['attributes'][$value])) {
+              $array = $fields['attributes'][$value];
+
+              if (count(array_filter(array_keys($array), 'is_string')) > 0) {
+                // associative array implies a single value of a complex field
+                $cell = 'complex';
+              } else {
+                // otherwise assume a field with multiple values
+                $cell = 'multiple';
+              }
+            } else {
+              $cell = $fields['attributes'][$value];
+            }
+          }
+        }
+
+        array_push($row, $cell);
+      }
+
+      // Load the attributes overview
+      if ($show_attr) {
+        $attributes = '';
+
+        if (array_key_exists('attributes', $fields)) {
+          $attr_list = [];
+
+          foreach ($fields['attributes'] as $key => $value) {
+            if (! empty($value)) {
+              // handle complex attributes
+              if (is_array($value)) {
+                if (count(array_filter(array_keys($value), 'is_string')) > 0) {
+                  // associative array implies a single value of a complex field
+                  $attr_list[] = $key . '*';
+                } else {
+                  // otherwise assume a field with multiple values
+                  $attr_list[] = $key . ' (' . count($value) . ')';
+                }
+              } else {
+                $attr_list[] = $key;
+              }
+            }
+          }
+
+          $attributes = implode(', ', $attr_list);
+        }
+
+        array_push($row, $attributes);
+      }
+
+      $rows[] = $row;
     }
 
-    $build['header'] = [
+    $build['intro'] = [
       '#type' => 'markup',
-      '#markup' => '<p><strong>' . t('Total') . ': </strong>' . count($data) . '</p>',
+      '#markup' => '<h2>' . $title . '</h2>' .
+        '<p><strong>' . t('Total') . ': </strong>' . count($data) . '</p>',
     ];
 
     $build['table'] = [

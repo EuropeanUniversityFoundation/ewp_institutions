@@ -32,6 +32,20 @@ class PreLoadForm extends FormBase {
   protected $index_items;
 
   /**
+   * Additional columns for the data table
+   *
+   * @var array
+   */
+  protected $columns = [];
+
+  /**
+   * Attributes overview in the data table
+   *
+   * @var array
+   */
+  protected $show_attr = TRUE;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct() {
@@ -150,8 +164,10 @@ class PreLoadForm extends FormBase {
       $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
       if ($validated) {
-        $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
-        $message = $processed;
+        $title = $this->index_items[$index_item];
+        $columns = $this->columns;
+        $show_attr = $this->show_attr;
+        $message = \Drupal::service('ewp_institutions_get.json')->toTable($title, $response, $columns, $show_attr);
       } else {
         $message = $this->t('Nothing to display.');
       }

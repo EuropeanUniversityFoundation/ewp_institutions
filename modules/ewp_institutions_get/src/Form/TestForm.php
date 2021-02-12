@@ -90,7 +90,8 @@ class TestForm extends FormBase {
     $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
     if ($validated) {
-      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($response);
+      $title = $this->t('Index');
+      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($title, $response);
       $message = $processed;
     } else {
       $message = $this->t('Nothing to display.');
