@@ -5,6 +5,8 @@ namespace Drupal\ewp_institutions_get\Form;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
 
 class SettingsForm extends ConfigFormBase {
 
@@ -32,7 +34,66 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('External API endpoint that returns the main index.'),
     ];
 
+    $form['actions']['get'] = [
+      '#type' => 'button',
+      '#value' => $this->t('GET API Index'),
+      '#states' => [
+        'disabled' => [
+          ':input[name="index_endpoint"]' => ['value' => ''],
+        ],
+      ],
+      '#ajax' => [
+        'callback' => '::getIndex',
+      ],
+    ];
+
+    $form['data'] = [
+      '#type' => 'markup',
+      '#markup' => '<div class="response_data"></div>',
+      '#weight' => '100',
+    ];
+
     return $form;
+  }
+
+  /**
+  * Make the API call
+  */
+  public function getIndex(array $form, FormStateInterface $form_state) {
+    $endpoint = $form_state->getValue('index_endpoint');
+
+    // Initialize an HTTP client
+    $client = \Drupal::httpClient();
+    $response = NULL;
+
+    // Build the HTTP request
+    try {
+      $request = $client->get($endpoint);
+      $response = $request->getBody();
+    } catch (GuzzleException $e) {
+      $response = $e->getResponse()->getBody();
+    } catch (Exception $e) {
+      watchdog_exception('ewp_institutions_get', $e->getMessage());
+    }
+
+    // Validate the response
+    $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
+
+    if ($validated) {
+      $title = $this->t('Index');
+      $columns = ['label'];
+      $show_attr = FALSE;
+      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($title, $response, $columns, $show_attr);
+      $message = $processed;
+    } else {
+      $message = $this->t('Nothing to display.');
+    }
+
+    $ajax_response = new AjaxResponse();
+    $ajax_response->addCommand(
+     new HtmlCommand('.response_data', $message));
+    return $ajax_response;
+
   }
 
   /**
