@@ -13,7 +13,7 @@ class PreviewForm extends PreLoadForm {
   /**
    * JSON data
    *
-   * @var string
+   * @var object
    */
   protected $json_data;
 
@@ -124,7 +124,12 @@ class PreviewForm extends PreLoadForm {
       $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
       if ($validated) {
+        // First populate the options for the select list
         $options += \Drupal::service('ewp_institutions_get.json')->idLabel($response);
+        // Then store the JSON data for further operations
+        $this->json_data = $response;
+      } else {
+        $this->json_data = (object)[];
       }
     }
 
@@ -136,7 +141,7 @@ class PreviewForm extends PreLoadForm {
   * Extract a single Institution from the JSON data
   */
   public function previewInstitution(array $form, FormStateInterface $form_state) {
-    $message = 'YEAH!';
+    $message = 'INCOMPLETE';
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
