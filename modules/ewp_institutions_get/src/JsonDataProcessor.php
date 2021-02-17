@@ -69,7 +69,7 @@ class JsonDataProcessor {
   /**
    * Create an array of id => links
    */
-  public function idLinks($json) {
+  public function idLinks($json, $link_key) {
     $decoded = json_decode($json, TRUE);
 
     $data = $decoded['data'];
@@ -77,8 +77,8 @@ class JsonDataProcessor {
     $index = [];
 
     foreach ($data as $item => $fields) {
-      if (array_key_exists('links', $fields) && array_key_exists('self', $fields['links'])) {
-        $index[$fields['id']] = $fields['links']['self'];
+      if (array_key_exists('links', $fields) && array_key_exists($link_key, $fields['links'])) {
+        $index[$fields['id']] = $fields['links'][$link_key];
       } else {
         // when no link can be found, leave it empty
         $index[$fields['id']] = '';

@@ -18,6 +18,13 @@ class PreLoadForm extends FormBase {
   protected $index_endpoint;
 
   /**
+   * Index link key
+   *
+   * @var string
+   */
+  protected $link_key;
+
+  /**
    * API index
    *
    * @var array
@@ -52,6 +59,7 @@ class PreLoadForm extends FormBase {
     // Load the settings.
     $config = \Drupal::config('ewp_institutions_get.settings');
     $this->index_endpoint = $config->get('ewp_institutions_get.index_endpoint');
+    $this->link_key = 'self';
     $this->api_index = [];
     $this->index_items = [];
 
@@ -75,7 +83,7 @@ class PreLoadForm extends FormBase {
 
       // Build the index and the item list
       if ($validated) {
-        $this->api_index = \Drupal::service('ewp_institutions_get.json')->idLinks($response);
+        $this->api_index = \Drupal::service('ewp_institutions_get.json')->idLinks($response, $this->link_key);
         $this->index_items = \Drupal::service('ewp_institutions_get.json')->idLabel($response);
       }
     } else {
