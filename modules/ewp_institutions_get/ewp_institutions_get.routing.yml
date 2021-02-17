@@ -16,15 +16,6 @@ ewp_institutions_get.settings:
   requirements:
     _permission: 'administer institution entities'
 
-# Test form
-ewp_institutions_get.test:
-  path: '/admin/ewp/hei/get/test'
-  defaults:
-    _form: '\Drupal\ewp_institutions_get\Form\TestForm'
-    _title: 'Test'
-  requirements:
-    _permission: 'administer institution entities'
-
 # Pre-load form
 ewp_institutions_get.preload:
   path: '/admin/ewp/hei/get/preload'

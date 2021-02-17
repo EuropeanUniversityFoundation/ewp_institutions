@@ -13,13 +13,6 @@ ewp_institutions_get.settings:
   route_name: ewp_institutions_get.settings
   weight: 1
 
-ewp_institutions_get.test:
-  title: 'Test'
-  description: 'Test the connection to the external API'
-  parent: ewp_institutions_get.admin
-  route_name: ewp_institutions_get.test
-  weight: 2
-
 ewp_institutions_get.preload:
   title: 'Pre-load'
   description: 'Pre-load the index from the external API'
