@@ -11,13 +11,6 @@ use Drupal\ewp_institutions_get\Form\PreLoadForm;
 class PreviewForm extends PreLoadForm {
 
   /**
-   * JSON data
-   *
-   * @var object
-   */
-  protected $json_data;
-
-  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -69,21 +62,34 @@ class PreviewForm extends PreLoadForm {
       '#weight' => '-7',
     ];
 
-    $form['actions']['get'] = [
+    // $form['actions']['get'] = [
+    //   '#type' => 'button',
+    //   '#value' => $this->t('Preview Institution'),
+    //   '#attributes' => [
+    //     'class' => [
+    //       'button--primary',
+    //     ]
+    //   ],
+    //   '#states' => [
+    //     'disabled' => [
+    //       ':input[name="hei_select"]' => ['value' => ''],
+    //     ],
+    //   ],
+    //   '#ajax' => [
+    //     'callback' => '::previewInstitution',
+    //   ],
+    // ];
+
+    $form['actions']['debug'] = [
       '#type' => 'button',
-      '#value' => $this->t('Preview Institution'),
-      '#attributes' => [
-        'class' => [
-          'button--primary',
-        ]
-      ],
+      '#value' => $this->t('Debug'),
       '#states' => [
         'disabled' => [
           ':input[name="hei_select"]' => ['value' => ''],
         ],
       ],
       '#ajax' => [
-        'callback' => '::previewInstitution',
+        'callback' => '::debug',
       ],
     ];
 
@@ -124,12 +130,13 @@ class PreviewForm extends PreLoadForm {
       $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
       if ($validated) {
-        // First populate the options for the select list
-        $options += \Drupal::service('ewp_institutions_get.json')->idLabel($response);
-        // Then store the JSON data for further operations
-        $this->json_data = $response;
-      } else {
-        $this->json_data = (object)[];
+        // Extract the data from the Guzzle Stream
+        $decoded = json_decode($response, TRUE);
+        // Encode and store data for further operations
+        $json_data = json_encode($decoded);
+        $this->temp_store->set('hei_json_data', $json_data);
+        // Build the options list
+        $options += \Drupal::service('ewp_institutions_get.json')->idLabel($json_data);
       }
     }
 
@@ -138,10 +145,13 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Extract a single Institution from the JSON data
+  * Debug
   */
-  public function previewInstitution(array $form, FormStateInterface $form_state) {
-    $message = 'INCOMPLETE';
+  public function debug(array $form, FormStateInterface $form_state) {
+    // Retrieve the data from temporary storage
+    $data = $this->temp_store->get('hei_json_data');
+
+    $message = $data;
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(

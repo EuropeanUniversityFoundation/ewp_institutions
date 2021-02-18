@@ -7,6 +7,8 @@ use Drupal\Core\Form\FormStateInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\user\PrivateTempStoreFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PreLoadForm extends FormBase {
 
@@ -53,15 +55,21 @@ class PreLoadForm extends FormBase {
   protected $show_attr = TRUE;
 
   /**
+   * Temporary Storage
+   */
+  protected $temp_store;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct() {
+  public function __construct(PrivateTempStoreFactory $temp_store_factory) {
     // Load the settings.
     $config = \Drupal::config('ewp_institutions_get.settings');
     $this->index_endpoint = $config->get('ewp_institutions_get.index_endpoint');
-    $this->link_key = 'self';
+    $this->link_key = 'list';
     $this->api_index = [];
     $this->index_items = [];
+    $this->temp_store = $temp_store_factory->get('ewp_institutions_get');
 
     if (! empty($this->index_endpoint)) {
       // Initialize an HTTP client
@@ -91,6 +99,13 @@ class PreLoadForm extends FormBase {
       \Drupal::service('messenger')->addWarning($warning);
     }
 
+  }
+
+  // Uses Symfony's ContainerInterface to declare dependency to be passed to constructor
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('user.private_tempstore')
+    );
   }
 
   /**

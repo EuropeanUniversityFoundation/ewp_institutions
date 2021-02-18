@@ -78,7 +78,13 @@ class JsonDataProcessor {
 
     foreach ($data as $item => $fields) {
       if (array_key_exists('links', $fields) && array_key_exists($link_key, $fields['links'])) {
-        $index[$fields['id']] = $fields['links'][$link_key];
+        if (array_key_exists('href', $fields['links'][$link_key])) {
+          // When the link key points to an object
+          $index[$fields['id']] = $fields['links'][$link_key]['href'];
+        } else {
+          // When the link key points to the URL
+          $index[$fields['id']] = $fields['links'][$link_key];
+        }
       } else {
         // when no link can be found, leave it empty
         $index[$fields['id']] = '';
