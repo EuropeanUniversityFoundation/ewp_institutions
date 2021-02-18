@@ -204,14 +204,84 @@ class JsonDataProcessor {
   /**
    * Expand JSON:API data for preview
    */
-  public function preview($title, $json) {
+  public function preview($title, $json, $item) {
     $decoded = json_decode($json, TRUE);
 
     $data = $decoded['data'];
 
+    foreach ($data as $key => $value) {
+      if ($value['id'] == $item) {
+        $attributes = $value['attributes'];
+      }
+    }
+
     $build['intro'] = [
       '#type' => 'markup',
       '#markup' => '<h2>' . $title . '</h2>',
+    ];
+
+    $content = '';
+
+    foreach ($attributes as $key => $value) {
+      if (! empty($value)) {
+        // handle complex attributes
+        if (is_array($value)) {
+          $list = '';
+
+          if (count(array_filter(array_keys($value), 'is_string')) > 0) {
+            // associative array implies a single value of a complex field
+            $list .= '<ul>';
+
+            foreach ($attributes[$key] as $subkey => $subvalue) {
+              $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
+              $list .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+            }
+
+            $list .= '</ul>';
+          } else {
+            // otherwise assume a field with multiple values
+            $list .= '<ol>';
+
+            foreach ($attributes[$key] as $delta => $fieldvalue) {
+              if (is_array($fieldvalue)) {
+                $sublist = '';
+
+                // in case of multiple value complex field
+                $sublist .= '<ul>';
+
+                foreach ($attributes[$key][$delta] as $subkey => $subvalue) {
+                  $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
+                  $sublist .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+                }
+
+                $sublist .= '</ul>';
+
+                $submarkup = $sublist;
+              } else {
+                $submarkup = ' ' . $value . '<br />';
+              }
+
+              $list .= '<li><strong>delta ' . $delta . ':</strong> ' . $submarkup . '</li>';
+            }
+            
+            $list .= '</ol>';
+          }
+
+          $markup = $list;
+        } else {
+          $markup = ' ' . $value . '<br />';
+        }
+      } else {
+        $markup = ' <em>' . t('empty') . '</em><br />';
+      }
+
+      $content .= '<strong>' . $key . ':</strong>';
+      $content .=  $markup;
+    }
+
+    $build['data'] = [
+      '#type' => 'markup',
+      '#markup' => $content,
     ];
 
     return [
