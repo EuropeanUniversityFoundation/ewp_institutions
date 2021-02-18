@@ -62,34 +62,21 @@ class PreviewForm extends PreLoadForm {
       '#weight' => '-7',
     ];
 
-    // $form['actions']['get'] = [
-    //   '#type' => 'button',
-    //   '#value' => $this->t('Preview Institution'),
-    //   '#attributes' => [
-    //     'class' => [
-    //       'button--primary',
-    //     ]
-    //   ],
-    //   '#states' => [
-    //     'disabled' => [
-    //       ':input[name="hei_select"]' => ['value' => ''],
-    //     ],
-    //   ],
-    //   '#ajax' => [
-    //     'callback' => '::previewInstitution',
-    //   ],
-    // ];
-
-    $form['actions']['debug'] = [
+    $form['actions']['get'] = [
       '#type' => 'button',
-      '#value' => $this->t('Debug'),
+      '#value' => $this->t('Preview Institution'),
+      '#attributes' => [
+        'class' => [
+          'button--primary',
+        ]
+      ],
       '#states' => [
         'disabled' => [
           ':input[name="hei_select"]' => ['value' => ''],
         ],
       ],
       '#ajax' => [
-        'callback' => '::debug',
+        'callback' => '::previewInstitution',
       ],
     ];
 
@@ -145,13 +132,17 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Debug
+  * Load data and preview Institution
   */
-  public function debug(array $form, FormStateInterface $form_state) {
+  public function previewInstitution(array $form, FormStateInterface $form_state) {
     // Retrieve the data from temporary storage
     $data = $this->temp_store->get('hei_json_data');
 
-    $message = $data;
+    $hei_item = $form_state->getValue('hei_select');
+    $hei_list = \Drupal::service('ewp_institutions_get.json')->idLabel($data);
+    $title = $hei_list[$hei_item];
+
+    $message = \Drupal::service('ewp_institutions_get.json')->preview($title, $data);
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(

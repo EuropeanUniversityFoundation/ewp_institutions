@@ -201,4 +201,24 @@ class JsonDataProcessor {
 
   }
 
+  /**
+   * Expand JSON:API data for preview
+   */
+  public function preview($title, $json) {
+    $decoded = json_decode($json, TRUE);
+
+    $data = $decoded['data'];
+
+    $build['intro'] = [
+      '#type' => 'markup',
+      '#markup' => '<h2>' . $title . '</h2>',
+    ];
+
+    return [
+      '#type' => '#markup',
+      '#markup' => render($build)
+    ];
+
+  }
+
 }
