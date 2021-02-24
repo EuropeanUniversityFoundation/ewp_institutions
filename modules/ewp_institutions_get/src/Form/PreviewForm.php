@@ -25,7 +25,7 @@ class PreviewForm extends PreLoadForm {
     $form['index_select'] = [
       '#type' => 'select',
       '#title' => $this->t('Index'),
-      '#options' => $this->index_items,
+      '#options' => $this->indexLabels,
       '#default_value' => '',
       '#empty_value' => '',
       '#ajax' => [
@@ -90,38 +90,18 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Make the API call and build select list
+  * Fetch the data and build select list
   */
   public function getInstitutionList(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
-    $endpoint = ($index_item) ? $this->api_index[$index_item] : '';
-
-    // Initialize an HTTP client
-    $client = \Drupal::httpClient();
-    $response = NULL;
+    $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     $options = ['' => '- None -'];
 
     if (! empty($endpoint)) {
-      // Build the HTTP request
-      try {
-        $request = $client->get($endpoint);
-        $response = $request->getBody();
-      } catch (GuzzleException $e) {
-        $response = $e->getResponse()->getBody();
-      } catch (Exception $e) {
-        watchdog_exception('ewp_institutions_get', $e->getMessage());
-      }
+      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load($index_item, $endpoint);
 
-      // Validate the response
-      $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
-
-      if ($validated) {
-        // Extract the data from the Guzzle Stream
-        $decoded = json_decode($response, TRUE);
-        // Encode and store data for further operations
-        $json_data = json_encode($decoded);
-        $this->temp_store->set('hei_json_data', $json_data);
+      if ($json_data) {
         // Build the options list
         $options += \Drupal::service('ewp_institutions_get.json')->idLabel($json_data);
       }
@@ -132,23 +112,26 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Load data and preview Institution
+  * Fetch the data and preview Institution
   */
   public function previewInstitution(array $form, FormStateInterface $form_state) {
-    // Retrieve the data from temporary storage
-    $data = $this->temp_store->get('hei_json_data');
+    $index_item = $form_state->getValue('index_select');
+    $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
+
+    // JSON data has to be stored at this point per previous step
+    $json_data = \Drupal::service('ewp_institutions_get.fetch')->load($index_item, $endpoint);
+    $hei_list = \Drupal::service('ewp_institutions_get.json')->idLabel($json_data);
 
     $hei_item = $form_state->getValue('hei_select');
-    $hei_list = \Drupal::service('ewp_institutions_get.json')->idLabel($data);
+
     $title = $hei_list[$hei_item];
 
-    $message = \Drupal::service('ewp_institutions_get.json')->preview($title, $data, $hei_item);
+    $message = \Drupal::service('ewp_institutions_get.json')->preview($title, $json_data, $hei_item);
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
       new HtmlCommand('.response_data', $message));
     return $ajax_response;
-
   }
 
 }

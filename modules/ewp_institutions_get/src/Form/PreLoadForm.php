@@ -131,7 +131,7 @@ class PreLoadForm extends FormBase {
   }
 
   /**
-  * Fetch the list and display as a table
+  * Fetch the data and display as a table
   */
   public function getInstitutions(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
