@@ -62,28 +62,13 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
-    // Initialize an HTTP client
-    $client = \Drupal::httpClient();
-    $response = NULL;
+    $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint, TRUE);
 
-    // Build the HTTP request
-    try {
-      $request = $client->get($endpoint);
-      $response = $request->getBody();
-    } catch (GuzzleException $e) {
-      $response = $e->getResponse()->getBody();
-    } catch (Exception $e) {
-      watchdog_exception('ewp_institutions_get', $e->getMessage());
-    }
-
-    // Validate the response
-    $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
-
-    if ($validated) {
+    if ($json_data) {
       $title = $this->t('Index');
       $columns = ['label'];
       $show_attr = FALSE;
-      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($title, $response, $columns, $show_attr);
+      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($title, $json_data, $columns, $show_attr);
       $message = $processed;
     } else {
       $message = $this->t('Nothing to display.');
@@ -91,7 +76,7 @@ class SettingsForm extends ConfigFormBase {
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
-     new HtmlCommand('.response_data', $message));
+      new HtmlCommand('.response_data', $message));
     return $ajax_response;
 
   }
@@ -106,6 +91,7 @@ class SettingsForm extends ConfigFormBase {
       // Initialize an HTTP client
       $client = \Drupal::httpClient();
       $status = NULL;
+
       // Build the HTTP request
       try {
         $request = $client->get($endpoint);

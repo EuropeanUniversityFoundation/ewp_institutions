@@ -57,7 +57,7 @@ class JsonDataFetcher {
 
     // Build the HTTP request
     try {
-      $request = $client->get($this->endpoint);
+      $request = $client->get($endpoint);
       $response = $request->getBody();
     } catch (GuzzleException $e) {
       $response = $e->getResponse()->getBody();
