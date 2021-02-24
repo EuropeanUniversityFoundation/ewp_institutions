@@ -1,4 +1,7 @@
 services:
+  ewp_institutions_get.fetch:
+    class: Drupal\ewp_institutions_get\JsonDataFetcher
+    arguments: ['@tempstore.shared']
   ewp_institutions_get.json:
     class: Drupal\ewp_institutions_get\JsonDataProcessor
     arguments: []
