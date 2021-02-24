@@ -17,28 +17,28 @@ class PreLoadForm extends FormBase {
    *
    * @var string
    */
-  protected $index_endpoint;
+  protected $indexEndpoint;
 
   /**
    * Index link key
    *
    * @var string
    */
-  protected $link_key;
+  protected $indexLinkKey;
 
   /**
-   * API index
+   * Index item links
    *
    * @var array
    */
-  protected $api_index;
+  protected $indexLinks;
 
   /**
-   * API index item list
+   * Index item labels
    *
    * @var array
    */
-  protected $index_items;
+  protected $indexLabels;
 
   /**
    * Additional columns for the data table
@@ -52,12 +52,12 @@ class PreLoadForm extends FormBase {
    *
    * @var array
    */
-  protected $show_attr = TRUE;
+  protected $showAttr = TRUE;
 
   /**
    * Temporary Storage
    */
-  protected $temp_store;
+  protected $tempStore;
 
   /**
    * {@inheritdoc}
@@ -65,20 +65,20 @@ class PreLoadForm extends FormBase {
   public function __construct(PrivateTempStoreFactory $temp_store_factory) {
     // Load the settings.
     $config = \Drupal::config('ewp_institutions_get.settings');
-    $this->index_endpoint = $config->get('ewp_institutions_get.index_endpoint');
-    $this->link_key = 'list';
-    $this->api_index = [];
-    $this->index_items = [];
-    $this->temp_store = $temp_store_factory->get('ewp_institutions_get');
+    $this->indexEndpoint = $config->get('ewp_institutions_get.index_endpoint');
+    $this->indexLinkKey = 'list';
+    $this->indexLinks = [];
+    $this->indexLabels = [];
+    $this->tempStore = $temp_store_factory->get('ewp_institutions_get');
 
-    if (! empty($this->index_endpoint)) {
+    if (! empty($this->indexEndpoint)) {
       // Initialize an HTTP client
       $client = \Drupal::httpClient();
       $response = NULL;
 
       // Build the HTTP request
       try {
-        $request = $client->get($this->index_endpoint);
+        $request = $client->get($this->indexEndpoint);
         $response = $request->getBody();
       } catch (GuzzleException $e) {
         $response = $e->getResponse()->getBody();
@@ -91,8 +91,8 @@ class PreLoadForm extends FormBase {
 
       // Build the index and the item list
       if ($validated) {
-        $this->api_index = \Drupal::service('ewp_institutions_get.json')->idLinks($response, $this->link_key);
-        $this->index_items = \Drupal::service('ewp_institutions_get.json')->idLabel($response);
+        $this->indexLinks = \Drupal::service('ewp_institutions_get.json')->idLinks($response, $this->indexLinkKey);
+        $this->indexLabels = \Drupal::service('ewp_institutions_get.json')->idLabel($response);
       }
     } else {
       $warning = $this->t("Index endpoint is not defined.");
@@ -123,7 +123,7 @@ class PreLoadForm extends FormBase {
     $form['index_select'] = [
       '#type' => 'select',
       '#title' => $this->t('Index'),
-      '#options' => $this->index_items,
+      '#options' => $this->indexLabels,
       '#default_value' => '',
       '#empty_value' => '',
       '#weight' => '-9',
@@ -166,7 +166,7 @@ class PreLoadForm extends FormBase {
   */
   public function getInstitutions(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
-    $endpoint = $this->api_index[$index_item];
+    $endpoint = $this->indexLinks[$index_item];
 
     // Initialize an HTTP client
     $client = \Drupal::httpClient();
@@ -187,9 +187,9 @@ class PreLoadForm extends FormBase {
       $validated = \Drupal::service('ewp_institutions_get.json')->validate($response);
 
       if ($validated) {
-        $title = $this->index_items[$index_item];
+        $title = $this->indexLabels[$index_item];
         $columns = $this->columns;
-        $show_attr = $this->show_attr;
+        $show_attr = $this->showAttr;
         $message = \Drupal::service('ewp_institutions_get.json')->toTable($title, $response, $columns, $show_attr);
       } else {
         $message = $this->t('Nothing to display.');
