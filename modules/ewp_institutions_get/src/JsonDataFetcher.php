@@ -38,7 +38,7 @@ class JsonDataFetcher {
     if (empty($store->get($temp_store_key)) || $refresh) {
       // Get the data from the provided endpoint and store it
       $store->set($temp_store_key, $this->get($endpoint));
-      $message = t("Refreshed the Index in temporary storage");
+      $message = t("Refreshed @key in temporary storage", ['@key' => $temp_store_key]);
       \Drupal::logger('ewp_institutions_get')->notice($message);
     }
 
@@ -79,6 +79,22 @@ class JsonDataFetcher {
 
     // Return the data
     return $json_data;
+  }
+
+  /**
+   * Check the tempstore for the updated date
+   */
+  public function checkUpdated($temp_store_key) {
+    // Get the tempstore
+    $store = $this->tempStoreFactory->get('ewp_institutions_get');
+
+    if (!empty($store->get($temp_store_key))) {
+      $updated = $store->getMetadata($temp_store_key)->updated;
+    } else {
+      $updated = NULL;
+    }
+
+    return $updated;
   }
 
 }

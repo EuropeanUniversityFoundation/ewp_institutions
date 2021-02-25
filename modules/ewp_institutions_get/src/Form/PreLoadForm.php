@@ -138,7 +138,18 @@ class PreLoadForm extends FormBase {
     $endpoint = $this->indexLinks[$index_item];
 
     if (! empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load($index_item, $endpoint);
+      // Check when the index was last updated
+      $index_updated = \Drupal::service('ewp_institutions_get.fetch')->checkUpdated('index');
+      // Check when this item was last updated
+      $item_updated = \Drupal::service('ewp_institutions_get.fetch')->checkUpdated($index_item);
+      // Decide whether to force a refresh
+      if ($item_updated && $index_updated < $item_updated) {
+        $refresh = FALSE;
+      } else {
+        $refresh = TRUE;
+      }
+
+      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load($index_item, $endpoint, $refresh);
 
       if ($json_data) {
         $title = $this->indexLabels[$index_item];

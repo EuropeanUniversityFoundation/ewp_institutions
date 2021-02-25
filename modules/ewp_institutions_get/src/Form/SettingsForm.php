@@ -64,7 +64,7 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-  * Make the API call
+  * Load the index and display as a table
   */
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
