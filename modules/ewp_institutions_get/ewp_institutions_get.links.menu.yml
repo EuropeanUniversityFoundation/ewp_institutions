@@ -4,7 +4,7 @@ ewp_institutions_get.admin:
   route_name: ewp_institutions_get.admin
   description: 'Populate EWP Institution entities with data from an external API'
   parent: ewp_institutions.admin
-  weight: 200
+  weight: -100
 
 ewp_institutions_get.settings:
   title: 'Settings'
