@@ -38,6 +38,8 @@ class JsonDataFetcher {
     if (empty($store->get($temp_store_key)) || $refresh) {
       // Get the data from the provided endpoint and store it
       $store->set($temp_store_key, $this->get($endpoint));
+      $message = t("Refreshed the Index in temporary storage");
+      \Drupal::logger('ewp_institutions_get')->notice($message);
     }
 
     // Return whatever is in storage

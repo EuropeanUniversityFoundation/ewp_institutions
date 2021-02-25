@@ -34,6 +34,13 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('External API endpoint that returns the main index.'),
     ];
 
+    $form['refresh'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Refresh temporary storage on Save'),
+      '#default_value' => FALSE,
+      '#return_value' => TRUE,
+    ];
+
     $form['actions']['get'] = [
       '#type' => 'button',
       '#value' => $this->t('GET API Index'),
@@ -62,7 +69,7 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint, TRUE);
+    $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint);
 
     if ($json_data) {
       $title = $this->t('Index');
@@ -114,8 +121,16 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.settings');
-    $config->set('ewp_institutions_get.index_endpoint', $form_state->getValue('index_endpoint'));
+    $endpoint = $form_state->getValue('index_endpoint');
+    $config->set('ewp_institutions_get.index_endpoint', $endpoint);
     $config->save();
+
+    $refresh = $form_state->getValue('refresh');
+
+    if ($refresh && !empty($endpoint)) {
+      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint, TRUE);
+    }
+
     return parent::submitForm($form, $form_state);
   }
 
