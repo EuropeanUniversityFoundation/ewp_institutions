@@ -63,6 +63,8 @@ class JsonDataProcessor {
       }
     }
 
+    // Sort by label for improved usability
+    \natcasesort($index);
     return $index;
   }
 
@@ -263,7 +265,7 @@ class JsonDataProcessor {
 
               $list .= '<li><strong>delta ' . $delta . ':</strong> ' . $submarkup . '</li>';
             }
-            
+
             $list .= '</ol>';
           }
 
