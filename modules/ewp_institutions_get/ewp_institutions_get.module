@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
  * Implements hook_help().
@@ -21,4 +22,19 @@ function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match
 
     default:
   }
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * Add new forms and links to the Institution entity
+ */
+function ewp_institutions_get_entity_type_build(array &$entity_types) {
+
+  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  $entity_types['hei']
+    ->setFormClass('import', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityImportForm')
+    ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')
+    ->setLinkTemplate('import-form', '/ewp/hei/import')
+    ->setLinkTemplate('update-form', '/ewp/hei/{hei}/update');
 }

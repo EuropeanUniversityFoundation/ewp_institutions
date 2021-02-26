@@ -33,3 +33,31 @@ ewp_institutions_get.preview:
     _title: 'Preview'
   requirements:
     _permission: 'administer institution entities'
+
+# Import entity form
+entity.hei.import_form:
+  path: '/ewp/hei/import'
+  defaults:
+      _entity_form: hei.import
+      entity_type_id: hei
+      _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
+  requirements:
+    _entity_create_access: hei
+  options:
+    _admin_route: true
+
+# Update entity form
+entity.hei.update_form:
+  path: '/ewp/hei/{hei}/update'
+  defaults:
+      _entity_form: hei.update
+      entity_type_id: hei
+      _title_callback: 'Drupal\Core\Entity\Controller\EntityController::editTitle'
+  requirements:
+    _entity_access: hei.update
+    hei: '\d+'
+  options:
+    _admin_route: true
+    parameters:
+      hei:
+        type: entity:hei

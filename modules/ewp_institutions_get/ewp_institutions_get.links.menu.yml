@@ -6,6 +6,7 @@ ewp_institutions_get.admin:
   parent: ewp_institutions.admin
   weight: -100
 
+# Admin forms
 ewp_institutions_get.settings:
   title: 'Settings'
   description: 'Settings for the external API'
