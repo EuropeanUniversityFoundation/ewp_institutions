@@ -5,3 +5,21 @@ ewp_institutions_get.settings:
     index_endpoint:
       type: text
       label: 'Index endpoint'
+
+ewp_institutions_get.settings.fieldmap:
+  type: config_object
+  label: 'Field mapping'
+  mapping:
+    entity_type:
+      type: string
+      label: 'Entity type'
+    entity_bundle:
+      type: string
+      label: 'Entity bundle'
+    field_mapping:
+      type: mapping
+      label: 'Entity fields'
+      mapping:
+        label:
+          type: string
+          label: 'Label'

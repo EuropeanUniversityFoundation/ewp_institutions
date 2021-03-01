@@ -1,0 +1,164 @@
+<?php
+
+namespace Drupal\ewp_institutions_get\Form;
+
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+// use Drupal\Core\Ajax\AjaxResponse;
+// use Drupal\Core\Ajax\HtmlCommand;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+class FieldMappingForm extends ConfigFormBase {
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * The entity type bundle info service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
+   * The entity manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info service.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity manager service.
+   */
+  public function __construct(
+      ConfigFactoryInterface $config_factory,
+      EntityFieldManagerInterface $entity_field_manager,
+      EntityTypeBundleInfoInterface $entity_type_bundle_info,
+      EntityTypeManagerInterface $entity_type_manager
+  ) {
+    parent::__construct($config_factory);
+    $this->entityFieldManager = $entity_field_manager;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('entity_field.manager'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('entity_type.manager'),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return [
+      'ewp_institutions_get.settings.fieldmap',
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'ewp_institutions_get_field_mapping_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    // Get all Content Entity Types
+    $content_entity_types = [];
+    $entity_types = $this->entityTypeManager->getDefinitions();
+    foreach ($entity_types as $key => $value) {
+      if ($value->getGroup() === 'content') {
+        $content_entity_types[$key] = $value;
+      }
+    }
+
+    // Build a list of options
+    $entity_type_list = ['' => $this->t('- None -')];
+
+    foreach ($content_entity_types as $key => $value) {
+      $entity_type_list[$key] = $value->getLabel()->render();
+    }
+
+    $form['entity_type_select'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Select an entity type'),
+      '#options' => $entity_type_list,
+      '#empty_value' => '',
+    ];
+
+    dpm($entity_type_list);
+
+    // $mappings = $this->configFactory()
+    //   ->getEditable('ewp_institutions_get.settings.fieldmap');
+
+    // $form['#tree'] = TRUE;
+    // $form['field_mapping'] = [
+    //   '#title' => $this->t('Field mapping'),
+    //   '#type' => 'fieldset',
+    // ];
+    //
+    // $properties = $this->entityFieldManager->getFieldDefinitions('hei', 'hei');
+    // foreach ($properties as $property_name => $property) {
+    //   $form['field_mapping'][$property_name] = [
+    //     '#type' => 'select',
+    //     '#title' => $property->getLabel(),
+    //     '#description' => $property->getDescription(),
+    //     '#options' => (array) $claims,
+    //     '#empty_value' => 0,
+    //     '#empty_option' => $this->t('- No mapping -'),
+    //     '#default_value' => isset($mappings[$property_name]) ? $mappings[$property_name] : $default_value,
+    //   ];
+    // }
+
+    $form['debug'] = [
+      '#type' => 'markup',
+      '#markup' => 'N/A',
+    ];
+
+    return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+
+    return parent::submitForm($form, $form_state);
+  }
+
+}

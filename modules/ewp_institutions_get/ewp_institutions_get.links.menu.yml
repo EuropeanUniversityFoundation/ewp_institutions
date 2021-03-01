@@ -14,6 +14,13 @@ ewp_institutions_get.settings:
   route_name: ewp_institutions_get.settings
   weight: 1
 
+ewp_institutions_get.mapping:
+  title: 'Field mapping'
+  description: 'Map the external data to entity fields'
+  parent: ewp_institutions_get.settings
+  route_name: ewp_institutions_get.mapping
+  weight: 1
+
 ewp_institutions_get.preload:
   title: 'Pre-load'
   description: 'Pre-load the index from the external API'
