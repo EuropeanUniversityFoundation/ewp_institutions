@@ -8,8 +8,8 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-// use Drupal\Core\Ajax\AjaxResponse;
-// use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FieldMappingForm extends ConfigFormBase {
@@ -109,12 +109,36 @@ class FieldMappingForm extends ConfigFormBase {
 
     $form['entity_type_select'] = [
       '#type' => 'select',
-      '#title' => $this->t('Select an entity type'),
+      '#title' => $this->t('Entity type'),
       '#options' => $entity_type_list,
+      '#default_value' => '',
       '#empty_value' => '',
+      '#ajax' => [
+        'callback' => '::getEntityBundles',
+        'disable-refocus' => TRUE,
+        'event' => 'change',
+        'wrapper' => 'bundle-select',
+      ],
+      '#weight' => '-9',
     ];
 
-    dpm($entity_type_list);
+    $form['entity_bundle_select'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Entity bundle'),
+      '#prefix' => '<div id="bundle-select">',
+      '#suffix' => '</div>',
+      '#options' => [],
+      '#default_value' => '',
+      '#empty_value' => '',
+      '#validated' => TRUE,
+      // '#ajax' => [
+      //   'callback' => '::getBundleFields',
+      //   'disable-refocus' => TRUE,
+      //   'event' => 'change',
+      //   'wrapper' => 'field-select-group',
+      // ],
+      '#weight' => '-8',
+    ];
 
     // $mappings = $this->configFactory()
     //   ->getEditable('ewp_institutions_get.settings.fieldmap');
@@ -140,10 +164,35 @@ class FieldMappingForm extends ConfigFormBase {
 
     $form['debug'] = [
       '#type' => 'markup',
-      '#markup' => 'N/A',
+      '#markup' => '<div class="debug"></div>',
+      '#weight' => '-6',
     ];
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+  * Fetch the entity bundles and build select list
+  */
+  public function getEntityBundles(array $form, FormStateInterface $form_state) {
+    $entity_type = $form_state->getValue('entity_type_select');
+
+    $bundle_info = $this->entityTypeBundleInfo->getBundleInfo($entity_type);
+
+    foreach ($bundle_info as $key => $value) {
+      $options[$key] = $value['label'];
+    }
+
+    if (empty($options)) {
+      $options = ['' => '- None -'];
+    }
+
+    $form['entity_bundle_select']['#options'] = $options;
+    return $form['entity_bundle_select'];
+    // $ajax_response = new AjaxResponse();
+    // $ajax_response->addCommand(
+    //   new HtmlCommand('.debug', $message));
+    // return $ajax_response;
   }
 
   /**
