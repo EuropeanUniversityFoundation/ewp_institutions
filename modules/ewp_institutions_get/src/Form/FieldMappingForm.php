@@ -131,12 +131,12 @@ class FieldMappingForm extends ConfigFormBase {
       '#default_value' => '',
       '#empty_value' => '',
       '#validated' => TRUE,
-      // '#ajax' => [
-      //   'callback' => '::getBundleFields',
-      //   'disable-refocus' => TRUE,
-      //   'event' => 'change',
-      //   'wrapper' => 'field-select-group',
-      // ],
+      '#ajax' => [
+        'callback' => '::getBundleFields',
+        // 'disable-refocus' => TRUE,
+        // 'event' => 'change',
+        // 'wrapper' => 'field-select-group',
+      ],
       '#weight' => '-8',
     ];
 
@@ -179,20 +179,32 @@ class FieldMappingForm extends ConfigFormBase {
 
     $bundle_info = $this->entityTypeBundleInfo->getBundleInfo($entity_type);
 
+    $options = ['' => '- None -'];
     foreach ($bundle_info as $key => $value) {
-      $options[$key] = $value['label'];
-    }
-
-    if (empty($options)) {
-      $options = ['' => '- None -'];
+      $options[$key] .= $value['label'];
     }
 
     $form['entity_bundle_select']['#options'] = $options;
     return $form['entity_bundle_select'];
-    // $ajax_response = new AjaxResponse();
-    // $ajax_response->addCommand(
-    //   new HtmlCommand('.debug', $message));
-    // return $ajax_response;
+  }
+
+  /**
+  * Fetch the entity bundle fields and build select lists
+  */
+  public function getBundleFields(array $form, FormStateInterface $form_state) {
+    $entity_type = $form_state->getValue('entity_type_select');
+    $entity_bundle = $form_state->getValue('entity_bundle_select');
+
+    $properties = $this->entityFieldManager->getFieldDefinitions($entity_type, $entity_bundle);
+
+    foreach ($properties as $key => $value) {
+      $message .= '<pre>' . $key . ': ' . $value->getLabel() . '</pre>';
+    }
+
+    $ajax_response = new AjaxResponse();
+    $ajax_response->addCommand(
+      new HtmlCommand('.debug', $message));
+    return $ajax_response;
   }
 
   /**
