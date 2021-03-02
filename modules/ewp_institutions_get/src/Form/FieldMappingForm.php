@@ -10,6 +10,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FieldMappingForm extends ConfigFormBase {
@@ -143,24 +144,14 @@ class FieldMappingForm extends ConfigFormBase {
     // $mappings = $this->configFactory()
     //   ->getEditable('ewp_institutions_get.settings.fieldmap');
 
-    // $form['#tree'] = TRUE;
-    // $form['field_mapping'] = [
-    //   '#title' => $this->t('Field mapping'),
-    //   '#type' => 'fieldset',
-    // ];
-    //
-    // $properties = $this->entityFieldManager->getFieldDefinitions('hei', 'hei');
-    // foreach ($properties as $property_name => $property) {
-    //   $form['field_mapping'][$property_name] = [
-    //     '#type' => 'select',
-    //     '#title' => $property->getLabel(),
-    //     '#description' => $property->getDescription(),
-    //     '#options' => (array) $claims,
-    //     '#empty_value' => 0,
-    //     '#empty_option' => $this->t('- No mapping -'),
-    //     '#default_value' => isset($mappings[$property_name]) ? $mappings[$property_name] : $default_value,
-    //   ];
-    // }
+    $form['#tree'] = TRUE;
+    $form['field_mapping'] = [
+      '#title' => $this->t('Field mapping'),
+      '#type' => 'fieldset',
+      '#prefix' => '<div id="field-mapping">',
+      '#suffix' => '</div>',
+      '#weight' => '-7',
+    ];
 
     $form['debug'] = [
       '#type' => 'markup',
@@ -185,7 +176,22 @@ class FieldMappingForm extends ConfigFormBase {
     }
 
     $form['entity_bundle_select']['#options'] = $options;
-    return $form['entity_bundle_select'];
+
+    // Reset the field mapping form field
+    $form['field_mapping'] = [];
+    $form['field_mapping'] = [
+      '#title' => $this->t('Field mapping'),
+      '#type' => 'fieldset',
+      '#prefix' => '<div id="field-mapping">',
+      '#suffix' => '</div>',
+      '#weight' => '-7',
+    ];
+
+    $ajax_response = new AjaxResponse();
+    $ajax_response->addCommand(new ReplaceCommand('#bundle-select', $form['entity_bundle_select']));
+    $ajax_response->addCommand(new ReplaceCommand('#field-mapping', $form['field_mapping']));
+
+    return $ajax_response;
   }
 
   /**
@@ -197,13 +203,24 @@ class FieldMappingForm extends ConfigFormBase {
 
     $properties = $this->entityFieldManager->getFieldDefinitions($entity_type, $entity_bundle);
 
-    foreach ($properties as $key => $value) {
-      $message .= '<pre>' . $key . ': ' . $value->getLabel() . '</pre>';
+    $response_keys = ['a' => 'ALPHA', 'b' => 'BRAVO'];
+
+    foreach ($properties as $property_name => $property) {
+      $form['field_mapping'][$property_name] = [
+        '#type' => 'select',
+        '#title' => $property->getLabel(),
+        '#description' => $property->getDescription(),
+        '#options' => (array) $response_keys,
+        '#empty_value' => '',
+        '#empty_option' => $this->t('- No mapping -'),
+        // '#default_value' => isset($mappings[$property_name]) ? $mappings[$property_name] : $default_value,
+        '#default_value' => '',
+      ];
     }
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
-      new HtmlCommand('.debug', $message));
+      new ReplaceCommand('#field-mapping', $form['field_mapping']));
     return $ajax_response;
   }
 
