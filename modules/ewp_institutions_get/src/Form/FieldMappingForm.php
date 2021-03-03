@@ -4,37 +4,78 @@ namespace Drupal\ewp_institutions_get\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FieldMappingForm extends ConfigFormBase {
 
   /**
-   * The entity manager.
+   * The entity type.
+   *
+   * @var string
+   */
+  protected $entityType = 'hei';
+
+  /**
+   * The entity bundle.
+   *
+   * @var string
+   */
+  protected $entityBundle = 'hei';
+
+  /**
+   * The entity field manager.
    *
    * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
 
   /**
-   * The entity type bundle info service.
+   * The entity fields to exclude from mapping.
    *
-   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   * @var array
    */
-  protected $entityTypeBundleInfo;
+  protected $entityFieldsExclude = ['id', 'uuid', 'langcode'];
 
   /**
-   * The entity manager service.
+   * The remote keys that match the Institution entity.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var array
    */
-  protected $entityTypeManager;
+  protected $remoteKeys = [
+    // 'id',
+    // 'uuid',
+    // 'langcode',
+    'status',
+    'label',
+    'created',
+    'changed',
+    'abbreviation',
+    'contact',
+    'hei_id',
+    'logo_url',
+    'mailing_address',
+    'mobility_factsheet_url',
+    'name',
+    'other_id',
+    'street_address',
+    'website_url'
+  ];
+
+  /**
+   * The remote keys to exclude from the options.
+   *
+   * @var array
+   */
+  protected $remoteKeysExclude = ['status', 'created'];
+
+  /**
+   * The remote keys to include in the options.
+   *
+   * @var array
+   */
+  protected $remoteKeysInclude = ['city', 'country'];
 
   /**
    * The constructor.
@@ -43,21 +84,13 @@ class FieldMappingForm extends ConfigFormBase {
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle info service.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity manager service.
    */
   public function __construct(
       ConfigFactoryInterface $config_factory,
-      EntityFieldManagerInterface $entity_field_manager,
-      EntityTypeBundleInfoInterface $entity_type_bundle_info,
-      EntityTypeManagerInterface $entity_type_manager
+      EntityFieldManagerInterface $entity_field_manager
   ) {
     parent::__construct($config_factory);
     $this->entityFieldManager = $entity_field_manager;
-    $this->entityTypeBundleInfo = $entity_type_bundle_info;
-    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -67,8 +100,6 @@ class FieldMappingForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('entity_field.manager'),
-      $container->get('entity_type.bundle.info'),
-      $container->get('entity_type.manager'),
     );
   }
 
@@ -77,7 +108,7 @@ class FieldMappingForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'ewp_institutions_get.settings.fieldmap',
+      'ewp_institutions_get.fieldmap',
     ];
   }
 
@@ -92,57 +123,8 @@ class FieldMappingForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // Get all Content Entity Types
-    $content_entity_types = [];
-    $entity_types = $this->entityTypeManager->getDefinitions();
-    foreach ($entity_types as $key => $value) {
-      if ($value->getGroup() === 'content') {
-        $content_entity_types[$key] = $value;
-      }
-    }
-
-    // Build a list of options
-    $entity_type_list = ['' => $this->t('- None -')];
-
-    foreach ($content_entity_types as $key => $value) {
-      $entity_type_list[$key] = $value->getLabel()->render();
-    }
-
-    $form['entity_type_select'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Entity type'),
-      '#options' => $entity_type_list,
-      '#default_value' => '',
-      '#empty_value' => '',
-      '#ajax' => [
-        'callback' => '::getEntityBundles',
-        'disable-refocus' => TRUE,
-        'event' => 'change',
-        'wrapper' => 'bundle-select',
-      ],
-      '#weight' => '-9',
-    ];
-
-    $form['entity_bundle_select'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Entity bundle'),
-      '#prefix' => '<div id="bundle-select">',
-      '#suffix' => '</div>',
-      '#options' => [],
-      '#default_value' => '',
-      '#empty_value' => '',
-      '#validated' => TRUE,
-      '#ajax' => [
-        'callback' => '::getBundleFields',
-        // 'disable-refocus' => TRUE,
-        // 'event' => 'change',
-        // 'wrapper' => 'field-select-group',
-      ],
-      '#weight' => '-8',
-    ];
-
-    // $mappings = $this->configFactory()
-    //   ->getEditable('ewp_institutions_get.settings.fieldmap');
+    $config = $this->config('ewp_institutions_get.fieldmap');
+    $fieldmap = $config->get('field_mapping');
 
     $form['#tree'] = TRUE;
     $form['field_mapping'] = [
@@ -150,78 +132,47 @@ class FieldMappingForm extends ConfigFormBase {
       '#type' => 'fieldset',
       '#prefix' => '<div id="field-mapping">',
       '#suffix' => '</div>',
-      '#weight' => '-7',
     ];
 
-    $form['debug'] = [
-      '#type' => 'markup',
-      '#markup' => '<div class="debug"></div>',
-      '#weight' => '-6',
-    ];
+    // Build the select options
+    $options = [];
 
-    return parent::buildForm($form, $form_state);
-  }
-
-  /**
-  * Fetch the entity bundles and build select list
-  */
-  public function getEntityBundles(array $form, FormStateInterface $form_state) {
-    $entity_type = $form_state->getValue('entity_type_select');
-
-    $bundle_info = $this->entityTypeBundleInfo->getBundleInfo($entity_type);
-
-    $options = ['' => '- None -'];
-    foreach ($bundle_info as $key => $value) {
-      $options[$key] .= $value['label'];
+    // Load the remote keys and exclude some
+    foreach ($this->remoteKeys as $key) {
+      if (! in_array($key, $this->remoteKeysExclude)) {
+        $options[$key] = $key;
+      }
     }
 
-    $form['entity_bundle_select']['#options'] = $options;
+    // Then include some
+    foreach ($this->remoteKeysInclude as $key) {
+      $options[$key] = $key;
+    }
 
-    // Reset the field mapping form field
-    $form['field_mapping'] = [];
-    $form['field_mapping'] = [
-      '#title' => $this->t('Field mapping'),
-      '#type' => 'fieldset',
-      '#prefix' => '<div id="field-mapping">',
-      '#suffix' => '</div>',
-      '#weight' => '-7',
-    ];
+    // Load the individual entity fields
+    $properties = $this->entityFieldManager
+      ->getFieldDefinitions($this->entityType, $this->entityBundle);
 
-    $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(new ReplaceCommand('#bundle-select', $form['entity_bundle_select']));
-    $ajax_response->addCommand(new ReplaceCommand('#field-mapping', $form['field_mapping']));
-
-    return $ajax_response;
-  }
-
-  /**
-  * Fetch the entity bundle fields and build select lists
-  */
-  public function getBundleFields(array $form, FormStateInterface $form_state) {
-    $entity_type = $form_state->getValue('entity_type_select');
-    $entity_bundle = $form_state->getValue('entity_bundle_select');
-
-    $properties = $this->entityFieldManager->getFieldDefinitions($entity_type, $entity_bundle);
-
-    $response_keys = ['a' => 'ALPHA', 'b' => 'BRAVO'];
+    // Then exclude some
+    foreach ($this->entityFieldsExclude as $i => $key) {
+      if (array_key_exists($key, $properties)) {
+        unset($properties[$key]);
+      }
+    }
 
     foreach ($properties as $property_name => $property) {
       $form['field_mapping'][$property_name] = [
         '#type' => 'select',
         '#title' => $property->getLabel(),
         '#description' => $property->getDescription(),
-        '#options' => (array) $response_keys,
+        '#options' => (array) $options,
         '#empty_value' => '',
         '#empty_option' => $this->t('- No mapping -'),
-        // '#default_value' => isset($mappings[$property_name]) ? $mappings[$property_name] : $default_value,
-        '#default_value' => '',
+        '#default_value' => isset($fieldmap[$property_name]) ? $fieldmap[$property_name] : '',
       ];
     }
 
-    $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(
-      new ReplaceCommand('#field-mapping', $form['field_mapping']));
-    return $ajax_response;
+    return parent::buildForm($form, $form_state);
   }
 
   /**
@@ -235,6 +186,11 @@ class FieldMappingForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->config('ewp_institutions_get.fieldmap');
+
+    $config->set('field_mapping', $form_state->getValue('field_mapping'));
+
+    $config->save();
 
     return parent::submitForm($form, $form_state);
   }

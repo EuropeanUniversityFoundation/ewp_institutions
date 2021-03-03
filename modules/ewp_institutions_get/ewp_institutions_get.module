@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 
 /**
@@ -37,4 +38,11 @@ function ewp_institutions_get_entity_type_build(array &$entity_types) {
     ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')
     ->setLinkTemplate('import-form', '/ewp/hei/import')
     ->setLinkTemplate('update-form', '/ewp/hei/{hei}/update');
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ewp_institutions_get_form_alter(&$form, FormStateInterface $form_state) {
+  // dpm($form);
 }
