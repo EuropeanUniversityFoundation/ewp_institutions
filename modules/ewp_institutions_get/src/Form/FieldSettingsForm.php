@@ -50,14 +50,14 @@ class FieldSettingsForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $remoteKeysExclude = ['status', 'created'];
+  protected $remoteKeysExclude;
 
   /**
    * The remote keys to include in the options.
    *
    * @var array
    */
-  protected $remoteKeysInclude = ['city', 'country'];
+  protected $remoteKeysInclude;
 
   /**
    * The constructor.
@@ -131,9 +131,9 @@ class FieldSettingsForm extends ConfigFormBase {
     $form['field_wrapper']['field_exclude']['#options'] = $options;
 
     // Get the excluded fields from configuration
-    $excluded_fields = (array) $config->get('field_exclude');
+    $this->entityFieldsExclude = (array) $config->get('field_exclude');
 
-    foreach ($excluded_fields as $key => $value) {
+    foreach ($this->entityFieldsExclude as $key => $value) {
       $form['field_wrapper']['field_exclude'][$value]['#default_value'] = TRUE;
     }
 
@@ -155,11 +155,23 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $form['key_wrapper']['key_exclude']['#options'] = $options;
 
+    // Get the excluded keys from configuration
+    $this->remoteKeysExclude = (array) $config->get('remote_exclude');
+
+    foreach ($this->remoteKeysExclude as $key => $value) {
+      $form['key_wrapper']['key_exclude'][$value]['#default_value'] = TRUE;
+    }
+
+    // Get the included keys from configuration
+    $this->remoteKeysInclude = (array) $config->get('remote_include');
+
+    $default_text = ($this->remoteKeysInclude) ? implode("\n", $this->remoteKeysInclude) : '';
+
     $form['key_wrapper']['key_include'] = [
       '#type' => 'textarea',
       '#title' => t('Include remote keys'),
-      '#description' => $this->t('List the additional remote keys to include in the field mapping options'),
-      '#default_value' => '',
+      '#description' => $this->t('List the additional remote keys to include in the field mapping options (one per line)'),
+      '#default_value' => $default_text,
       '#rows' => 5,
     ];
 
@@ -203,7 +215,15 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $config->set('remote_exclude', $excluded_keys);
 
-    // $config->set('remote_include', $form_state->getValue('remote_include'));
+    // Remote keys to include
+    $key_include = $form_state->getValue('key_wrapper')['key_include'];
+
+    $included_keys = [];
+    $included_keys = explode("\n", $key_include);
+    $included_keys = array_map('trim', $included_keys);
+    $included_keys = array_filter($included_keys, 'strlen');
+
+    $config->set('remote_include', $included_keys);
 
     $config->save();
 

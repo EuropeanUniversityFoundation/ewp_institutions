@@ -50,14 +50,14 @@ class FieldMappingForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $remoteKeysExclude = ['status', 'created'];
+  protected $remoteKeysExclude;
 
   /**
    * The remote keys to include in the options.
    *
    * @var array
    */
-  protected $remoteKeysInclude = ['city', 'country'];
+  protected $remoteKeysInclude;
 
   /**
    * The constructor.
@@ -111,7 +111,7 @@ class FieldMappingForm extends ConfigFormBase {
     $field_settings = $this->config('ewp_institutions_get.field_settings');
     $this->entityFieldsExclude = (array) $field_settings->get('field_exclude');
     $this->remoteKeysExclude = (array) $field_settings->get('remote_exclude');
-    // $this->remoteKeysInclude = (array) $field_settings->get('remote_include');
+    $this->remoteKeysInclude = (array) $field_settings->get('remote_include');
 
     $form['#tree'] = TRUE;
     $form['field_mapping'] = [
