@@ -125,7 +125,33 @@ class FieldSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.field_settings');
 
-    dpm($config);
+    $form['#tree'] = TRUE;
+    $form['field_wrapper'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Exclude entity fields'),
+      '#description' => $this->t('Check the fields to be excluded from field mapping, such as core and Entity Reference fields'),
+    ];
+    $form['field_wrapper']['field_exclude'] = [
+      '#type' => 'checkboxes',
+    ];
+
+    // Load the individual entity fields
+    $properties = $this->entityFieldManager
+      ->getFieldDefinitions($this->entityType, $this->entityBundle);
+
+    // Generate the options
+    foreach ($properties as $property_name => $property) {
+      $options[$property_name] = $property->getLabel();
+    }
+
+    $form['field_wrapper']['field_exclude']['#options'] = $options;
+
+    // Get the excluded fields from configuration
+    $excluded_fields = $config->get('field_exclude');
+
+    foreach ($excluded_fields as $key => $value) {
+      $form['field_wrapper']['field_exclude'][$value]['#default_value'] = TRUE;
+    }
 
     return parent::buildForm($form, $form_state);
   }
@@ -143,7 +169,15 @@ class FieldSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.field_settings');
 
-    // $config->set('field_exclude', $form_state->getValue('field_exclude'));
+    $field_exclude = $form_state->getValue('field_wrapper')['field_exclude'];
+
+    foreach ($field_exclude as $key => $value) {
+      if ($field_exclude[$key]) {
+        $excluded_fields[] = $key;
+      }
+    }
+
+    $config->set('field_exclude', $excluded_fields);
     // $config->set('remote_exclude', $form_state->getValue('remote_exclude'));
     // $config->set('remote_include', $form_state->getValue('remote_include'));
 

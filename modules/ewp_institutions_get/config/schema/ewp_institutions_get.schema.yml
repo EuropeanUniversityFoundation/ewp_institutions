@@ -24,7 +24,7 @@ ewp_institutions_get.field_settings:
   mapping:
     field_exclude:
       type: sequence
-      label: 'Fields to exclude from mapping'
+      label: 'Entity fields to exclude from mapping'
       sequence:
         type: string
     remote_exclude:

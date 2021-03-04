@@ -36,7 +36,7 @@ class FieldMappingForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $entityFieldsExclude = ['id', 'uuid', 'langcode'];
+  protected $entityFieldsExclude;
 
   /**
    * The remote keys that match the Institution entity.
@@ -126,6 +126,9 @@ class FieldMappingForm extends ConfigFormBase {
     $config = $this->config('ewp_institutions_get.fieldmap');
     $fieldmap = $config->get('field_mapping');
 
+    $field_settings = $this->config('ewp_institutions_get.field_settings');
+    $this->entityFieldsExclude = $field_settings->get('field_exclude');
+
     $form['#tree'] = TRUE;
     $form['field_mapping'] = [
       '#title' => $this->t('Field mapping'),
@@ -153,7 +156,7 @@ class FieldMappingForm extends ConfigFormBase {
     $properties = $this->entityFieldManager
       ->getFieldDefinitions($this->entityType, $this->entityBundle);
 
-    // Then exclude some
+    // Then exclude fields as defined in the field settings
     foreach ($this->entityFieldsExclude as $i => $key) {
       if (array_key_exists($key, $properties)) {
         unset($properties[$key]);
