@@ -117,8 +117,6 @@ class FieldMappingForm extends ConfigFormBase {
     $form['field_mapping'] = [
       '#title' => $this->t('Field mapping'),
       '#type' => 'fieldset',
-      '#prefix' => '<div id="field-mapping">',
-      '#suffix' => '</div>',
     ];
 
     $this->remoteKeys = \Drupal\ewp_institutions_get\RemoteKeys::getDefaultKeys();
@@ -130,25 +128,25 @@ class FieldMappingForm extends ConfigFormBase {
     );
 
     // Load the individual entity fields
-    $properties = $this->entityFieldManager
+    $fields = $this->entityFieldManager
       ->getFieldDefinitions($this->entityType, $this->entityBundle);
 
     // Then exclude fields as defined in the field settings
-    foreach ($this->entityFieldsExclude as $i => $key) {
-      if (array_key_exists($key, $properties)) {
-        unset($properties[$key]);
+    foreach ($this->entityFieldsExclude as $excluded) {
+      if (array_key_exists($excluded, $fields)) {
+        unset($fields[$excluded]);
       }
     }
 
-    foreach ($properties as $property_name => $property) {
-      $form['field_mapping'][$property_name] = [
+    foreach ($fields as $field_name => $field) {
+      $form['field_mapping'][$field_name] = [
         '#type' => 'select',
-        '#title' => $property->getLabel(),
-        '#description' => $property->getDescription(),
+        '#title' => $field->getLabel(),
+        '#description' => $field->getDescription(),
         '#options' => (array) $options,
         '#empty_value' => '',
         '#empty_option' => $this->t('- No mapping -'),
-        '#default_value' => isset($fieldmap[$property_name]) ? $fieldmap[$property_name] : '',
+        '#default_value' => isset($fieldmap[$field_name]) ? $fieldmap[$field_name] : '',
       ];
     }
 

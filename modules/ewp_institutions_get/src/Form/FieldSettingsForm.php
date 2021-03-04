@@ -120,12 +120,12 @@ class FieldSettingsForm extends ConfigFormBase {
     ];
 
     // Load the individual entity fields
-    $properties = $this->entityFieldManager
+    $fields = $this->entityFieldManager
       ->getFieldDefinitions($this->entityType, $this->entityBundle);
 
     // Generate the options
-    foreach ($properties as $property_name => $property) {
-      $options[$property_name] = $property->getLabel();
+    foreach ($fields as $field_name => $field) {
+      $options[$field_name] = $field->getLabel();
     }
 
     $form['field_wrapper']['field_exclude']['#options'] = $options;
@@ -133,8 +133,8 @@ class FieldSettingsForm extends ConfigFormBase {
     // Get the excluded fields from configuration
     $this->entityFieldsExclude = (array) $config->get('field_exclude');
 
-    foreach ($this->entityFieldsExclude as $key => $value) {
-      $form['field_wrapper']['field_exclude'][$value]['#default_value'] = TRUE;
+    foreach ($this->entityFieldsExclude as $field) {
+      $form['field_wrapper']['field_exclude'][$field]['#default_value'] = TRUE;
     }
 
     $form['key_wrapper'] = [
@@ -158,8 +158,8 @@ class FieldSettingsForm extends ConfigFormBase {
     // Get the excluded keys from configuration
     $this->remoteKeysExclude = (array) $config->get('remote_exclude');
 
-    foreach ($this->remoteKeysExclude as $key => $value) {
-      $form['key_wrapper']['key_exclude'][$value]['#default_value'] = TRUE;
+    foreach ($this->remoteKeysExclude as $field) {
+      $form['key_wrapper']['key_exclude'][$field]['#default_value'] = TRUE;
     }
 
     // Get the included keys from configuration
