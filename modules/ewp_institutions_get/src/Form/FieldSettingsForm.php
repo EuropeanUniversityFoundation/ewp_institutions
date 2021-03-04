@@ -36,32 +36,14 @@ class FieldSettingsForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $entityFieldsExclude = ['id', 'uuid', 'langcode'];
+  protected $entityFieldsExclude;
 
   /**
    * The remote keys that match the Institution entity.
    *
    * @var array
    */
-  protected $remoteKeys = [
-    // 'id',
-    // 'uuid',
-    // 'langcode',
-    'status',
-    'label',
-    'created',
-    'changed',
-    'abbreviation',
-    'contact',
-    'hei_id',
-    'logo_url',
-    'mailing_address',
-    'mobility_factsheet_url',
-    'name',
-    'other_id',
-    'street_address',
-    'website_url'
-  ];
+  protected $remoteKeys;
 
   /**
    * The remote keys to exclude from the options.
@@ -126,11 +108,13 @@ class FieldSettingsForm extends ConfigFormBase {
     $config = $this->config('ewp_institutions_get.field_settings');
 
     $form['#tree'] = TRUE;
+
     $form['field_wrapper'] = [
       '#type' => 'details',
       '#title' => $this->t('Exclude entity fields'),
-      '#description' => $this->t('Check the fields to be excluded from field mapping, such as core and Entity Reference fields'),
+      '#description' => $this->t('Check the target entity fields to be excluded from field mapping, such as base fields and Entity References'),
     ];
+
     $form['field_wrapper']['field_exclude'] = [
       '#type' => 'checkboxes',
     ];
@@ -147,11 +131,39 @@ class FieldSettingsForm extends ConfigFormBase {
     $form['field_wrapper']['field_exclude']['#options'] = $options;
 
     // Get the excluded fields from configuration
-    $excluded_fields = $config->get('field_exclude');
+    $excluded_fields = (array) $config->get('field_exclude');
 
     foreach ($excluded_fields as $key => $value) {
       $form['field_wrapper']['field_exclude'][$value]['#default_value'] = TRUE;
     }
+
+    $form['key_wrapper'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Manage remote keys'),
+      '#open' => TRUE,
+    ];
+
+    $form['key_wrapper']['key_exclude'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Exclude remote keys'),
+      '#description' => $this->t('Check the default remote keys to exclude from the field mapping options'),
+    ];
+
+    $this->remoteKeys = \Drupal\ewp_institutions_get\RemoteKeys::getDefaultKeys();
+    // Build the checkbox options
+    $options = \Drupal\ewp_institutions_get\RemoteKeys::getAssocKeys($this->remoteKeys);
+
+    $form['key_wrapper']['key_exclude']['#options'] = $options;
+
+    $form['key_wrapper']['key_include'] = [
+      '#type' => 'textarea',
+      '#title' => t('Include remote keys'),
+      '#description' => $this->t('List the additional remote keys to include in the field mapping options'),
+      '#default_value' => '',
+      '#rows' => 5,
+    ];
+
+    dpm($form);
 
     return parent::buildForm($form, $form_state);
   }
@@ -169,6 +181,7 @@ class FieldSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.field_settings');
 
+    // Fields to exclude
     $field_exclude = $form_state->getValue('field_wrapper')['field_exclude'];
 
     foreach ($field_exclude as $key => $value) {
@@ -178,7 +191,18 @@ class FieldSettingsForm extends ConfigFormBase {
     }
 
     $config->set('field_exclude', $excluded_fields);
-    // $config->set('remote_exclude', $form_state->getValue('remote_exclude'));
+
+    // Remote keys to exclude
+    $key_exclude = $form_state->getValue('key_wrapper')['key_exclude'];
+
+    foreach ($key_exclude as $key => $value) {
+      if ($key_exclude[$key]) {
+        $excluded_keys[] = $key;
+      }
+    }
+
+    $config->set('remote_exclude', $excluded_keys);
+
     // $config->set('remote_include', $form_state->getValue('remote_include'));
 
     $config->save();

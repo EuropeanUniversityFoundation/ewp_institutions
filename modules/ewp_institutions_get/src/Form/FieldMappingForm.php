@@ -43,25 +43,7 @@ class FieldMappingForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $remoteKeys = [
-    // 'id',
-    // 'uuid',
-    // 'langcode',
-    'status',
-    'label',
-    'created',
-    'changed',
-    'abbreviation',
-    'contact',
-    'hei_id',
-    'logo_url',
-    'mailing_address',
-    'mobility_factsheet_url',
-    'name',
-    'other_id',
-    'street_address',
-    'website_url'
-  ];
+  protected $remoteKeys;
 
   /**
    * The remote keys to exclude from the options.
@@ -127,7 +109,9 @@ class FieldMappingForm extends ConfigFormBase {
     $fieldmap = $config->get('field_mapping');
 
     $field_settings = $this->config('ewp_institutions_get.field_settings');
-    $this->entityFieldsExclude = $field_settings->get('field_exclude');
+    $this->entityFieldsExclude = (array) $field_settings->get('field_exclude');
+    $this->remoteKeysExclude = (array) $field_settings->get('remote_exclude');
+    // $this->remoteKeysInclude = (array) $field_settings->get('remote_include');
 
     $form['#tree'] = TRUE;
     $form['field_mapping'] = [
@@ -137,20 +121,13 @@ class FieldMappingForm extends ConfigFormBase {
       '#suffix' => '</div>',
     ];
 
+    $this->remoteKeys = \Drupal\ewp_institutions_get\RemoteKeys::getDefaultKeys();
     // Build the select options
-    $options = [];
-
-    // Load the remote keys and exclude some
-    foreach ($this->remoteKeys as $key) {
-      if (! in_array($key, $this->remoteKeysExclude)) {
-        $options[$key] = $key;
-      }
-    }
-
-    // Then include some
-    foreach ($this->remoteKeysInclude as $key) {
-      $options[$key] = $key;
-    }
+    $options = \Drupal\ewp_institutions_get\RemoteKeys::getAssocKeys(
+      $this->remoteKeys,
+      $this->remoteKeysExclude,
+      $this->remoteKeysInclude
+    );
 
     // Load the individual entity fields
     $properties = $this->entityFieldManager
