@@ -25,6 +25,15 @@ ewp_institutions_get.mapping:
   requirements:
     _permission: 'administer institution entities'
 
+# Field mapping form
+ewp_institutions_get.field_settings:
+  path: '/admin/ewp/hei/get/settings/fields'
+  defaults:
+    _form: '\Drupal\ewp_institutions_get\Form\FieldSettingsForm'
+    _title: 'Field settings'
+  requirements:
+    _permission: 'administer institution entities'
+
 # Pre-load form
 ewp_institutions_get.preload:
   path: '/admin/ewp/hei/get/preload'

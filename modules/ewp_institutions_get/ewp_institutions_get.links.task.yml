@@ -10,3 +10,9 @@ ewp_institutions_get.mapping:
   base_route: ewp_institutions_get.settings
   route_name: ewp_institutions_get.mapping
   weight: 2
+
+ewp_institutions_get.field_settings:
+  title: 'Field settings'
+  base_route: ewp_institutions_get.settings
+  route_name: ewp_institutions_get.field_settings
+  weight: 3
