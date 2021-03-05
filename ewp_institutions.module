@@ -99,25 +99,6 @@ function ewp_institutions_entity_bundle_field_info_alter(&$fields, EntityTypeInt
 }
 
 /**
- * Get Other ID types.
- *
- * Get associative array of Other HEI identifier types from a source file.
- *
- * @return array $options
- */
-function ewp_institutions_get_other_id_types() {
-  $source_file = 'other_id_types.inc';
-  include $source_file;
-
-  $options = [];
-  foreach ($other_id_types as $key => $value) {
-    $options[$key] = $value;
-  }
-
-  return $options;
-}
-
-/**
  * Implements hook_jsonapi_entity_filter_access() for 'hei'.
  */
 function ewp_institutions_jsonapi_entity_filter_access(EntityTypeInterface $entity_type, AccountInterface $account) {

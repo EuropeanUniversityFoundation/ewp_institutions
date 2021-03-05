@@ -1,0 +1,4 @@
+services:
+  ewp_institutions.other_id_types:
+    class: Drupal\ewp_institutions\OtherIdTypeManager
+    arguments: []

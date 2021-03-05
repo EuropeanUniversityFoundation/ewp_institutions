@@ -43,6 +43,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
       '#required' => TRUE,
       '#min' => 1,
     ];
+
     $elements['placeholder'] = [
       '#type' => 'textfield',
       '#title' => t('Placeholder'),
@@ -78,12 +79,14 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_length'),
     ];
+
     // If cardinality is 1, ensure a proper label is output for the field.
     if ($this->fieldDefinition->getFieldStorageDefinition()->getCardinality() == 1) {
       $element['value']['#title'] = $element['#title'];
     }
 
-    $other_id_types = \ewp_institutions_get_other_id_types();
+    $other_id_types = \Drupal::service('ewp_institutions.other_id_types')->getOptions();
+
     $element['type'] = [
       '#type' => 'select',
       '#options' => $other_id_types,
