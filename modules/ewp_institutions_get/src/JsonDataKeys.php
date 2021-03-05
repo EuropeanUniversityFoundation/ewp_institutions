@@ -3,16 +3,16 @@
 namespace Drupal\ewp_institutions_get;
 
 /**
- * Class RemoteKeys
+ * Class JsonDataKeys
  *
- * Helper class to handle JSON:API object keys
+ * Service to handle JSON:API object keys
  */
-class RemoteKeys {
+class JsonDataKeys {
 
   /**
    * Returns the default keys expected in a full JSON:API response
    */
-  public static function getDefaultKeys() {
+  public function getDefaultKeys() {
     $default_keys = [
       'id',
       'uuid',
@@ -39,7 +39,7 @@ class RemoteKeys {
   /**
    * Returns an associative array of keys after excluding and including
    */
-  public static function getAssocKeys(array $keys, array $excluded = [], array $included = []) {
+  public function getAssocKeys(array $keys, array $excluded = [], array $included = []) {
     $assoc = [];
 
     // Gather the initial keys if not excluded

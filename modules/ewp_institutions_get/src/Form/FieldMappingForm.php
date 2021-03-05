@@ -119,9 +119,9 @@ class FieldMappingForm extends ConfigFormBase {
       '#type' => 'fieldset',
     ];
 
-    $this->remoteKeys = \Drupal\ewp_institutions_get\RemoteKeys::getDefaultKeys();
+    $this->remoteKeys = \Drupal::service('ewp_institutions_get.keys')->getDefaultKeys();
     // Build the select options
-    $options = \Drupal\ewp_institutions_get\RemoteKeys::getAssocKeys(
+    $options = \Drupal::service('ewp_institutions_get.keys')->getAssocKeys(
       $this->remoteKeys,
       $this->remoteKeysExclude,
       $this->remoteKeysInclude

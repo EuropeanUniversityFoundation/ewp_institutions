@@ -149,9 +149,9 @@ class FieldSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Check the default remote keys to exclude from the field mapping options'),
     ];
 
-    $this->remoteKeys = \Drupal\ewp_institutions_get\RemoteKeys::getDefaultKeys();
+    $this->remoteKeys = \Drupal::service('ewp_institutions_get.keys')->getDefaultKeys();
     // Build the checkbox options
-    $options = \Drupal\ewp_institutions_get\RemoteKeys::getAssocKeys($this->remoteKeys);
+    $options = \Drupal::service('ewp_institutions_get.keys')->getAssocKeys($this->remoteKeys);
 
     $form['key_wrapper']['key_exclude']['#options'] = $options;
 
