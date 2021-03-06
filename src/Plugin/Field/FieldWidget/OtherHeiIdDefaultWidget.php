@@ -72,18 +72,10 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $element['value'] = [
-      '#type' => 'textfield',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
-      '#size' => $this->getSetting('size'),
-      '#placeholder' => $this->getSetting('placeholder'),
-      '#maxlength' => $this->getFieldSetting('max_length'),
+    $element = $element + [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['container-inline']],
     ];
-
-    // If cardinality is 1, ensure a proper label is output for the field.
-    if ($this->fieldDefinition->getFieldStorageDefinition()->getCardinality() == 1) {
-      $element['value']['#title'] = $element['#title'];
-    }
 
     $other_id_types = \Drupal::service('ewp_institutions.other_id_types')->getOptions();
 
@@ -94,6 +86,19 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
       '#empty_value' => '',
       '#default_value' => isset($items[$delta]->type) ? $items[$delta]->type : NULL,
     ];
+
+    $element['value'] = [
+      '#type' => 'textfield',
+      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#size' => $this->getSetting('size'),
+      '#placeholder' => $this->getSetting('placeholder'),
+      '#maxlength' => $this->getFieldSetting('max_length'),
+    ];
+
+    // If cardinality is 1, ensure a proper label is output for the field.
+    if ($this->fieldDefinition->getFieldStorageDefinition()->getCardinality() == 1) {
+      $element['#type'] = 'fieldset';
+    }
 
     return $element;
   }
