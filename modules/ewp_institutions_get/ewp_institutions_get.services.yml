@@ -8,3 +8,7 @@ services:
   ewp_institutions_get.json:
     class: Drupal\ewp_institutions_get\JsonDataProcessor
     arguments: []
+  ewp_institutions_get.route_subscriber:
+    class: Drupal\ewp_institutions_get\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
