@@ -55,14 +55,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
-    $form['add-form'] = [
+    $form['add-form'] = parent::buildForm($form, $form_state);
+
+    // Place the original form in a details element
+    $form['add-form'] += [
       '#type' => 'details',
       '#title' => 'Add form'
-    ] + parent::buildForm($form, $form_state);
-
-    // Load the fieldmap
-    $config = $this->config('ewp_institutions_get.fieldmap');
-    $fieldmap = $config->get('field_mapping');
+    ];
 
     // Load the settings.
     $settings = \Drupal::config('ewp_institutions_get.settings');
@@ -112,6 +111,12 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       '#options' => [],
       '#default_value' => '',
       '#empty_value' => '',
+      '#ajax' => [
+        'callback' => '::previewInstitution',
+        'disable-refocus' => TRUE,
+        'event' => 'change',
+        'wrapper' => 'data',
+      ],
       '#validated' => TRUE,
       '#states' => [
         'disabled' => [
@@ -121,36 +126,37 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       '#weight' => '-8',
     ];
 
-    $form['actions'] = [
-      '#type' => 'actions',
-      '#weight' => '-7',
-    ];
-
-    $form['actions']['get'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Preview Institution'),
-      '#attributes' => [
-        'class' => [
-          'button--primary',
-        ]
-      ],
-      '#states' => [
-        'disabled' => [
-          ':input[name="hei_select"]' => ['value' => ''],
-        ],
-      ],
-      '#ajax' => [
-        'callback' => '::previewInstitution',
-      ],
-    ];
-
     $form['data'] = [
       '#type' => 'markup',
-      '#markup' => '<div class="response_data"></div>',
+      '#markup' => '<div id="data"></div>',
       '#weight' => '-6',
     ];
 
-    dpm($form['add-form']);
+    // Load the fieldmap
+    $config = $this->config('ewp_institutions_get.fieldmap');
+    $fieldmap = $config->get('field_mapping');
+
+    // Remove empty values
+    foreach ($fieldmap as $key => $value) {
+      if (empty($fieldmap[$key])) {
+        unset($fieldmap[$key]);
+      }
+    }
+
+    foreach ($form['add-form'] as $name => $array) {
+      // Target the fields in the form render array
+      if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
+        // Remove non mapped fields from the form
+        // Preserve the required fields that aren't mapped
+        if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
+          unset($form['add-form'][$name]);
+        }
+      }
+    }
+
+    // dpm($fieldmap);
+    //
+    // dpm($form['add-form']);
 
     return $form;
   }
@@ -214,7 +220,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
-      new HtmlCommand('.response_data', $message));
+      new HtmlCommand('#data', $message));
     return $ajax_response;
   }
 

@@ -175,8 +175,6 @@ class FieldSettingsForm extends ConfigFormBase {
       '#rows' => 5,
     ];
 
-    dpm($form);
-
     return parent::buildForm($form, $form_state);
   }
 
