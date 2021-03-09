@@ -5,6 +5,7 @@ namespace Drupal\ewp_institutions_get\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\ewp_institutions\Form\InstitutionEntityForm;
 use Drupal\ewp_institutions_get\Form\PreviewForm;
 
@@ -154,9 +155,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       }
     }
 
-    // dpm($fieldmap);
-    //
-    // dpm($form['add-form']);
+    // dpm($link);
 
     return $form;
   }
@@ -203,6 +202,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   */
   public function previewInstitution(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
+
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     // JSON data has to be stored at this point per previous step
@@ -213,10 +213,26 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     $hei_item = $form_state->getValue('hei_select');
 
-    $title = $hei_list[$hei_item];
+    // Check if an entity with the same hei_id already exists
+    $exists = \Drupal::entityTypeManager()->getStorage('hei')
+      ->loadByProperties(['hei_id' => $hei_item]);
 
-    $message = \Drupal::service('ewp_institutions_get.json')
-      ->preview($title, $json_data, $hei_item);
+    if (!empty($exists)) {
+      foreach ($exists as $id => $hei) {
+        $link = $hei->toLink();
+      }
+      $error_message = $this->t('Institution with ID <code>@hei_id</code> already exists: @link', [
+        '@hei_id' => $hei_item,
+        '@link' => render($link->toRenderable()),
+      ]);
+      \Drupal::service('messenger')->addError($error_message);
+      $message = StatusMessages::renderMessages();
+    } else {
+      $title = $hei_list[$hei_item];
+
+      $message = \Drupal::service('ewp_institutions_get.json')
+        ->preview($title, $json_data, $hei_item);
+    }
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
