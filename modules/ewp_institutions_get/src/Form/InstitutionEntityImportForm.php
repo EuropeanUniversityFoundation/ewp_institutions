@@ -248,8 +248,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     } else {
       $title = $hei_list[$hei_id];
 
-      $message = \Drupal::service('ewp_institutions_get.json')
-        ->preview($title, $json_data, $hei_id);
+      $data = \Drupal::service('ewp_institutions_get.json')
+        ->toArray($json_data);
+
+      $show_empty = FALSE;
+
+      $message = \Drupal::service('ewp_institutions_get.format')
+        ->preview($title, $data, $hei_id, $show_empty);
     }
 
     $ajax_response = new AjaxResponse();

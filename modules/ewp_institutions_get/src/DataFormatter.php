@@ -113,7 +113,7 @@ class DataFormatter {
   /**
    * Format data for preview
    */
-  public function preview($title, $data, $item) {
+  public function preview($title, $data, $item, $show_empty = TRUE) {
     foreach ($data as $key => $value) {
       if ($value['id'] == $item) {
         $attributes = $value['attributes'];
@@ -138,8 +138,10 @@ class DataFormatter {
             $list .= '<ul>';
 
             foreach ($attributes[$key] as $subkey => $subvalue) {
-              $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
-              $list .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+              if ($subvalue || $show_empty) {
+                $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
+                $list .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+              }
             }
 
             $list .= '</ul>';
@@ -155,8 +157,10 @@ class DataFormatter {
                 $sublist .= '<ul>';
 
                 foreach ($attributes[$key][$delta] as $subkey => $subvalue) {
-                  $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
-                  $sublist .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+                  if ($subvalue || $show_empty) {
+                    $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
+                    $sublist .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+                  }
                 }
 
                 $sublist .= '</ul>';
