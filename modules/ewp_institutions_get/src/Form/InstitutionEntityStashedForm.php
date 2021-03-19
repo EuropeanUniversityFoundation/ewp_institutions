@@ -59,12 +59,40 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add-form'] = parent::buildForm($form, $form_state);
 
+    // Load the fieldmap
+    $config = $this->config('ewp_institutions_get.fieldmap');
+    $fieldmap = $config->get('field_mapping');
+
+    // Remove empty values
+    foreach ($fieldmap as $key => $value) {
+      if (empty($fieldmap[$key])) {
+        unset($fieldmap[$key]);
+      }
+    }
+
+    foreach ($form['add-form'] as $name => $array) {
+      // Target the fields in the form render array
+      if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
+        // Remove non mapped, non required fields from the form
+        // If a default value is set, it will not be lost
+        if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
+          unset($form['add-form'][$name]);
+        } else {
+          $form['add-form'][$name]['#prefix'] = '<div id="' . $name . '">';
+          $form['add-form'][$name]['#suffix'] = '</div>';
+        }
+      } else {
+        // Move every other element back into the main form
+        $form[$name] = $form['add-form'][$name];
+        unset($form['add-form'][$name]);
+      }
+    }
+
     // Hide the original form
-    $form['add-form'] += ['#type' => 'container'];
-    $form['add-form']['#attributes'] += [
-      'style' => [
-        'display' => "display: none",
-      ],
+    $form['add-form'] += [
+      '#type' => 'container',
+      '#prefix' => '<div id="add-form">',
+      '#suffix' => '</div>',
     ];
 
     // Load the settings.
@@ -142,33 +170,39 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     $form['header']['messages'] = [
       '#type' => 'markup',
-      '#markup' => '<div id="messages"></div>',
+      '#prefix' => '<div id="messages">',
+      '#suffix' => '</div>',
+      '#markup' => '',
+      '#weight' => '-7',
     ];
 
-    // Load the fieldmap
-    $config = $this->config('ewp_institutions_get.fieldmap');
-    $fieldmap = $config->get('field_mapping');
+    $form['header']['actions'] = [
+      '#type' => 'actions',
+      '#weight' => '-6',
+    ];
 
-    // Remove empty values
-    foreach ($fieldmap as $key => $value) {
-      if (empty($fieldmap[$key])) {
-        unset($fieldmap[$key]);
-      }
-    }
+    $form['header']['actions']['populate'] = [
+      '#type' => 'button',
+      '#value' => $this->t('Populate'),
+      '#attributes' => [
+        'class' => [
+          'button--primary',
+        ]
+      ],
+      '#states' => [
+        'disabled' => [
+          ':input[name="hei_select"]' => ['value' => ''],
+        ],
+      ],
+      '#ajax' => [
+        'callback' => '::populateForm',
+        'wrapper' => 'add-form',
+      ],
+    ];
 
-    // foreach ($form['add-form'] as $name => $array) {
-    //   // Target the fields in the form render array
-    //   if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
-    //     // Remove non mapped, non required fields from the form
-    //     // If a default value is set, it will not be lost
-    //     if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
-    //       unset($form['add-form'][$name]);
-    //     }
-    //   }
-    // }
-    //
-
+    // dpm($form['add-form']['label']);
     // dpm($form['add-form']);
+    // dpm($form);
 
     return $form;
   }
@@ -257,17 +291,19 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         ->preview($title, $data, $hei_id, $show_empty);
     }
 
-    $ajax_response = new AjaxResponse();
-    $ajax_response
-      ->addCommand(new HtmlCommand('#messages', $message));
+    $form['header']['messages']['#markup'] = render($message);
 
-    return $ajax_response;
+    return $form['header']['messages'];
   }
 
   /**
   * Populate the form
   */
-  protected function populateForm(array $form, FormStateInterface $form_state) {
+  public function populateForm(array &$form, FormStateInterface $form_state) {
+    // $form['add-form']['label']['widget'][0]['value']['#value'] = 'ARGH';
+    unset($form['add-form']['name']);
+    dpm($form['add-form']);
+    return $form['add-form'];
   }
 
 }
