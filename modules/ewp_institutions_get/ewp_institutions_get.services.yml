@@ -8,6 +8,9 @@ services:
   ewp_institutions_get.json:
     class: Drupal\ewp_institutions_get\JsonDataProcessor
     arguments: []
+  ewp_institutions_get.format:
+    class: Drupal\ewp_institutions_get\DataFormatter
+    arguments: []
   ewp_institutions_get.route_subscriber:
     class: Drupal\ewp_institutions_get\Routing\RouteSubscriber
     tags:

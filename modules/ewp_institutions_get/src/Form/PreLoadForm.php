@@ -153,9 +153,10 @@ class PreLoadForm extends FormBase {
 
       if ($json_data) {
         $title = $this->indexLabels[$index_item];
+        $data = \Drupal::service('ewp_institutions_get.json')->toArray($json_data);
         $columns = $this->columns;
         $show_attr = $this->showAttr;
-        $message = \Drupal::service('ewp_institutions_get.json')->toTable($title, $json_data, $columns, $show_attr);
+        $message = \Drupal::service('ewp_institutions_get.format')->toTable($title, $data, $columns, $show_attr);
       } else {
         $message = $this->t('Nothing to display.');
       }

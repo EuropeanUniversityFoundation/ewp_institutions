@@ -137,7 +137,8 @@ class PreviewForm extends PreLoadForm {
 
     $title = $hei_list[$hei_item];
 
-    $message = \Drupal::service('ewp_institutions_get.json')->preview($title, $json_data, $hei_item);
+    $data = \Drupal::service('ewp_institutions_get.json')->toArray($json_data);
+    $message = \Drupal::service('ewp_institutions_get.format')->preview($title, $data, $hei_item);
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(

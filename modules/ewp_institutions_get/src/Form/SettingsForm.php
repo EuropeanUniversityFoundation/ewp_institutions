@@ -73,9 +73,10 @@ class SettingsForm extends ConfigFormBase {
 
     if ($json_data) {
       $title = $this->t('Index');
+      $data = \Drupal::service('ewp_institutions_get.json')->toArray($json_data);
       $columns = ['label'];
       $show_attr = FALSE;
-      $processed = \Drupal::service('ewp_institutions_get.json')->toTable($title, $json_data, $columns, $show_attr);
+      $processed = \Drupal::service('ewp_institutions_get.format')->toTable($title, $data, $columns, $show_attr);
       $message = $processed;
     } else {
       $message = $this->t('Nothing to display.');
