@@ -54,15 +54,26 @@ ewp_institutions_get.preview:
 
 # Import entity form
 entity.hei.import_form:
-  path: '/ewp/hei/import'
+  path: '/ewp/hei/import/{index_key}/{hei_key}'
   defaults:
       _entity_form: hei.import
       entity_type_id: hei
       _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
+      index_key: 'EU'
+      hei_key: 'example.edu'
   requirements:
     _entity_create_access: hei
+    # RegEx for EWP ASCII Printable Identifier is too permissive
+    index_key: '[A-Za-z0–9_-]+'
+    # RegEx for a valid domain name, as expected in HEI IDs
+    hei_key: '(?=.{4,255}$)((?!-)[A-Za-z0–9-]{1,63}(?<!-)\.)+[A-Za-z]{2,24}'
   options:
     _admin_route: true
+    parameters:
+      index_key:
+        type: index_key
+      hei_key:
+        type: hei_key
 
 # Update entity form
 entity.hei.update_form:

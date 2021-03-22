@@ -55,7 +55,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state, $index_key = NULL, $hei_key = NULL) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add_form'] = parent::buildForm($form, $form_state);
 
@@ -169,6 +169,12 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         ],
       ],
       '#weight' => '-8',
+    ];
+
+    $form['header']['vars'] = [
+      '#type' => 'markup',
+      '#markup' => $index_key . ' ' . $hei_key,
+      '#weight' => '-7',
     ];
 
     $form['header']['messages'] = [
