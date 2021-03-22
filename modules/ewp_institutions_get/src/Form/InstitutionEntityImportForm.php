@@ -45,6 +45,27 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   protected $indexLabels;
 
   /**
+   * Index key for Institution
+   *
+   * @var string
+   */
+  protected $indexKey;
+
+  /**
+   * Item key for Institution
+   *
+   * @var string
+   */
+  protected $institutionKey;
+
+  /**
+   * Data for Institution
+   *
+   * @var array
+   */
+  protected $institutionData;
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -57,6 +78,27 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state, $index_key = NULL, $hei_key = NULL) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add_form'] = parent::buildForm($form, $form_state);
+
+    // Build the form header
+    $form['header'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Selected Institution to import'),
+      '#weight' => '-100'
+    ];
+
+    $form['header']['vars'] = [
+      '#type' => 'markup',
+      '#markup' => '',
+      '#weight' => '-7',
+    ];
+
+    $form['header']['messages'] = [
+      '#type' => 'markup',
+      '#prefix' => '<div id="messages">',
+      '#suffix' => '</div>',
+      '#markup' => '',
+      '#weight' => '-7',
+    ];
 
     // Load the fieldmap
     $config = $this->config('ewp_institutions_get.fieldmap');
@@ -80,19 +122,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           $form['add_form'][$name]['#prefix'] = '<div id="' . $name . '">';
           $form['add_form'][$name]['#suffix'] = '</div>';
         }
-      } else {
-        // Move every other element back into the main form
-        $form[$name] = $form['add_form'][$name];
-        unset($form['add_form'][$name]);
       }
     }
-
-    // Hide the original form
-    $form['add_form'] += [
-      '#type' => 'container',
-      '#prefix' => '<div id="add-form">',
-      '#suffix' => '</div>',
-    ];
 
     // Load the settings.
     $settings = \Drupal::config('ewp_institutions_get.settings');
@@ -100,117 +131,113 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $this->indexLinkKey = 'list';
     $this->indexLinks = [];
     $this->indexLabels = [];
+    $this->indexKey = NULL;
+    $this->institutionKey = NULL;
+    $this->institutionData = [];
+    $error = NULL;
 
-    if (! empty($this->indexEndpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
+    if (empty($this->indexEndpoint)) {
+      // Missing endpoint is a deal breaker
+      $error = $this->t("Index endpoint is not defined.");
+    } else {
+      $index_data = \Drupal::service('ewp_institutions_get.fetch')
         ->load('index', $this->indexEndpoint);
 
-      if ($json_data) {
+      if (! $index_data) {
+        // Missing index data is a deal breaker
+        $error = $this->t("No available data.");
+      } else {
         $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
-          ->idLinks($json_data, $this->indexLinkKey);
-
+          ->idLinks($index_data, $this->indexLinkKey);
         $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
-          ->idLabel($json_data);
+          ->idLabel($index_data);
+
+        if (! array_key_exists($index_key, $this->indexLinks)) {
+          // Invalid index key is a deal breaker
+          $error = $this->t("Invalid index key: @index_key", [
+            '@index_key' => $index_key
+          ]);
         } else {
-          $error = $this->t("No available data.");
+          // SUCCESS! First path argument is validated
+          $this->indexKey = $index_key;
+          $endpoint = $this->indexLinks[$this->indexKey];
 
-          \Drupal::service('messenger')->addError($error);
+          if (empty($endpoint)) {
+            // Missing endpoint is a deal breaker
+            $error = $this->t("Item endpoint is not defined.");
+          } else {
+            // Check when the index was last updated
+            $index_updated = \Drupal::service('ewp_institutions_get.fetch')
+              ->checkUpdated('index');
+            // Check when this item was last updated
+            $item_updated = \Drupal::service('ewp_institutions_get.fetch')
+              ->checkUpdated($index_key);
+            // Decide whether to force a refresh
+            $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
+            // Load the data for this index item
+            $item_data = \Drupal::service('ewp_institutions_get.fetch')
+              ->load($index_key, $endpoint);
+
+            if (! $item_data) {
+              // Missing item data is a deal breaker
+              $error = $this->t("No available data for @index_item", [
+                '@index_item' => $this->indexLabels[$this->indexKey]
+              ]);
+            } else {
+              $hei_list = \Drupal::service('ewp_institutions_get.json')
+                ->idLabel($item_data);
+
+              if (! array_key_exists($hei_key, $hei_list)) {
+                // Invalid item key is a deal breaker
+                $error = $this->t("Invalid institution key: @hei_key", [
+                  '@hei_key' => $hei_key
+                ]);
+              } else {
+                // SUCCESS! Second path argument is validated
+                $this->institutionKey = $hei_key;
+                // Check if an entity with the same hei_id already exists
+                $exists = \Drupal::entityTypeManager()->getStorage('hei')
+                  ->loadByProperties(['hei_id' => $this->institutionKey]);
+
+                if (!empty($exists)) {
+                  foreach ($exists as $id => $hei) {
+                    $link = $hei->toLink();
+                    $renderable = $link->toRenderable();
+                  }
+                  $error = $this->t('Institution with ID <code>@hei_id</code> already exists: @link', [
+                    '@hei_id' => $this->institutionKey,
+                    '@link' => render($renderable),
+                  ]);
+                } else {
+                  $title = $hei_list[$this->institutionKey];
+                  $hei_data = \Drupal::service('ewp_institutions_get.json')
+                    ->toArray($item_data);
+                  $show_empty = FALSE;
+                  $message = \Drupal::service('ewp_institutions_get.format')
+                    ->preview($title, $hei_data, $this->institutionKey, $show_empty);
+                }
+              }
+            }
+          }
         }
-    } else {
-      $warning = $this->t("Index endpoint is not defined.");
-
-      \Drupal::service('messenger')->addWarning($warning);
+      }
     }
 
-    // Build the form header with the AJAX components
-    $form['header'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Select an Institution to import'),
-      '#weight' => '-100'
-    ];
+    if ($error) {
+      \Drupal::service('messenger')->addError($error);
+      // Delete the entity form
+      unset($form['add_form']);
+    } else {
+      $header_markup = '';
+      $header_markup .= '<p><strong>' . $this->t('Index entry') . ':</strong> ';
+      $header_markup .= $this->indexLabels[$this->indexKey] . '</p>';
+      $header_markup .= '<p><strong>' . $this->t('Institution ID') . ':</strong> ';
+      $header_markup .= $this->institutionKey . '</p>';
+      $header_markup .= render($message);
+      $form['header']['vars']['#markup'] = $header_markup;
+    }
 
-    $form['header']['index_select'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Index'),
-      '#options' => $this->indexLabels,
-      '#default_value' => '',
-      '#empty_value' => '',
-      '#ajax' => [
-        'callback' => '::getInstitutionList',
-        'disable-refocus' => TRUE,
-        'event' => 'change',
-        'wrapper' => 'hei-select',
-      ],
-      '#attributes' => [
-        'name' => 'index_select',
-      ],
-      '#weight' => '-9',
-    ];
 
-    $form['header']['hei_select'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Institution'),
-      '#prefix' => '<div id="hei-select">',
-      '#suffix' => '</div>',
-      '#options' => [],
-      '#default_value' => '',
-      '#empty_value' => '',
-      '#ajax' => [
-        'callback' => '::previewInstitution',
-        'disable-refocus' => TRUE,
-        'event' => 'change',
-        'wrapper' => 'messages',
-      ],
-      '#validated' => TRUE,
-      '#states' => [
-        'disabled' => [
-          ':input[name="index_select"]' => ['value' => ''],
-        ],
-      ],
-      '#weight' => '-8',
-    ];
-
-    $form['header']['vars'] = [
-      '#type' => 'markup',
-      '#markup' => $index_key . ' ' . $hei_key,
-      '#weight' => '-7',
-    ];
-
-    $form['header']['messages'] = [
-      '#type' => 'markup',
-      '#prefix' => '<div id="messages">',
-      '#suffix' => '</div>',
-      '#markup' => '',
-      '#weight' => '-7',
-    ];
-
-    $form['header']['actions'] = [
-      '#type' => 'actions',
-      '#weight' => '-6',
-    ];
-
-    $form['header']['actions']['populate'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Populate'),
-      '#attributes' => [
-        'class' => [
-          'button--primary',
-        ]
-      ],
-      '#states' => [
-        'disabled' => [
-          ':input[name="hei_select"]' => ['value' => ''],
-        ],
-      ],
-      '#ajax' => [
-        'callback' => '::populateForm',
-        'event' => 'click',
-        'wrapper' => 'add-form',
-      ],
-    ];
-
-    // dpm($form['add_form']['label']);
-    // dpm($form['add_form']);
     // dpm($form);
 
     return $form;
@@ -219,7 +246,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   /**
   * Fetch the data and build select list
   */
-  public function getInstitutionList(array $form, FormStateInterface $form_state) {
+  public function getInstitutionList($index_item) {
     $index_item = $form_state->getValue('index_select');
 
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
@@ -303,23 +330,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $form['header']['messages']['#markup'] = render($message);
 
     return $form['header']['messages'];
-  }
-
-  /**
-  * Populate the form
-  */
-  public function populateForm(array $form, FormStateInterface $form_state) {
-    $element = $form['add_form']['label'];
-    $element['widget'][0]['value']['#value'] = 'Label';
-
-    $form_state->setRebuild(TRUE);
-
-    $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(
-      new ReplaceCommand('#label', render($element)));
-    return $ajax_response;
-
-    // return $element;
   }
 
 }
