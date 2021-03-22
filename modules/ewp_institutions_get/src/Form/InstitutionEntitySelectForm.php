@@ -2,10 +2,9 @@
 
 namespace Drupal\ewp_institutions_get\Form;
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\ewp_institutions_get\Form\PreviewForm;
 
@@ -27,11 +26,29 @@ class InstitutionEntitySelectForm extends PreviewForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $user = \Drupal::currentUser();
+
+    // Give a user with permission the opportunity to add an entity manually
+    if ($user->hasPermission('bypass import institution entities')) {
+      $add_link = Link::fromTextAndUrl(t('add a new Institution'),
+        Url::fromRoute('entity.hei.add_form'))->toString();
+
+      $warning = $this->t('You can bypass this form and @add_link manually.',[
+        '@add_link' => $add_link
+      ]);
+
+      $form['messages'] = [
+        '#type' => 'markup',
+        '#markup' => $warning,
+        '#weight' => '-20'
+      ];
+    }
+
     // Build the form header with the AJAX components
     $form['header'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Select an Institution to import'),
-      '#weight' => '-100'
+      '#weight' => '-10'
     ];
 
     $form['header']['index_select'] = [

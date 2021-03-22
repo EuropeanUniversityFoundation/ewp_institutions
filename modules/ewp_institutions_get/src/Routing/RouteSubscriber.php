@@ -14,9 +14,8 @@ class RouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
-    // Define new path and permission for the Institution add form.
+    // Set new permission for the Institution add form.
     if ($route = $collection->get('entity.hei.add_form')) {
-      $route->setPath('/ewp/hei/add/new');
       $route->setRequirements([
         '_permission' => 'bypass import institution entities',
       ]);

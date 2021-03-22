@@ -54,11 +54,11 @@ ewp_institutions_get.preview:
 
 # Import entity select form
 entity.hei.select_form:
-  path: '/ewp/hei/add'
+  path: '/ewp/hei/import'
   defaults:
     _form: '\Drupal\ewp_institutions_get\Form\InstitutionEntitySelectForm'
     entity_type_id: hei
-    _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
+    _title_callback: 'Drupal\ewp_institutions_get\Controller\InstitutionEntityController::addExternalTitle'
   requirements:
     _entity_create_access: hei
   options:
@@ -70,9 +70,7 @@ entity.hei.import_form:
   defaults:
     _entity_form: hei.import
     entity_type_id: hei
-    _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
-    index_key: 'EU'
-    hei_key: 'example.edu'
+    _title_callback: 'Drupal\ewp_institutions_get\Controller\InstitutionEntityController::importTitle'
   requirements:
     _entity_create_access: hei
     # RegEx for EWP ASCII Printable Identifier allows the / character
