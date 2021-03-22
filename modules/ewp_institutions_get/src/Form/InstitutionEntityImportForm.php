@@ -57,7 +57,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
-    $form['add-form'] = parent::buildForm($form, $form_state);
+    $form['add_form'] = parent::buildForm($form, $form_state);
 
     // Load the fieldmap
     $config = $this->config('ewp_institutions_get.fieldmap');
@@ -70,26 +70,26 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       }
     }
 
-    foreach ($form['add-form'] as $name => $array) {
+    foreach ($form['add_form'] as $name => $array) {
       // Target the fields in the form render array
       if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
         // Remove non mapped, non required fields from the form
         // If a default value is set, it will not be lost
         if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
-          unset($form['add-form'][$name]);
+          unset($form['add_form'][$name]);
         } else {
-          $form['add-form'][$name]['#prefix'] = '<div id="' . $name . '">';
-          $form['add-form'][$name]['#suffix'] = '</div>';
+          $form['add_form'][$name]['#prefix'] = '<div id="' . $name . '">';
+          $form['add_form'][$name]['#suffix'] = '</div>';
         }
       } else {
         // Move every other element back into the main form
-        $form[$name] = $form['add-form'][$name];
-        unset($form['add-form'][$name]);
+        $form[$name] = $form['add_form'][$name];
+        unset($form['add_form'][$name]);
       }
     }
 
     // Hide the original form
-    $form['add-form'] += [
+    $form['add_form'] += [
       '#type' => 'container',
       '#prefix' => '<div id="add-form">',
       '#suffix' => '</div>',
@@ -109,14 +109,17 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       if ($json_data) {
         $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
           ->idLinks($json_data, $this->indexLinkKey);
+
         $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
           ->idLabel($json_data);
         } else {
           $error = $this->t("No available data.");
+
           \Drupal::service('messenger')->addError($error);
         }
     } else {
       $warning = $this->t("Index endpoint is not defined.");
+
       \Drupal::service('messenger')->addWarning($warning);
     }
 
@@ -196,13 +199,14 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       ],
       '#ajax' => [
         'callback' => '::populateForm',
+        'event' => 'click',
         'wrapper' => 'add-form',
       ],
     ];
 
-    // dpm($form['add-form']['label']);
-    // dpm($form['add-form']);
-    // dpm($form);
+    // dpm($form['add_form']['label']);
+    dpm($form['add_form']);
+    dpm($form);
 
     return $form;
   }
@@ -299,11 +303,18 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   /**
   * Populate the form
   */
-  public function populateForm(array &$form, FormStateInterface $form_state) {
-    // $form['add-form']['label']['widget'][0]['value']['#value'] = 'ARGH';
-    unset($form['add-form']['name']);
-    dpm($form['add-form']);
-    return $form['add-form'];
+  public function populateForm(array $form, FormStateInterface $form_state) {
+    $element = $form['add_form']['label'];
+    $element['widget'][0]['value']['#value'] = 'Label';
+
+    $form_state->setRebuild(TRUE);
+
+    $ajax_response = new AjaxResponse();
+    $ajax_response->addCommand(
+      new ReplaceCommand('#label', render($element)));
+    return $ajax_response;
+
+    // return $element;
   }
 
 }
