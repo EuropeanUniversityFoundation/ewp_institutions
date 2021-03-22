@@ -36,7 +36,7 @@ function ewp_institutions_get_entity_type_build(array &$entity_types) {
   $entity_types['hei']
     ->setFormClass('import', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityImportForm')
     ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')
-    ->setLinkTemplate('import-form', '/ewp/hei/import')
+    ->setLinkTemplate('import-form', '/ewp/hei/import/{index_key}/{hei_key}')
     ->setLinkTemplate('update-form', '/ewp/hei/{hei}/update');
 }
 

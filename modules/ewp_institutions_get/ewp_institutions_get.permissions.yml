@@ -1,0 +1,7 @@
+bypass import institution entities:
+  title: 'Bypass Import Institution form'
+  restrict access: true
+
+bypass update institution entities:
+  title: 'Bypass Update Institution form'
+  restrict access: true
