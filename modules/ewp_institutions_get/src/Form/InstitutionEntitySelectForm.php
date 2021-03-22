@@ -7,121 +7,26 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\StatusMessages;
-use Drupal\ewp_institutions\Form\InstitutionEntityForm;
+use Drupal\ewp_institutions_get\Form\PreviewForm;
 
 /**
- * Changes the Institution Add form.
+ * Alternative for Institution Add form.
  *
  * @ingroup ewp_institutions
  */
-class InstitutionEntityImportForm extends InstitutionEntityForm {
-
-  /**
-   * Index endpoint
-   *
-   * @var string
-   */
-  protected $indexEndpoint;
-
-  /**
-   * Index link key
-   *
-   * @var string
-   */
-  protected $indexLinkKey;
-
-  /**
-   * Index item links
-   *
-   * @var array
-   */
-  protected $indexLinks;
-
-  /**
-   * Index item labels
-   *
-   * @var array
-   */
-  protected $indexLabels;
+class InstitutionEntitySelectForm extends PreviewForm {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'hei_import_form';
+    return 'hei_select_form';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $index_key = NULL, $hei_key = NULL) {
-    /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
-    $form['add_form'] = parent::buildForm($form, $form_state);
-
-    // Load the fieldmap
-    $config = $this->config('ewp_institutions_get.fieldmap');
-    $fieldmap = $config->get('field_mapping');
-
-    // Remove empty values
-    foreach ($fieldmap as $key => $value) {
-      if (empty($fieldmap[$key])) {
-        unset($fieldmap[$key]);
-      }
-    }
-
-    foreach ($form['add_form'] as $name => $array) {
-      // Target the fields in the form render array
-      if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
-        // Remove non mapped, non required fields from the form
-        // If a default value is set, it will not be lost
-        if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
-          unset($form['add_form'][$name]);
-        } else {
-          $form['add_form'][$name]['#prefix'] = '<div id="' . $name . '">';
-          $form['add_form'][$name]['#suffix'] = '</div>';
-        }
-      } else {
-        // Move every other element back into the main form
-        $form[$name] = $form['add_form'][$name];
-        unset($form['add_form'][$name]);
-      }
-    }
-
-    // Hide the original form
-    $form['add_form'] += [
-      '#type' => 'container',
-      '#prefix' => '<div id="add-form">',
-      '#suffix' => '</div>',
-    ];
-
-    // Load the settings.
-    $settings = \Drupal::config('ewp_institutions_get.settings');
-    $this->indexEndpoint = $settings->get('ewp_institutions_get.index_endpoint');
-    $this->indexLinkKey = 'list';
-    $this->indexLinks = [];
-    $this->indexLabels = [];
-
-    if (! empty($this->indexEndpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->load('index', $this->indexEndpoint);
-
-      if ($json_data) {
-        $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
-          ->idLinks($json_data, $this->indexLinkKey);
-
-        $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
-          ->idLabel($json_data);
-        } else {
-          $error = $this->t("No available data.");
-
-          \Drupal::service('messenger')->addError($error);
-        }
-    } else {
-      $warning = $this->t("Index endpoint is not defined.");
-
-      \Drupal::service('messenger')->addWarning($warning);
-    }
-
+  public function buildForm(array $form, FormStateInterface $form_state) {
     // Build the form header with the AJAX components
     $form['header'] = [
       '#type' => 'fieldset',
@@ -159,7 +64,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         'callback' => '::previewInstitution',
         'disable-refocus' => TRUE,
         'event' => 'change',
-        'wrapper' => 'messages',
+        'wrapper' => 'data',
       ],
       '#validated' => TRUE,
       '#states' => [
@@ -170,28 +75,34 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       '#weight' => '-8',
     ];
 
-    $form['header']['vars'] = [
-      '#type' => 'markup',
-      '#markup' => $index_key . ' ' . $hei_key,
-      '#weight' => '-7',
-    ];
-
-    $form['header']['messages'] = [
-      '#type' => 'markup',
-      '#prefix' => '<div id="messages">',
+    $form['data'] = [
+      '#type' => 'container',
+      '#prefix' => '<div id="data">',
       '#suffix' => '</div>',
-      '#markup' => '',
       '#weight' => '-7',
     ];
 
-    $form['header']['actions'] = [
+    $form['data']['status'] = [
+      '#type' => 'hidden',
+      '#value' => '',
+      '#attributes' => [
+        'name' => 'data_status',
+      ],
+    ];
+
+    $form['data']['preview'] = [
+      '#type' => 'markup',
+      '#markup' => '',
+    ];
+
+    $form['actions'] = [
       '#type' => 'actions',
       '#weight' => '-6',
     ];
 
-    $form['header']['actions']['populate'] = [
-      '#type' => 'button',
-      '#value' => $this->t('Populate'),
+    $form['actions']['import'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Import'),
       '#attributes' => [
         'class' => [
           'button--primary',
@@ -201,19 +112,28 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         'disabled' => [
           ':input[name="hei_select"]' => ['value' => ''],
         ],
-      ],
-      '#ajax' => [
-        'callback' => '::populateForm',
-        'event' => 'click',
-        'wrapper' => 'add-form',
+        'visible' => [
+          ':input[name="data_status"]' => ['value' => ''],
+        ],
       ],
     ];
 
-    // dpm($form['add_form']['label']);
-    // dpm($form['add_form']);
     // dpm($form);
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $index_item = $form_state->getValue('index_select');
+    $hei_id = $form_state->getValue('hei_select');
+
+    $form_state->setRedirect('entity.hei.import_form',[
+      'index_key' => $index_item,
+      'hei_key' => $hei_id
+    ]);
   }
 
   /**
@@ -288,6 +208,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       \Drupal::service('messenger')->addError($error);
 
       $message = StatusMessages::renderMessages();
+
+      $status = $hei_id;
     } else {
       $title = $hei_list[$hei_id];
 
@@ -298,28 +220,14 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
       $message = \Drupal::service('ewp_institutions_get.format')
         ->preview($title, $data, $hei_id, $show_empty);
+
+      $status = '';
     }
 
-    $form['header']['messages']['#markup'] = render($message);
+    $form['data']['messages']['#markup'] = render($message);
+    $form['data']['status']['#value'] = $status;
 
-    return $form['header']['messages'];
-  }
-
-  /**
-  * Populate the form
-  */
-  public function populateForm(array $form, FormStateInterface $form_state) {
-    $element = $form['add_form']['label'];
-    $element['widget'][0]['value']['#value'] = 'Label';
-
-    $form_state->setRebuild(TRUE);
-
-    $ajax_response = new AjaxResponse();
-    $ajax_response->addCommand(
-      new ReplaceCommand('#label', render($element)));
-    return $ajax_response;
-
-    // return $element;
+    return $form['data'];
   }
 
 }

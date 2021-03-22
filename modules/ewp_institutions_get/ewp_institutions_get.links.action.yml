@@ -1,5 +1,5 @@
-entity.hei.import_form:
-  route_name: entity.hei.import_form
+entity.hei.select_form:
+  route_name: entity.hei.select_form
   title: 'Import Institution'
   appears_on:
     - hei.settings

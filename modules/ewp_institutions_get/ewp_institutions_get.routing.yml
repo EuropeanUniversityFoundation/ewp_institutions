@@ -25,7 +25,7 @@ ewp_institutions_get.mapping:
   requirements:
     _permission: 'administer institution entities'
 
-# Field mapping form
+# Field settings form
 ewp_institutions_get.field_settings:
   path: '/admin/ewp/hei/get/settings/fields'
   defaults:
@@ -52,18 +52,30 @@ ewp_institutions_get.preview:
   requirements:
     _permission: 'administer institution entities'
 
+# Import entity select form
+entity.hei.select_form:
+  path: '/ewp/hei/add'
+  defaults:
+    _form: '\Drupal\ewp_institutions_get\Form\InstitutionEntitySelectForm'
+    entity_type_id: hei
+    _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
+  requirements:
+    _entity_create_access: hei
+  options:
+    _admin_route: true
+
 # Import entity form
 entity.hei.import_form:
   path: '/ewp/hei/import/{index_key}/{hei_key}'
   defaults:
-      _entity_form: hei.import
-      entity_type_id: hei
-      _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
-      index_key: 'EU'
-      hei_key: 'example.edu'
+    _entity_form: hei.import
+    entity_type_id: hei
+    _title_callback: 'Drupal\Core\Entity\Controller\EntityController::addTitle'
+    index_key: 'EU'
+    hei_key: 'example.edu'
   requirements:
     _entity_create_access: hei
-    # RegEx for EWP ASCII Printable Identifier is too permissive
+    # RegEx for EWP ASCII Printable Identifier allows the / character
     index_key: '[A-Za-z0–9_-]+'
     # RegEx for a valid domain name, as expected in HEI IDs
     hei_key: '(?=.{4,255}$)((?!-)[A-Za-z0–9-]{1,63}(?<!-)\.)+[A-Za-z]{2,24}'

@@ -36,9 +36,9 @@ ewp_institutions_get.preview:
   weight: 3
 
 # Institutions menu items definition
-hei.import_form:
+hei.select_form:
   title: 'Import Institution'
-  route_name: entity.hei.import_form
+  route_name: entity.hei.select_form
   description: 'Import a new Institution entity'
   parent: ewp_institutions.admin
   weight: -9
