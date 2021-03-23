@@ -93,7 +93,8 @@ class InstitutionEntitySelectForm extends PreviewForm {
     ];
 
     $form['data'] = [
-      '#type' => 'container',
+      '#type' => 'fieldset',
+      '#title' => $this->t('Data'),
       '#prefix' => '<div id="data">',
       '#suffix' => '</div>',
       '#weight' => '-7',
@@ -109,7 +110,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
 
     $form['data']['preview'] = [
       '#type' => 'markup',
-      '#markup' => '',
+      '#markup' => '<p><em>' . $this->t('Nothing to display.') . '</em></p>',
     ];
 
     $form['actions'] = [
@@ -241,7 +242,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
       $status = '';
     }
 
-    $form['data']['messages']['#markup'] = render($message);
+    $form['data']['preview']['#markup'] = render($message);
     $form['data']['status']['#value'] = $status;
 
     return $form['data'];

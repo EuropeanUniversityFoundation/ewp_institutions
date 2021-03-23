@@ -86,18 +86,22 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       '#weight' => '-100'
     ];
 
-    $form['header']['vars'] = [
-      '#type' => 'markup',
-      '#markup' => '',
-      '#weight' => '-7',
-    ];
-
     $form['header']['messages'] = [
       '#type' => 'markup',
-      '#prefix' => '<div id="messages">',
-      '#suffix' => '</div>',
       '#markup' => '',
-      '#weight' => '-7',
+      '#weight' => '1',
+    ];
+
+    $form['data'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Data'),
+      '#weight' => '-90',
+    ];
+
+    $form['data']['preview'] = [
+      '#type' => 'markup',
+      '#markup' => '',
+      '#weight' => '1',
     ];
 
     // Load the fieldmap
@@ -209,12 +213,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     '@link' => render($renderable),
                   ]);
                 } else {
-                  $title = $hei_list[$this->institutionKey];
-                  $hei_data = \Drupal::service('ewp_institutions_get.json')
-                    ->toArray($item_data);
-                  $show_empty = FALSE;
-                  $message = \Drupal::service('ewp_institutions_get.format')
-                    ->preview($title, $hei_data, $this->institutionKey, $show_empty);
+                  // Prerequisites are met and data is loaded at this point
+                  $message = $this->t('Institution data loaded successfully.');
+                  \Drupal::service('messenger')->addMessage($message);
                 }
               }
             }
@@ -228,13 +229,20 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       // Delete the entity form
       unset($form['add_form']);
     } else {
-      $header_markup = '';
-      $header_markup .= '<p><strong>' . $this->t('Index entry') . ':</strong> ';
+      // Fill in the header with the extracted information
+      $header_markup = '<p><strong>' . $this->t('Index entry') . ':</strong> ';
       $header_markup .= $this->indexLabels[$this->indexKey] . '</p>';
-      $header_markup .= '<p><strong>' . $this->t('Institution ID') . ':</strong> ';
-      $header_markup .= $this->institutionKey . '</p>';
-      $header_markup .= render($message);
-      $form['header']['vars']['#markup'] = $header_markup;
+      $header_markup .= '<p><strong>' . $this->t('Institution') . ':</strong> ';
+      $header_markup .= $hei_list[$this->institutionKey] . '</p>';
+      $form['header']['messages']['#markup'] = $header_markup;
+
+      $title = $hei_list[$this->institutionKey];
+      $hei_data = \Drupal::service('ewp_institutions_get.json')
+        ->toArray($item_data);
+      $show_empty = FALSE;
+      $preview = \Drupal::service('ewp_institutions_get.format')
+        ->preview($title, $hei_data, $this->institutionKey, $show_empty);
+      $form['data']['preview']['#markup'] = render($preview);
     }
 
 
