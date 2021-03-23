@@ -104,31 +104,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       '#weight' => '1',
     ];
 
-    // Load the fieldmap
-    $config = $this->config('ewp_institutions_get.fieldmap');
-    $fieldmap = $config->get('field_mapping');
-
-    // Remove empty values
-    foreach ($fieldmap as $key => $value) {
-      if (empty($fieldmap[$key])) {
-        unset($fieldmap[$key]);
-      }
-    }
-
-    foreach ($form['add_form'] as $name => $array) {
-      // Target the fields in the form render array
-      if ((substr($name,0,1) !== '#') && (array_key_exists('widget', $array))) {
-        // Remove non mapped, non required fields from the form
-        // If a default value is set, it will not be lost
-        if (!array_key_exists($name, $fieldmap) && !$array['widget']['#required']) {
-          unset($form['add_form'][$name]);
-        } else {
-          $form['add_form'][$name]['#prefix'] = '<div id="' . $name . '">';
-          $form['add_form'][$name]['#suffix'] = '</div>';
-        }
-      }
-    }
-
     // Load the settings.
     $settings = \Drupal::config('ewp_institutions_get.settings');
     $this->indexEndpoint = $settings->get('ewp_institutions_get.index_endpoint');
@@ -247,12 +222,88 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       // Extract the data for the target entity
       foreach ($hei_data as $key => $array) {
         if ($array['id'] == $this->institutionKey) {
-          $this->institutionData = $hei_data[$key];
+          $this->institutionData = $hei_data[$key]['attributes'];
+          ksort($this->institutionData);
         }
       }
+
+      // Load the fieldmap
+      $config = $this->config('ewp_institutions_get.fieldmap');
+      $fieldmap = $config->get('field_mapping');
+
+      // Remove empty values from the fieldmap
+      foreach ($fieldmap as $key => $value) {
+        if (empty($fieldmap[$key])) {
+          unset($fieldmap[$key]);
+        }
+      }
+
+      // Remove non mapped values from the entity data
+      foreach ($this->institutionData as $key => $value) {
+        if (! array_key_exists($key, $fieldmap)) {
+          unset($this->institutionData[$key]);
+        }
+      }
+
+      $matches = [];
+      $props = [];
+
+      foreach ($form['add_form'] as $field_name => $array) {
+        // Target the fields in the form render array
+        if ((substr($field_name,0,1) !== '#') && (array_key_exists('widget', $array))) {
+          // Remove non mapped, non required fields from the form
+          // If a default value is set, it will not be lost
+          if (! array_key_exists($field_name, $fieldmap) && ! $array['widget']['#required']) {
+            unset($form['add_form'][$field_name]);
+          } else {
+            if (array_key_exists($field_name, $this->institutionData)) {
+              if (! array_key_exists('#theme', $form['add_form'][$field_name]['widget'])) {
+                // Special cases for certain widgets
+                dpm($form['add_form'][$field_name]['widget']);
+              }
+              else {
+                // Handle single values
+                if (! is_array($this->institutionData[$field_name])) {
+                  $required = $form['add_form'][$field_name]['widget'][0]['value']['#required'];
+                  $old_default = $form['add_form'][$field_name]['widget'][0]['value']['#default_value'];
+                  $new_default = $this->institutionData[$field_name];
+
+                  if ($old_default) {
+                    // If a default if provided, do not empty the value
+                    $default_value = ($new_default) ? $new_default : $old_default;
+                    $readonly = TRUE;
+                  } else {
+                    // Without a default, copy the new value, even if empty
+                    $default_value = $new_default;
+                    // Make it readonly unless required field is empty
+                    $readonly = ($required && empty($default_value)) ? FALSE : TRUE ;
+                  }
+
+                  // Change the form element and move it to the main array
+                  $form['add_form'][$field_name]['widget'][0]['value']['#default_value'] = $default_value;
+                  if ($readonly) {
+                    $form['add_form'][$field_name]['widget'][0]['value']['#attributes']['readonly'] = 'readonly';
+                  }
+                  $form[$field_name] = $form['add_form'][$field_name];
+                  unset($form['add_form'][$field_name]);
+                } else {
+                  $matches[$field_name] = $form['add_form'][$field_name];
+                }
+              }
+            }
+          }
+        } else {
+          $form[$field_name] = $form['add_form'][$field_name];
+          unset($form['add_form'][$field_name]);
+        }
+
+      }
+
     }
 
-    dpm($this->institutionKey);
+    dpm($form['add_form']);
+    // dpm($props);
+    // dpm($matches);
     dpm($this->institutionData);
 
     return $form;
