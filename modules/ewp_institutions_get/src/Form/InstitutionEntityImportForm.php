@@ -259,35 +259,63 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             if (array_key_exists($field_name, $this->institutionData)) {
               if (! array_key_exists('#theme', $form['add_form'][$field_name]['widget'])) {
                 // Special cases for certain widgets
-                dpm($form['add_form'][$field_name]['widget']);
-              }
-              else {
+                // dpm($form['add_form'][$field_name]['widget']);
+              } else {
+                $field_widget = $form['add_form'][$field_name]['widget'];
                 // Handle single values
                 if (! is_array($this->institutionData[$field_name])) {
-                  $required = $form['add_form'][$field_name]['widget'][0]['value']['#required'];
-                  $old_default = $form['add_form'][$field_name]['widget'][0]['value']['#default_value'];
-                  $new_default = $this->institutionData[$field_name];
+                  $form['add_form'][$field_name]['widget'] = $this->populateDefault(
+                    $this->institutionData[$field_name],
+                    $field_widget
+                  );
 
-                  if ($old_default) {
-                    // If a default if provided, do not empty the value
-                    $default_value = ($new_default) ? $new_default : $old_default;
-                    $readonly = TRUE;
-                  } else {
-                    // Without a default, copy the new value, even if empty
-                    $default_value = $new_default;
-                    // Make it readonly unless required field is empty
-                    $readonly = ($required && empty($default_value)) ? FALSE : TRUE ;
-                  }
-
-                  // Change the form element and move it to the main array
-                  $form['add_form'][$field_name]['widget'][0]['value']['#default_value'] = $default_value;
-                  if ($readonly) {
-                    $form['add_form'][$field_name]['widget'][0]['value']['#attributes']['readonly'] = 'readonly';
-                  }
+                  // Move the form element to the main array
                   $form[$field_name] = $form['add_form'][$field_name];
                   unset($form['add_form'][$field_name]);
                 } else {
-                  $matches[$field_name] = $form['add_form'][$field_name];
+                  $data_array = $this->institutionData[$field_name];
+                  // Check the array keys to determine what kind of array it is
+                  if (count(array_filter(array_keys($data_array), 'is_string')) > 0) {
+                    // associative array implies a single value of a complex field
+                    $delta = 0;
+
+                    foreach ($data_array as $property => $value) {
+                      $form['add_form'][$field_name]['widget'] = $this->populateDefault(
+                        $data_array[$property],
+                        $field_widget,
+                        $delta,
+                        $property
+                      );
+                    }
+
+                    // Move the form element to the main array
+                    $form[$field_name] = $form['add_form'][$field_name];
+                    unset($form['add_form'][$field_name]);
+                  } else {
+                    // otherwise assume a field with multiple values
+                    $field_widget['#max_delta'] = sizeof($data_array) - 1;
+                    for ($d=1; $d < sizeof($data_array); $d++) {
+                      $field_widget[$d] = $field_widget[0];
+                      $field_widget[$d]['#delta'] = $d;
+                      $field_widget[$d]['#weight'] = $d;
+                    }
+                    unset($field_widget['add_more']);
+
+                    foreach ($data_array as $delta => $value) {
+                      foreach ($data_array[$delta] as $property => $value) {
+                        $form['add_form'][$field_name]['widget'] = $this->populateDefault(
+                          $data_array[$delta][$property],
+                          $field_widget,
+                          $delta,
+                          $property
+                        );
+                      }
+                    }
+
+                    // Move the form element to the main array
+                    $form[$field_name] = $form['add_form'][$field_name];
+                    unset($form['add_form'][$field_name]);
+                  }
                 }
               }
             }
@@ -301,12 +329,54 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     }
 
-    dpm($form['add_form']);
+    // dpm($form['add_form']);
     // dpm($props);
     // dpm($matches);
-    dpm($this->institutionData);
+    // dpm($this->institutionData);
 
     return $form;
+  }
+
+  /**
+   * Populate field widget with default value
+   */
+  protected function populateDefault($data_value, array &$widget, $delta = 0, $property = 'value') {
+    $old_default = $widget[$delta][$property]['#default_value'];
+    $new_default = $data_value;
+
+    if ($old_default) {
+      // If a default if provided, do not empty the value
+      $default_value = ($new_default) ? $new_default : $old_default;
+    } else {
+      // Without a default, copy the new value, even if empty
+      $default_value = $new_default;
+    }
+
+    $widget[$delta][$property]['#default_value'] = $default_value;
+
+    return $widget;
+  }
+
+  /**
+   * Disable field widget
+   */
+  protected function disable($data_value, array &$widget, $delta = 0, $property = 'value') {
+    $required = $widget[$delta][$property]['#required'];
+    $default = $widget[$delta][$property]['#default_value'];
+
+    if (!empty($default_value)) {
+      // Make it readonly if there is a default value
+      $readonly = TRUE;
+    } else {
+      // Make it readonly unless required field is empty
+      $readonly = ($required && empty($default_value)) ? FALSE : TRUE ;
+    }
+
+    if ($readonly) {
+      $widget[$delta][$property]['#attributes']['readonly'] = 'readonly';
+    }
+
+    return $widget;
   }
 
 }
