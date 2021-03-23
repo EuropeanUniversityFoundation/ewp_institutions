@@ -243,101 +243,19 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       $preview = \Drupal::service('ewp_institutions_get.format')
         ->preview($title, $hei_data, $this->institutionKey, $show_empty);
       $form['data']['preview']['#markup'] = render($preview);
+
+      // Extract the data for the target entity
+      foreach ($hei_data as $key => $array) {
+        if ($array['id'] == $this->institutionKey) {
+          $this->institutionData = $hei_data[$key];
+        }
+      }
     }
 
-
-    // dpm($form);
+    dpm($this->institutionKey);
+    dpm($this->institutionData);
 
     return $form;
-  }
-
-  /**
-  * Fetch the data and build select list
-  */
-  public function getInstitutionList($index_item) {
-    $index_item = $form_state->getValue('index_select');
-
-    $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
-
-    $options = ['' => '- None -'];
-
-    if (! empty($endpoint)) {
-      // Check when the index was last updated
-      $index_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated('index');
-
-      // Check when this item was last updated
-      $item_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated($index_item);
-
-      // Decide whether to force a refresh
-      $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
-
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->load($index_item, $endpoint);
-
-      if ($json_data) {
-        // Build the options list
-        $options += \Drupal::service('ewp_institutions_get.json')
-          ->idLabel($json_data);
-      }
-    }
-
-    $form['header']['hei_select']['#options'] = $options;
-
-    return $form['header']['hei_select'];
-  }
-
-  /**
-  * Fetch the data and preview Institution
-  */
-  public function previewInstitution(array $form, FormStateInterface $form_state) {
-    $index_item = $form_state->getValue('index_select');
-
-    $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
-
-    // JSON data has to be stored at this point per previous step
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')
-      ->load($index_item, $endpoint);
-
-    $hei_list = \Drupal::service('ewp_institutions_get.json')
-      ->idLabel($json_data);
-
-    $hei_id = $form_state->getValue('hei_select');
-
-    // Check if an entity with the same hei_id already exists
-    $exists = \Drupal::entityTypeManager()->getStorage('hei')
-      ->loadByProperties(['hei_id' => $hei_id]);
-
-    if (!empty($exists)) {
-      foreach ($exists as $id => $hei) {
-        $link = $hei->toLink();
-        $renderable = $link->toRenderable();
-      }
-
-      $error = $this->t('Institution with ID <code>@hei_id</code> already exists: @link', [
-        '@hei_id' => $hei_id,
-        '@link' => render($renderable),
-      ]);
-
-      \Drupal::service('messenger')->addError($error);
-
-      $message = StatusMessages::renderMessages();
-    } else {
-      $title = $hei_list[$hei_id];
-
-      $data = \Drupal::service('ewp_institutions_get.json')
-        ->toArray($json_data);
-
-      $show_empty = FALSE;
-
-      $message = \Drupal::service('ewp_institutions_get.format')
-        ->preview($title, $data, $hei_id, $show_empty);
-    }
-
-    $form['header']['messages']['#markup'] = render($message);
-
-    return $form['header']['messages'];
   }
 
 }
