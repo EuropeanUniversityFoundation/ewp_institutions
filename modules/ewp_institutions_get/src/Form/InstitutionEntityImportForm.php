@@ -256,12 +256,22 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             unset($form['add_form'][$field_name]);
           } else {
             if (array_key_exists($field_name, $this->institutionData)) {
+              // Typical field widget structure
+              $field_widget = $form['add_form'][$field_name]['widget'];
               if (! array_key_exists('#theme', $form['add_form'][$field_name]['widget'])) {
                 // Special cases for certain widgets
-                // dpm($form['add_form'][$field_name]['widget']);
+                switch ($field_name) {
+                  case 'status':
+                    $field_widget['value']['#default_value'] = $this->institutionData[$field_name];
+                    $field_widget['value']['#attributes']['disabled'] = 'disabled';
+                    $form['add_form'][$field_name]['widget'] = $field_widget;
+                    break;
+
+                  default:
+                    dpm($form['add_form'][$field_name]);
+                    break;
+                }
               } else {
-                // Typical field widget structure
-                $field_widget = $form['add_form'][$field_name]['widget'];
                 // Handle single 'value' property
                 if (! is_array($this->institutionData[$field_name])) {
                   $form['add_form'][$field_name]['widget'] = $this->populateDefault(
