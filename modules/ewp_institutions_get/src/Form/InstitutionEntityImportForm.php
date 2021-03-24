@@ -115,15 +115,15 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $this->institutionData = [];
     $error = NULL;
 
+    // Check for the API index endpoint
     if (empty($this->indexEndpoint)) {
-      // Missing endpoint is a deal breaker
       $error = $this->t("Index endpoint is not defined.");
     } else {
       $index_data = \Drupal::service('ewp_institutions_get.fetch')
         ->load('index', $this->indexEndpoint);
 
+      // Check for the actual index data
       if (! $index_data) {
-        // Missing index data is a deal breaker
         $error = $this->t("No available data.");
       } else {
         $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
@@ -131,8 +131,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
           ->idLabel($index_data);
 
+        // Check for an index item matching the index key provided in the path
         if (! array_key_exists($index_key, $this->indexLinks)) {
-          // Invalid index key is a deal breaker
           $error = $this->t("Invalid index key: @index_key", [
             '@index_key' => $index_key
           ]);
@@ -141,8 +141,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           $this->indexKey = $index_key;
           $endpoint = $this->indexLinks[$this->indexKey];
 
+          // Check for the API endpoint for this index item
           if (empty($endpoint)) {
-            // Missing endpoint is a deal breaker
             $error = $this->t("Item endpoint is not defined.");
           } else {
             // Check when the index was last updated
@@ -157,8 +157,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             $item_data = \Drupal::service('ewp_institutions_get.fetch')
               ->load($index_key, $endpoint);
 
+            // Check for the actual index item data
             if (! $item_data) {
-              // Missing item data is a deal breaker
               $error = $this->t("No available data for @index_item", [
                 '@index_item' => $this->indexLabels[$this->indexKey]
               ]);
@@ -166,8 +166,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               $hei_list = \Drupal::service('ewp_institutions_get.json')
                 ->idLabel($item_data);
 
+              // Check for an institution matching the key provided in the path
               if (! array_key_exists($hei_key, $hei_list)) {
-                // Invalid item key is a deal breaker
                 $error = $this->t("Invalid institution key: @hei_key", [
                   '@hei_key' => $hei_key
                 ]);
@@ -211,6 +211,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       $header_markup .= $hei_list[$this->institutionKey] . '</p>';
       $form['header']['messages']['#markup'] = $header_markup;
 
+      // Fill in the data preview
       $title = $hei_list[$this->institutionKey];
       $hei_data = \Drupal::service('ewp_institutions_get.json')
         ->toArray($item_data);
@@ -245,9 +246,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         }
       }
 
-      $matches = [];
-      $props = [];
-
+      // Begin processing the entity form
       foreach ($form['add_form'] as $field_name => $array) {
         // Target the fields in the form render array
         if ((substr($field_name,0,1) !== '#') && (array_key_exists('widget', $array))) {
@@ -261,14 +260,14 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                 // Special cases for certain widgets
                 // dpm($form['add_form'][$field_name]['widget']);
               } else {
+                // Typical field widget structure
                 $field_widget = $form['add_form'][$field_name]['widget'];
-                // Handle single values
+                // Handle single 'value' property
                 if (! is_array($this->institutionData[$field_name])) {
                   $form['add_form'][$field_name]['widget'] = $this->populateDefault(
                     $this->institutionData[$field_name],
                     $field_widget
                   );
-
                   // Move the form element to the main array
                   $form[$field_name] = $form['add_form'][$field_name];
                   unset($form['add_form'][$field_name]);
@@ -276,9 +275,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                   $data_array = $this->institutionData[$field_name];
                   // Check the array keys to determine what kind of array it is
                   if (count(array_filter(array_keys($data_array), 'is_string')) > 0) {
-                    // associative array implies a single value of a complex field
+                    // An associative array means a single value of a complex field
                     $delta = 0;
-
+                    // Handle each field property individually
                     foreach ($data_array as $property => $value) {
                       $form['add_form'][$field_name]['widget'] = $this->populateDefault(
                         $data_array[$property],
@@ -287,37 +286,50 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                         $property
                       );
                     }
-
                     // Move the form element to the main array
                     $form[$field_name] = $form['add_form'][$field_name];
                     unset($form['add_form'][$field_name]);
                   } else {
-                    // otherwise assume a field with multiple values
+                    // Otherwise assume a field with multiple values
                     $field_widget['#max_delta'] = sizeof($data_array) - 1;
+                    // Replicate the field widget for each value to import
                     for ($d=1; $d < sizeof($data_array); $d++) {
                       $field_widget[$d] = $field_widget[0];
                       $field_widget[$d]['#delta'] = $d;
                       $field_widget[$d]['#weight'] = $d;
                     }
+                    // Remove the Add more button
                     unset($field_widget['add_more']);
+                    // Reordering field values with dragtable is still possible
 
                     foreach ($data_array as $delta => $value) {
-                      foreach ($data_array[$delta] as $property => $value) {
+                      // Handle single 'value' property
+                      if (! is_array($data_array[$delta])) {
                         $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                          $data_array[$delta][$property],
+                          $data_array[$delta],
                           $field_widget,
                           $delta,
-                          $property
                         );
+                      } else {
+                        // Handle each field property individually
+                        foreach ($data_array[$delta] as $property => $value) {
+                          $form['add_form'][$field_name]['widget'] = $this->populateDefault(
+                            $data_array[$delta][$property],
+                            $field_widget,
+                            $delta,
+                            $property
+                          );
+                        }
                       }
                     }
-
                     // Move the form element to the main array
                     $form[$field_name] = $form['add_form'][$field_name];
                     unset($form['add_form'][$field_name]);
                   }
                 }
               }
+            } else {
+              // code...
             }
           }
         } else {
