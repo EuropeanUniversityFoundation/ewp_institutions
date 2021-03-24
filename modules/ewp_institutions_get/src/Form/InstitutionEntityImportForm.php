@@ -360,6 +360,18 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Enable all disabled fields prior to submission
+    if (! empty($form['add_form']['status']['widget']['#attributes']['disabled'])) {
+      unset($form['add_form']['status']['widget']['#attributes']['disabled']);
+    }
+
+    return parent::submitForm($form, $form_state);
+  }
+
+  /**
    * Populate field widget with default value
    */
   protected function populateDefault($data_value, array &$widget, $delta = 0, $property = 'value') {
