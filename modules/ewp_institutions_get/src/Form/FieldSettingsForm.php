@@ -39,6 +39,19 @@ class FieldSettingsForm extends ConfigFormBase {
   protected $entityFieldsExclude;
 
   /**
+   * The base fields to always exclude from mapping.
+   *
+   * @var array
+   */
+  protected $baseFieldsExclude = [
+    'id',
+    'uuid',
+    'langcode',
+    'created',
+    'changed'
+  ];
+
+  /**
    * The remote keys that match the Institution entity.
    *
    * @var array
@@ -125,7 +138,9 @@ class FieldSettingsForm extends ConfigFormBase {
 
     // Generate the options
     foreach ($fields as $field_name => $field) {
-      $options[$field_name] = $field->getLabel();
+      if (! in_array($field_name, $this->baseFieldsExclude)) {
+        $options[$field_name] = $field->getLabel();
+      }
     }
 
     $form['field_wrapper']['field_exclude']['#options'] = $options;
@@ -134,7 +149,9 @@ class FieldSettingsForm extends ConfigFormBase {
     $this->entityFieldsExclude = (array) $config->get('field_exclude');
 
     foreach ($this->entityFieldsExclude as $field) {
-      $form['field_wrapper']['field_exclude'][$field]['#default_value'] = TRUE;
+      if (array_key_exists($field, $form['field_wrapper']['field_exclude']['#options'])) {
+        $form['field_wrapper']['field_exclude'][$field]['#default_value'] = TRUE;
+      }
     }
 
     $form['key_wrapper'] = [
@@ -192,6 +209,8 @@ class FieldSettingsForm extends ConfigFormBase {
     $config = $this->config('ewp_institutions_get.field_settings');
 
     // Fields to exclude
+    $excluded_fields = $this->baseFieldsExclude;
+
     $field_exclude = $form_state->getValue('field_wrapper')['field_exclude'];
 
     foreach ($field_exclude as $key => $value) {
