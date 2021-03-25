@@ -261,9 +261,12 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                   }
                   // Otherwise assume a field with multiple values
                   else {
-                    $field_widget['#max_delta'] = sizeof($data_array) - 1;
+                    // Check for a limit on the number of field values
+                    $deltas = $field_widget['#cardinality'];
+                    $max = ($deltas > 0) ? $deltas : sizeof($data_array);
+                    $field_widget['#max_delta'] = $max - 1;
                     // Replicate the field widget for each value to import
-                    for ($d=1; $d < sizeof($data_array); $d++) {
+                    for ($d=1; $d < $max; $d++) {
                       $field_widget[$d] = $field_widget[0];
                       $field_widget[$d]['#delta'] = $d;
                       $field_widget[$d]['#weight'] = $d;
@@ -272,20 +275,22 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     unset($field_widget['add_more']);
                     // Reordering field values with dragtable is still possible
 
-                    foreach ($data_array as $delta => $value) {
+                    // Truncate the array if needed
+                    $data_slice = array_slice($data_array, 0, $max);
+                    foreach ($data_slice as $delta => $value) {
                       // Handle single 'value' property
-                      if (! is_array($data_array[$delta])) {
+                      if (! is_array($data_slice[$delta])) {
                         $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                          $data_array[$delta],
+                          $data_slice[$delta],
                           $field_widget,
                           $delta,
                         );
                       }
                       // Handle each field property individually
                       else {
-                        foreach ($data_array[$delta] as $property => $value) {
+                        foreach ($data_slice[$delta] as $property => $value) {
                           $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                            $data_array[$delta][$property],
+                            $data_slice[$delta][$property],
                             $field_widget,
                             $delta,
                             $property
