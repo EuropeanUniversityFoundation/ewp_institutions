@@ -197,6 +197,15 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           // Handle non mapped, non required fields
           if (! array_key_exists($field_name, $fieldmap) && ! $array['widget']['#required']) {
             switch ($field_name) {
+              case 'index_key':
+                // Custom base field to hold the API index key
+                $field_widget = $form['add_form']['index_key']['widget'];
+                $field_widget[0]['value']['#attributes'] = ['readonly' => 'readonly'];
+                $field_widget[0]['value']['#default_value'] = $this->indexKey;
+                $form['add_form']['index_key']['widget'] = $field_widget;
+                $form[$field_name] = $form['add_form'][$field_name];
+                break;
+
               case 'status':
                 // Preserve the Published status field
                 $form[$field_name] = $form['add_form'][$field_name];

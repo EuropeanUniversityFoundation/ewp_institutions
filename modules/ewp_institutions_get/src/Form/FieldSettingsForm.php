@@ -44,6 +44,7 @@ class FieldSettingsForm extends ConfigFormBase {
    * @var array
    */
   protected $baseFieldsExclude = [
+    'index_key',
     'id',
     'uuid',
     'langcode',
