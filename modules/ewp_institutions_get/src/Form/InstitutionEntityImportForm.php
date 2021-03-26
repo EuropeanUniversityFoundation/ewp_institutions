@@ -194,6 +194,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       foreach ($form['add_form'] as $field_name => $array) {
         // Target the fields in the form render array
         if ((substr($field_name,0,1) !== '#') && (array_key_exists('widget', $array))) {
+          // Target the field widget
+          $field_widget = $form['add_form'][$field_name]['widget'];
           // Handle non mapped, non required fields
           if (! array_key_exists($field_name, $fieldmap) && ! $array['widget']['#required']) {
             switch ($field_name) {
@@ -221,11 +223,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           else {
             // Handle mapped fields
             if (array_key_exists($field_name, $this->heiItemData)) {
-              // Target the field widget
-              $field_widget = $form['add_form'][$field_name]['widget'];
-
               // Special cases for certain widgets
-              if (! array_key_exists('#theme', $form['add_form'][$field_name]['widget'])) {
+              if (! array_key_exists('#theme', $field_widget)) {
                 switch ($field_name) {
                   case 'status':
                     $field_widget['value']['#default_value'] = $this->heiItemData[$field_name];
@@ -241,11 +240,11 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               else {
                 // Handle single 'value' property
                 if (! is_array($this->heiItemData[$field_name])) {
-                  $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                    $this->heiItemData[$field_name],
-                    $field_widget
-                  );
+                  $field_widget = $this->setDefault(
+                    $this->heiItemData[$field_name],$field_widget);
+                  $field_widget = $this->setReadOnly($field_widget);
                   // Move the form element to the main array
+                  $form['add_form'][$field_name]['widget'] = $field_widget;
                   $form[$field_name] = $form['add_form'][$field_name];
                   unset($form['add_form'][$field_name]);
                 }
@@ -257,14 +256,12 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     $delta = 0;
                     // Handle each field property individually
                     foreach ($data_array as $property => $value) {
-                      $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                        $data_array[$property],
-                        $field_widget,
-                        $delta,
-                        $property
-                      );
+                      $field_widget = $this->setDefault(
+                        $data_array[$property],$field_widget,$delta,$property);
+                      $field_widget = $this->setReadOnly($field_widget,$delta,$property);
                     }
                     // Move the form element to the main array
+                    $form['add_form'][$field_name]['widget'] = $field_widget;
                     $form[$field_name] = $form['add_form'][$field_name];
                     unset($form['add_form'][$field_name]);
                   }
@@ -289,25 +286,21 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     foreach ($data_slice as $delta => $value) {
                       // Handle single 'value' property
                       if (! is_array($data_slice[$delta])) {
-                        $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                          $data_slice[$delta],
-                          $field_widget,
-                          $delta,
-                        );
+                        $field_widget = $this->setDefault(
+                          $data_slice[$delta],$field_widget,$delta);
+                        $field_widget = $this->setReadOnly($field_widget,$delta);
                       }
                       // Handle each field property individually
                       else {
                         foreach ($data_slice[$delta] as $property => $value) {
-                          $form['add_form'][$field_name]['widget'] = $this->populateDefault(
-                            $data_slice[$delta][$property],
-                            $field_widget,
-                            $delta,
-                            $property
-                          );
+                          $field_widget = $this->setDefault(
+                            $data_slice[$delta][$property],$field_widget,$delta,$property);
+                          $field_widget = $this->setReadOnly($field_widget,$delta,$property);
                         }
                       }
                     }
                     // Move the form element to the main array
+                    $form['add_form'][$field_name]['widget'] = $field_widget;
                     $form[$field_name] = $form['add_form'][$field_name];
                     unset($form['add_form'][$field_name]);
                   }
@@ -450,7 +443,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   /**
    * Populate field widget with default value
    */
-  protected function populateDefault($data_value, array &$widget, $delta = 0, $property = 'value') {
+  protected function setDefault($data_value, array &$widget, $delta = 0, $property = 'value') {
     $old_default = $widget[$delta][$property]['#default_value'];
     $new_default = $data_value;
 
@@ -470,20 +463,33 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   /**
    * Disable field widget
    */
-  protected function disable($data_value, array &$widget, $delta = 0, $property = 'value') {
-    $required = $widget[$delta][$property]['#required'];
+  protected function setReadOnly(array &$widget, $delta = 0, $property = 'value') {
+    $required = $widget['#required'];
     $default = $widget[$delta][$property]['#default_value'];
 
-    if (!empty($default_value)) {
+    if (! empty($default)) {
       // Make it readonly if there is a default value
       $readonly = TRUE;
     } else {
       // Make it readonly unless required field is empty
-      $readonly = ($required && empty($default_value)) ? FALSE : TRUE ;
+      $readonly = ($required && empty($default)) ? FALSE : TRUE ;
     }
 
     if ($readonly) {
-      $widget[$delta][$property]['#attributes']['readonly'] = 'readonly';
+      switch ($widget[$delta][$property]['#type']) {
+        case 'select':
+          // Select elements cannot be set as readonly
+          // Instead limit the options to the default value
+          $options = $widget[$delta][$property]['#options'];
+          $widget[$delta][$property]['#options'] = [$default => $options[$default]];
+          unset($widget[$delta][$property]['#empty_option']);
+          unset($widget[$delta][$property]['#empty_value']);
+          break;
+
+        default:
+          $widget[$delta][$property]['#attributes']['readonly'] = 'readonly';
+          break;
+      }
     }
 
     return $widget;
