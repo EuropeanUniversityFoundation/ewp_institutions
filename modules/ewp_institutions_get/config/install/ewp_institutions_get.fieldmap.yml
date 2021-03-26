@@ -1,0 +1,11 @@
+field_mapping:
+  label: label
+  abbreviation: abbreviation
+  hei_id: hei_id
+  logo_url: logo_url
+  mailing_address: mailing_address
+  mobility_factsheet_url: mobility_factsheet_url
+  name: name
+  other_id: other_id
+  street_address: street_address
+  website_url: website_url

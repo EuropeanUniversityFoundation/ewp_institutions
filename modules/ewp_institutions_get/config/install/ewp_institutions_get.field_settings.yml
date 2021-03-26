@@ -1,0 +1,20 @@
+field_exclude:
+  - index_key
+  - id
+  - uuid
+  - langcode
+  - created
+  - changed
+  - status
+  - contact
+remote_exclude:
+  - id
+  - uuid
+  - langcode
+  - status
+  - created
+  - changed
+  - contact
+remote_include:
+  - city
+  - country
