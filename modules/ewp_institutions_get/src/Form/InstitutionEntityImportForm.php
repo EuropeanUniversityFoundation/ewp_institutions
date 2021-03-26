@@ -196,6 +196,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         if ((substr($field_name,0,1) !== '#') && (array_key_exists('widget', $array))) {
           // Target the field widget
           $field_widget = $form['add_form'][$field_name]['widget'];
+          // Remove the Add more button for unlimited cardinality fields
+          unset($field_widget['add_more']);
+          // Reordering field values with dragtable is still possible
+
           // Handle non mapped, non required fields
           if (! array_key_exists($field_name, $fieldmap) && ! $array['widget']['#required']) {
             switch ($field_name) {
@@ -275,11 +279,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                       $field_widget[$d]['#delta'] = $d;
                       $field_widget[$d]['#weight'] = $d;
                     }
-                    // Remove the Add more button
-                    unset($field_widget['add_more']);
-                    // Reordering field values with dragtable is still possible
 
-                    // Truncate the array if needed
+                    // Truncate the data array if needed
                     $data_slice = array_slice($data_array, 0, $max);
                     foreach ($data_slice as $delta => $value) {
                       // Handle single 'value' property
