@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Contains ewp_institutions_get.module.
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the ewp_institutions_get module.
+    case 'help.page.ewp_institutions_get':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Populate EWP Institution entities with data from an external API') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * Add new forms and links to the Institution entity
+ */
+function ewp_institutions_get_entity_type_build(array &$entity_types) {
+
+  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  $entity_types['hei']
+    ->setFormClass('import', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityImportForm')
+    ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')
+    ->setLinkTemplate('import-form', '/ewp/hei/import/{index_key}/{hei_key}')
+    ->setLinkTemplate('update-form', '/ewp/hei/{hei}/update');
+}
+
+/**
+ * Implements hook_base_field_info().
+ *
+ * Add new base field to the Institution entity for the API index key
+ */
+function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity_type) {
+  if ($entity_type->id() === 'hei') {
+    $fields['index_key'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('API index key'))
+      ->setDisplayOptions('form', [
+        'type' => 'textfield',
+        'weight' => 100,
+      ])
+      ->setDisplayConfigurable('form', TRUE);
+    return $fields;
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function ewp_institutions_get_form_alter(&$form, FormStateInterface $form_state) {
+  // dpm($form);
+}

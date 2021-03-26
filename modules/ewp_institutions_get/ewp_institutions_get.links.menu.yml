@@ -1,0 +1,44 @@
+# EWP Institutions GET menu parent
+ewp_institutions_get.admin:
+  title: 'EWP Institutions GET'
+  route_name: ewp_institutions_get.admin
+  description: 'Populate EWP Institution entities with data from an external API'
+  parent: ewp_institutions.admin
+  weight: -100
+
+# Admin forms
+ewp_institutions_get.settings:
+  title: 'Settings'
+  description: 'Settings for the external API'
+  parent: ewp_institutions_get.admin
+  route_name: ewp_institutions_get.settings
+  weight: 1
+
+ewp_institutions_get.mapping:
+  title: 'Field mapping'
+  description: 'Map the external data to entity fields'
+  parent: ewp_institutions_get.settings
+  route_name: ewp_institutions_get.mapping
+  weight: 1
+
+ewp_institutions_get.preload:
+  title: 'Pre-load'
+  description: 'Pre-load the index from the external API'
+  parent: ewp_institutions_get.admin
+  route_name: ewp_institutions_get.preload
+  weight: 3
+
+ewp_institutions_get.preview:
+  title: 'Preview'
+  description: 'Preview an Institution'
+  parent: ewp_institutions_get.admin
+  route_name: ewp_institutions_get.preview
+  weight: 3
+
+# Institutions menu items definition
+hei.select_form:
+  title: 'Import Institution'
+  route_name: entity.hei.select_form
+  description: 'Import a new Institution entity'
+  parent: ewp_institutions.admin
+  weight: -9

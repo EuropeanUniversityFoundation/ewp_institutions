@@ -1,0 +1,8 @@
+name: 'EWP Institutions GET'
+type: module
+description: 'EXPERIMENTAL - Populate EWP Institution entities with data from an external API'
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: 'EWP'
+dependencies:
+  - ewp_institutions:ewp_institutions

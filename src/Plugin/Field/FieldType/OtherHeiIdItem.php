@@ -38,12 +38,12 @@ class OtherHeiIdItem extends FieldItemBase {
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     // Prevent early t() calls by using the TranslatableMarkup.
-    $properties['value'] = DataDefinition::create('string')
-      ->setLabel(new TranslatableMarkup('Text value'))
-      ->setRequired(TRUE);
-
     $properties['type'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('ID type'))
+      ->setRequired(TRUE);
+
+    $properties['value'] = DataDefinition::create('string')
+      ->setLabel(new TranslatableMarkup('Text value'))
       ->setRequired(TRUE);
 
     return $properties;
@@ -55,13 +55,13 @@ class OtherHeiIdItem extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = [
       'columns' => [
-        'value' => [
-          'type' => 'varchar',
-          'length' => (int) $field_definition->getSetting('max_length'),
-        ],
         'type' => [
           'type' => 'varchar_ascii',
           'length' => 32,
+        ],
+        'value' => [
+          'type' => 'varchar',
+          'length' => (int) $field_definition->getSetting('max_length'),
         ],
       ],
     ];
