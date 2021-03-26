@@ -201,10 +201,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             switch ($field_name) {
               case 'index_key':
                 // Custom base field to hold the API index key
-                $field_widget = $form['add_form']['index_key']['widget'];
-                $field_widget[0]['value']['#attributes'] = ['readonly' => 'readonly'];
-                $field_widget[0]['value']['#default_value'] = $this->indexKey;
-                $form['add_form']['index_key']['widget'] = $field_widget;
+                $field_widget = $this->setDefault($this->indexKey,$field_widget);
+                $field_widget = $this->setReadOnly($field_widget);
+                // Move the form element to the main array
+                $form['add_form'][$field_name]['widget'] = $field_widget;
                 $form[$field_name] = $form['add_form'][$field_name];
                 break;
 
@@ -240,8 +240,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               else {
                 // Handle single 'value' property
                 if (! is_array($this->heiItemData[$field_name])) {
-                  $field_widget = $this->setDefault(
-                    $this->heiItemData[$field_name],$field_widget);
+                  $field_widget = $this->setDefault($this->heiItemData[$field_name],$field_widget);
                   $field_widget = $this->setReadOnly($field_widget);
                   // Move the form element to the main array
                   $form['add_form'][$field_name]['widget'] = $field_widget;
@@ -256,8 +255,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     $delta = 0;
                     // Handle each field property individually
                     foreach ($data_array as $property => $value) {
-                      $field_widget = $this->setDefault(
-                        $data_array[$property],$field_widget,$delta,$property);
+                      $field_widget = $this->setDefault($data_array[$property],$field_widget,$delta,$property);
                       $field_widget = $this->setReadOnly($field_widget,$delta,$property);
                     }
                     // Move the form element to the main array
@@ -286,15 +284,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     foreach ($data_slice as $delta => $value) {
                       // Handle single 'value' property
                       if (! is_array($data_slice[$delta])) {
-                        $field_widget = $this->setDefault(
-                          $data_slice[$delta],$field_widget,$delta);
+                        $field_widget = $this->setDefault($data_slice[$delta],$field_widget,$delta);
                         $field_widget = $this->setReadOnly($field_widget,$delta);
                       }
                       // Handle each field property individually
                       else {
                         foreach ($data_slice[$delta] as $property => $value) {
-                          $field_widget = $this->setDefault(
-                            $data_slice[$delta][$property],$field_widget,$delta,$property);
+                          $field_widget = $this->setDefault($data_slice[$delta][$property],$field_widget,$delta,$property);
                           $field_widget = $this->setReadOnly($field_widget,$delta,$property);
                         }
                       }
@@ -490,6 +486,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           $widget[$delta][$property]['#attributes']['readonly'] = 'readonly';
           break;
       }
+      // Some inline styling to illustrate the change
+      $widget[$delta][$property]['#attributes']['style'] = "background-color: #EEFFEE";
     }
 
     return $widget;
