@@ -99,10 +99,25 @@ class JsonDataProcessor {
   /**
    * Convert JSON:API data to array
    */
-  public function toArray($json) {
+  public function toArray($json, $expand = FALSE) {
     $decoded = json_decode($json, TRUE);
 
     $data = $decoded['data'];
+
+    foreach ($data as $index => $data_array) {
+      if ($expand && array_key_exists('attributes', $data_array)) {
+        foreach ($data_array['attributes'] as $attr => $value) {
+          if (! empty($value)) {
+            if (! is_array($value)) {
+              $data[$index]['attributes'][$attr] = [['value' => $value]];
+            }
+            if (count(array_filter(array_keys($value), 'is_string')) > 0) {
+              $data[$index]['attributes'][$attr] = [$value];
+            }
+          }
+        }
+      }
+    }
 
     return $data;
   }
