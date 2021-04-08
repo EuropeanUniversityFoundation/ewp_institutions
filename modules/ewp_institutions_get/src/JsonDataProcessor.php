@@ -116,7 +116,7 @@ class JsonDataProcessor {
                 $data[$index]['attributes'][$attr] = [['value' => $value]];
               }
               // Encapsulate associative arrays in indexed arrays
-              if (count(array_filter(array_keys($value), 'is_string')) > 0) {
+              elseif (count(array_filter(array_keys($value), 'is_string')) > 0) {
                 $data[$index]['attributes'][$attr] = [$value];
               }
             }
