@@ -147,7 +147,7 @@ class DataFormatter {
             $list .= '</ul>';
           } else {
             // otherwise assume a field with multiple values
-            $list .= '<ol>';
+            $list .= '<ol start="0">';
 
             foreach ($attributes[$key] as $delta => $fieldvalue) {
               if (is_array($fieldvalue)) {
@@ -170,7 +170,7 @@ class DataFormatter {
                 $submarkup = ' ' . $value . '<br />';
               }
 
-              $list .= '<li><strong>delta ' . $delta . ':</strong> ' . $submarkup . '</li>';
+              $list .= '<li>' . $submarkup . '</li>';
             }
 
             $list .= '</ol>';

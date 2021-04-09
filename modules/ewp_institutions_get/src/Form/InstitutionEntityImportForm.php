@@ -167,7 +167,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       // Extract the data for the target entity
       foreach ($hei_data as $key => $array) {
         if ($array['id'] == $this->heiKey) {
-          $this->heiItemData = $hei_data[$key]['attributes'];
+          // Get expanded data array
+          $hei_expanded_data = \Drupal::service('ewp_institutions_get.json')
+            ->toArray($this->heiData, TRUE);
+          $this->heiItemData = $hei_expanded_data[$key]['attributes'];
           ksort($this->heiItemData);
         }
       }
@@ -195,9 +198,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         // Target the fields in the form render array
         if ((substr($field_name,0,1) !== '#') && (array_key_exists('widget', $array))) {
           // Target the field widget
-          $field_widget = $form['add_form'][$field_name]['widget'];
+          $widget = $form['add_form'][$field_name]['widget'];
           // Remove the Add more button for unlimited cardinality fields
-          unset($field_widget['add_more']);
+          unset($widget['add_more']);
           // Reordering field values with dragtable is still possible
 
           // Handle non mapped, non required fields
@@ -205,10 +208,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             switch ($field_name) {
               case 'index_key':
                 // Custom base field to hold the API index key
-                $field_widget = $this->setDefault($this->indexKey,$field_widget);
-                $field_widget = $this->setReadOnly($field_widget);
+                $widget = $this->setDefault($this->indexKey,$widget);
+                $widget = $this->setReadOnly($widget);
                 // Move the form element to the main array
-                $form['add_form'][$field_name]['widget'] = $field_widget;
+                $form['add_form'][$field_name]['widget'] = $widget;
                 $form[$field_name] = $form['add_form'][$field_name];
                 break;
 
@@ -228,11 +231,11 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             // Handle mapped fields
             if (array_key_exists($field_name, $this->heiItemData)) {
               // Special cases for certain widgets
-              if (! array_key_exists('#theme', $field_widget)) {
+              if (! array_key_exists('#theme', $widget)) {
                 switch ($field_name) {
                   case 'status':
-                    $field_widget['value']['#default_value'] = $this->heiItemData[$field_name];
-                    $form['add_form'][$field_name]['widget'] = $field_widget;
+                    $widget['value']['#default_value'] = $this->heiItemData[$field_name];
+                    $form['add_form'][$field_name]['widget'] = $widget;
                     break;
 
                   default:
@@ -240,67 +243,65 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                     break;
                 }
               }
-              // Generic field widgets with delta property
+              // Generic field widgets with delta index
               else {
-                // Handle single 'value' property
+                // Extract the field properties from the widget array
+                $field_props = [];
+                foreach ($widget[0] as $property => $value) {
+                  if (!in_array(substr($property,0,1), ['#', '_'])) {
+                    $field_props[] = $property;
+                  }
+                }
+
+                // Handle single value in the API data (probably empty)
                 if (! is_array($this->heiItemData[$field_name])) {
-                  $field_widget = $this->setDefault($this->heiItemData[$field_name],$field_widget);
-                  $field_widget = $this->setReadOnly($field_widget);
+                  $data_value = $this->heiItemData[$field_name];
+                  // Assign the value to all field properties
+                  $data_array = [];
+                  foreach ($field_props as $index => $property) {
+                    $data_array[0][$property] = $data_value;
+                  }
+                  $this->heiItemData[$field_name] = $data_array;
+                }
+
+                // Handle expanded API data
+                $data_array = $this->heiItemData[$field_name];
+
+                // Check for a limit on the number of field values
+                $cardinality = $widget['#cardinality'];
+                // With unlimited values, the data size is the actual limit
+                $max = ($cardinality > 0) ? $cardinality : sizeof($data_array);
+                $widget['#max_delta'] = $max - 1;
+
+                if ($max > sizeof($data_array)) {
+                  // Delete the widgets that will not be populated
+                  for ($d = sizeof($data_array); $d < $max; $d++) {
+                    unset($widget[$d]);
+                  }
+                }
+                elseif ($cardinality < 0) {
+                  // Replicate the field widget for each value to import
+                  for ($d = 1; $d < $max; $d++) {
+                    $widget[$d] = $widget[0];
+                    $widget[$d]['#delta'] = $d;
+                    $widget[$d]['#weight'] = $d;
+                  }
+                }
+
+                // Truncate the data array if needed
+                $data_slice = array_slice($data_array, 0, $max);
+
+                foreach ($data_slice as $delta => $value) {
+                  // Handle each field property individually
+                  foreach ($data_slice[$delta] as $property => $value) {
+                    $widget = $this->setDefault($value,$widget,$delta,$property);
+                    $widget = $this->setReadOnly($widget,$delta,$property);
+                  }
+
                   // Move the form element to the main array
-                  $form['add_form'][$field_name]['widget'] = $field_widget;
+                  $form['add_form'][$field_name]['widget'] = $widget;
                   $form[$field_name] = $form['add_form'][$field_name];
                   unset($form['add_form'][$field_name]);
-                }
-                // Handle multiple properties and multiple values
-                else {
-                  $data_array = $this->heiItemData[$field_name];
-                  // An associative array means a single value of a complex field
-                  if (count(array_filter(array_keys($data_array), 'is_string')) > 0) {
-                    $delta = 0;
-                    // Handle each field property individually
-                    foreach ($data_array as $property => $value) {
-                      $field_widget = $this->setDefault($data_array[$property],$field_widget,$delta,$property);
-                      $field_widget = $this->setReadOnly($field_widget,$delta,$property);
-                    }
-                    // Move the form element to the main array
-                    $form['add_form'][$field_name]['widget'] = $field_widget;
-                    $form[$field_name] = $form['add_form'][$field_name];
-                    unset($form['add_form'][$field_name]);
-                  }
-                  // Otherwise assume a field with multiple values
-                  else {
-                    // Check for a limit on the number of field values
-                    $deltas = $field_widget['#cardinality'];
-                    $max = ($deltas > 0) ? $deltas : sizeof($data_array);
-                    $field_widget['#max_delta'] = $max - 1;
-                    // Replicate the field widget for each value to import
-                    for ($d=1; $d < $max; $d++) {
-                      $field_widget[$d] = $field_widget[0];
-                      $field_widget[$d]['#delta'] = $d;
-                      $field_widget[$d]['#weight'] = $d;
-                    }
-
-                    // Truncate the data array if needed
-                    $data_slice = array_slice($data_array, 0, $max);
-                    foreach ($data_slice as $delta => $value) {
-                      // Handle single 'value' property
-                      if (! is_array($data_slice[$delta])) {
-                        $field_widget = $this->setDefault($data_slice[$delta],$field_widget,$delta);
-                        $field_widget = $this->setReadOnly($field_widget,$delta);
-                      }
-                      // Handle each field property individually
-                      else {
-                        foreach ($data_slice[$delta] as $property => $value) {
-                          $field_widget = $this->setDefault($data_slice[$delta][$property],$field_widget,$delta,$property);
-                          $field_widget = $this->setReadOnly($field_widget,$delta,$property);
-                        }
-                      }
-                    }
-                    // Move the form element to the main array
-                    $form['add_form'][$field_name]['widget'] = $field_widget;
-                    $form[$field_name] = $form['add_form'][$field_name];
-                    unset($form['add_form'][$field_name]);
-                  }
                 }
               }
             }
@@ -445,7 +446,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $new_default = $data_value;
 
     if ($old_default) {
-      // If a default if provided, do not empty the value
+      // If a default is provided, do not empty the value
       $default_value = ($new_default) ? $new_default : $old_default;
     } else {
       // Without a default, copy the new value, even if empty
@@ -476,11 +477,15 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       switch ($widget[$delta][$property]['#type']) {
         case 'select':
           // Select elements cannot be set as readonly
-          // Instead limit the options to the default value
-          $options = $widget[$delta][$property]['#options'];
-          $widget[$delta][$property]['#options'] = [$default => $options[$default]];
-          unset($widget[$delta][$property]['#empty_option']);
-          unset($widget[$delta][$property]['#empty_value']);
+          // Instead limit the options to the default value, when given
+          if ($default) {
+            $options = $widget[$delta][$property]['#options'];
+            $widget[$delta][$property]['#options'] = [$default => $options[$default]];
+            unset($widget[$delta][$property]['#empty_option']);
+            unset($widget[$delta][$property]['#empty_value']);
+          } else {
+            $widget[$delta][$property]['#options'] = [];
+          }
           break;
 
         default:
