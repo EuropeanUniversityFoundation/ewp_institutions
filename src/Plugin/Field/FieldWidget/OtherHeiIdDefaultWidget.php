@@ -75,22 +75,65 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
     $element = $element + [
       '#type' => 'container',
       '#attributes' => ['class' => ['inline-widget']],
+      '#element_validate' => [
+        [$this, 'validate'],
+      ],
     ];
     $element['#attached']['library'][] = 'ewp_core/inline_widget';
 
-    $other_id_types = \Drupal::service('ewp_institutions.other_id_types')->getOptions();
+    // Get the field name from this particular field definiton
+    $field_name = $items->getFieldDefinition()->getName();
+
+    // Get the options from the Other ID type manager service
+    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
+    $options = $type_manager->getOptions();
+    $options['custom'] = '- ' . t('custom type') . ' -';
+
+    // Get the field defaults
+    $default_type = isset($items[$delta]->type) ? $items[$delta]->type : NULL;
+    $default_option = NULL;
+    $default_custom = NULL;
+    $default_value = isset($items[$delta]->value) ? $items[$delta]->value : NULL;
+
+    // Handle the custom type case
+    if ($default_type) {
+      if (array_key_exists($default_type, $options)) {
+        $default_option = $default_type;
+        $default_custom = NULL;
+      } else {
+        $default_option = 'custom';
+        $default_custom = $default_type;
+      }
+    }
 
     $element['type'] = [
       '#type' => 'select',
-      '#options' => $other_id_types,
+      '#options' => $options,
       '#empty_option' => '- '.t('ID type').' -',
       '#empty_value' => '',
-      '#default_value' => isset($items[$delta]->type) ? $items[$delta]->type : NULL,
+      '#default_value' => $default_option,
+      '#attributes' => [
+        'id' => [$field_name . '-type-' . $delta],
+      ],
+    ];
+
+    $element['custom'] = [
+      '#type' => 'textfield',
+      '#default_value' => $default_custom,
+      '#size' => 15,
+      '#placeholder' => t('custom type key'),
+      '#states' => [
+        'visible' => [
+          'select[id="' . $field_name . '-type-' . $delta . '"]' => [
+            'value' => 'custom'
+          ],
+        ],
+      ],
     ];
 
     $element['value'] = [
       '#type' => 'textfield',
-      '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,
+      '#default_value' => $default_value,
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_length'),
@@ -102,6 +145,34 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
     }
 
     return $element;
+  }
+
+  /**
+   * Validate the field and replace any 'custom' key with the new custom type
+   */
+  public function validate($element, FormStateInterface $form_state) {
+    // Extract all relevant values
+    $type = $element['type']['#value'];
+    $custom = $element['custom']['#value'];
+    $value = $element['value']['#value'];
+
+    // Store the custom type instead of the generic key
+    if (($type === 'custom') && isset($custom)) {
+      $type = $custom;
+    }
+
+    // Prepare the clean values
+    $new_value['type'] = $type;
+    $new_value['value'] = $value;
+
+    // Handle the weight for multiple value fields
+    if (array_key_exists('_weight', $element)) {
+      $weight = $element['_weight']['#value'];
+      $new_value['_weight'] = $weight;
+    }
+
+    // Set the value of the entire form element.
+    $form_state->setValueForElement($element, $new_value);
   }
 
 }

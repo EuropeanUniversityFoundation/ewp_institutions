@@ -53,18 +53,20 @@ class OtherHeiIdDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $other_id_types = \Drupal::service('ewp_institutions.other_id_types')->getOptions();
+    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
+    $types = $type_manager->getDefinedTypes();
 
     $elements = [];
 
     foreach ($items as $delta => $item) {
       $value = $item->value;
-      $type = $item->type;
-      
+      $key = $item->type;
+      $type = (array_key_exists($key, $types)) ? $types[$key]->render() : $key ;
+
       $elements[$delta] = [
         '#theme' => 'other_id',
         '#value' => $value,
-        '#type' => $other_id_types[$type]->render(),
+        '#type' => $type,
       ];
     }
 
