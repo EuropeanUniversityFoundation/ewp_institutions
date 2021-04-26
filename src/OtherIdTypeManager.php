@@ -133,9 +133,6 @@ class OtherIdTypeManager {
     // Build a list from the defined types
     $options = $this->getDefinedTypes();
 
-    // Add a custom option
-    $options['custom'] = t('custom identifier');
-
     return $options;
   }
 
