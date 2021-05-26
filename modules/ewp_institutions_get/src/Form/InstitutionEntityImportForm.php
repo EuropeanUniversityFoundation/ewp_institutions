@@ -480,6 +480,30 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           // Instead limit the options to the default value, when given
           if ($default) {
             $options = $widget[$delta][$property]['#options'];
+            // The default value might not exist in the options
+            if (! array_key_exists($default, $options)) {
+              // Known edge case: Other ID widget
+              if (array_key_exists('custom', $widget[$delta])) {
+                // Store the default value in the custom field
+                $widget[$delta]['custom']['#default_value'] = $default;
+                // Apply all the other changes to the form element
+                $widget[$delta]['custom']['#attributes']['readonly'] = 'readonly';
+                $widget[$delta]['custom']['#attributes']['style'] = "background-color: #EEFFEE";
+                // Rebuild the visibility states
+                $widget[$delta]['custom']['#states'] = [
+                  'visible' => [
+                    'select[id="' . $widget['#field_name'] . '-type-' . $delta . '"]' => [
+                      'value' => 'custom'
+                    ],
+                  ],
+                ];
+                // Set the default value to custom
+                $default = 'custom';
+              } else {
+                // Generic fallback: use the key as option name
+                $options[$default] = $default;
+              }
+            }
             $widget[$delta][$property]['#options'] = [$default => $options[$default]];
             unset($widget[$delta][$property]['#empty_option']);
             unset($widget[$delta][$property]['#empty_value']);
