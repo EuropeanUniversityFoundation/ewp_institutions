@@ -36,6 +36,9 @@ class JsonDataFetcher {
 
     // If tempstore is empty OR should be refreshed
     if (empty($store->get($temp_store_key)) || $refresh) {
+      if ($refresh) {
+        \Drupal::logger('ewp_institutions_get')->notice(t('ARGH!'));
+      }
       // Get the data from the provided endpoint and store it
       $store->set($temp_store_key, $this->get($endpoint));
       $message = t("Loaded @key into temporary storage", ['@key' => $temp_store_key]);
@@ -96,5 +99,36 @@ class JsonDataFetcher {
 
     return $updated;
   }
+
+  /**
+   * Get the updated value from an endpoint
+   */
+  public function getUpdated($temp_store_key, $endpoint) {
+    if ($temp_store_key != 'index') {
+      // Check when the index was last updated
+      $index_updated = $this->checkUpdated('index');
+      $message = t('Index was updated at @timestamp', ['@timestamp' => $index_updated]);
+      \Drupal::logger('ewp_institutions_get')->notice($message);
+    }
+
+    // Check when this item was last updated
+    $item_updated = $this->checkUpdated($temp_store_key);
+    $message = t('Item @key was updated at @timestamp', ['@key' => $temp_store_key, '@timestamp' => $item_updated]);
+    \Drupal::logger('ewp_institutions_get')->notice($message);
+
+    // Decide whether to force a refresh
+    // $refresh = FALSE;
+    // if ($item_updated === NULL) {
+    //   $refresh = TRUE;
+    // } elseif ($index_updated >= $item_updated) {
+    //   $refresh = TRUE;
+    // }
+    $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
+
+    $json_data = $this->load($temp_store_key, $endpoint, $refresh);
+
+    return $json_data;
+  }
+
 
 }

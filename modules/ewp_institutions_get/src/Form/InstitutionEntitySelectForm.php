@@ -165,19 +165,8 @@ class InstitutionEntitySelectForm extends PreviewForm {
     $options = ['' => '- None -'];
 
     if (! empty($endpoint)) {
-      // Check when the index was last updated
-      $index_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated('index');
-
-      // Check when this item was last updated
-      $item_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated($index_item);
-
-      // Decide whether to force a refresh
-      $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
-
       $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->load($index_item, $endpoint);
+        ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         // Build the options list

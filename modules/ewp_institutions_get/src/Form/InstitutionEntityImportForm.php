@@ -376,17 +376,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             $error = $this->t("Item endpoint is not defined.");
           }
           else {
-            // Check when the index was last updated
-            $index_updated = \Drupal::service('ewp_institutions_get.fetch')
-              ->checkUpdated('index');
-            // Check when this item was last updated
-            $item_updated = \Drupal::service('ewp_institutions_get.fetch')
-              ->checkUpdated($index_key);
-            // Decide whether to force a refresh
-            $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
             // Load the data for this index item
             $item_data = \Drupal::service('ewp_institutions_get.fetch')
-              ->load($index_key, $endpoint);
+              ->getUpdated($index_key, $endpoint);
 
             // Check for the actual index item data
             if (! $item_data) {
