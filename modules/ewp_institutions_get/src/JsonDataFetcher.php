@@ -104,23 +104,18 @@ class JsonDataFetcher {
    * Get the updated value from an endpoint
    */
   public function getUpdated($temp_store_key, $endpoint) {
+    // Check when this item was last updated
+    $item_updated = $this->checkUpdated($temp_store_key);
+
     if ($temp_store_key != 'index') {
       // Check when the index was last updated
       $index_updated = $this->checkUpdated('index');
-      $message = t('Index was updated at @timestamp', [
-        '@timestamp' => $index_updated
-      ]);
-      \Drupal::logger('ewp_institutions_get')->notice($message);
+    } else {
+      // Assign for comparison
+      $index_updated = $item_updated;
     }
 
-    // Check when this item was last updated
-    $item_updated = $this->checkUpdated($temp_store_key);
-    $message = t('Item @key was updated at @timestamp', [
-      '@key' => $temp_store_key, '@timestamp' => $item_updated
-    ]);
-    \Drupal::logger('ewp_institutions_get')->notice($message);
-
-    $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE;
+    $refresh = ($item_updated && $index_updated <= $item_updated) ? FALSE : TRUE;
 
     $json_data = $this->load($temp_store_key, $endpoint, $refresh);
 
