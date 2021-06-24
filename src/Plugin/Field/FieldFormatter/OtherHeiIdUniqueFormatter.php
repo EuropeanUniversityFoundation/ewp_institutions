@@ -34,9 +34,6 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    /*return [
-      // Implement settings form.
-    ] + parent::settingsForm($form, $form_state);*/
 
     $type_manager = \Drupal::service('ewp_institutions.other_id_types');
     $types = $type_manager->getUniqueTypeList();
@@ -46,7 +43,7 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
       '#type' => 'select',
       '#options' => $types,
       '#default_value' => $this->getSetting('displayed_id'),
-    ];
+    ] + parent::settingsForm($form, $form_state);
 
     return $form;
   }
