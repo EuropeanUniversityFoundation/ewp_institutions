@@ -136,6 +136,20 @@ class InstitutionEntitySelectForm extends PreviewForm {
       ],
     ];
 
+    $form['actions']['load'] = [
+      '#type' => 'submit',
+      '#submit' => ['::loadImportForm'],
+      '#value' => $this->t('Load Import form'),
+      '#states' => [
+        'disabled' => [
+          ':input[name="hei_select"]' => ['value' => ''],
+        ],
+        'visible' => [
+          ':input[name="data_status"]' => ['value' => ''],
+        ],
+      ],
+    ];
+
     // dpm($form);
 
     return $form;
@@ -145,6 +159,19 @@ class InstitutionEntitySelectForm extends PreviewForm {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $index_item = $form_state->getValue('index_select');
+    $hei_id = $form_state->getValue('hei_select');
+
+    $form_state->setRedirect('entity.hei.import_form',[
+      // 'index_key' => $index_item,
+      // 'hei_key' => $hei_id
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadImportForm(array &$form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $hei_id = $form_state->getValue('hei_select');
 
