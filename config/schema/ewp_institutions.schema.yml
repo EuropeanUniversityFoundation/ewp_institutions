@@ -1,0 +1,7 @@
+field.formatter.settings.ewp_other_hei_id_unique:
+  type: mapping
+  label: 'Other IDs type picker'
+  mapping:
+    displayed_id:
+      type: string
+      label: 'ID to display'

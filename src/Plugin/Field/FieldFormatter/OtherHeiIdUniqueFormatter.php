@@ -26,7 +26,7 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    */
   public static function defaultSettings() {
     return [
-      // Implement default settings.
+      'displayed_id' => 'erasmus',
     ] + parent::defaultSettings();
   }
 
@@ -34,9 +34,21 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    return [
+    /*return [
       // Implement settings form.
-    ] + parent::settingsForm($form, $form_state);
+    ] + parent::settingsForm($form, $form_state);*/
+
+    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
+    $types = $type_manager->getUniqueTypeList();
+
+    $form['displayed_id'] = [
+      '#title' => $this->t('Unique ID type'),
+      '#type' => 'select',
+      '#options' => $types,
+      '#default_value' => $this->getSetting('displayed_id'),
+    ];
+
+    return $form;
   }
 
   /**
@@ -54,11 +66,11 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $type_manager = \Drupal::service('ewp_institutions.other_id_types');
-    $types = $type_manager->getDefinedTypes();
+    $types = $type_manager->getUniqueTypeList();
 
     foreach ($items as $delta => $item) {
       $key = $item->type;
-      if($key == 'erasmus'){
+      if($key == $this->getSetting('displayed_id')){
         $value = $item->value;
         $type = (array_key_exists($key, $types)) ? $types[$key]->render() : $key ;
 
