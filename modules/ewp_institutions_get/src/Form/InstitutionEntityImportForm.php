@@ -8,7 +8,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\ewp_institutions\Form\InstitutionEntityForm;
-use Drupal\ewp_institutions_get\RequirementsCheck;
+use Drupal\ewp_institutions_get\InstitutionManager;
 
 /**
  * Changes the Institution Add form.
@@ -134,10 +134,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     }
 
     $this->indexData = \Drupal::service('ewp_institutions_get.fetch')
-      ->load(RequirementsCheck::INDEX_KEYWORD, $this->indexEndpoint);
+      ->load(InstitutionManager::INDEX_KEYWORD, $this->indexEndpoint);
 
     $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
-      ->idLinks($this->indexData, RequirementsCheck::INDEX_LINK_KEY);
+      ->idLinks($this->indexData, InstitutionManager::INDEX_LINK_KEY);
 
     $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
       ->idLabel($this->indexData);
@@ -347,7 +347,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    * Check for errors prior to rebuilding the form
    */
   protected function checkErrors($index_key = NULL, $hei_key = NULL) {
-    $error = \Drupal::service('ewp_institutions_get.check')
+    $error = \Drupal::service('ewp_institutions_get.manager')
       ->checkErrors($index_key, $hei_key);
 
     if (empty($error) && !empty($hei_key)) {

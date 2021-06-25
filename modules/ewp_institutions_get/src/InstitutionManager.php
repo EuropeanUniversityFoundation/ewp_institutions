@@ -7,9 +7,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
 /**
- * Service for checking Institution import requirements
+ * Service for managing Institution entities
  */
-class RequirementsCheck {
+class InstitutionManager {
 
   use StringTranslationTrait;
 

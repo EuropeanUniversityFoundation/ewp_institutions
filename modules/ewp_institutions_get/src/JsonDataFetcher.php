@@ -8,8 +8,8 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
-use Drupal\ewp_institutions_get\RequirementsCheck;
 
 /**
  * JSON data fetching service.
@@ -80,7 +80,7 @@ class JsonDataFetcher {
     // If tempstore is empty OR should be refreshed
     if (empty($this->tempStore->get($temp_store_key)) || $refresh) {
       // Get the data from the provided endpoint and store it
-      $store->set($temp_store_key, $this->get($endpoint));
+      $this->tempStore->set($temp_store_key, $this->get($endpoint));
       $message = $this->t("Loaded @key into temporary storage", [
         '@key' => $temp_store_key
       ]);
@@ -139,9 +139,9 @@ class JsonDataFetcher {
     // Check when this item was last updated
     $item_updated = $this->checkUpdated($temp_store_key);
 
-    if ($temp_store_key != RequirementsCheck::INDEX_KEYWORD) {
+    if ($temp_store_key != InstitutionManager::INDEX_KEYWORD) {
       // Check when the index was last updated
-      $index_updated = $this->checkUpdated(RequirementsCheck::INDEX_KEYWORD);
+      $index_updated = $this->checkUpdated(InstitutionManager::INDEX_KEYWORD);
     } else {
       // Assign for comparison
       $index_updated = $item_updated;

@@ -1,7 +1,4 @@
 services:
-  ewp_institutions_get.check:
-    class: Drupal\ewp_institutions_get\RequirementsCheck
-    arguments: ['@config.factory', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@string_translation']
   ewp_institutions_get.fetch:
     class: Drupal\ewp_institutions_get\JsonDataFetcher
     arguments: ['@http_client', '@ewp_institutions_get.json', '@logger.factory', '@tempstore.shared', '@string_translation']
@@ -14,6 +11,9 @@ services:
   ewp_institutions_get.keys:
     class: Drupal\ewp_institutions_get\JsonDataKeys
     arguments: []
+  ewp_institutions_get.manager:
+    class: Drupal\ewp_institutions_get\InstitutionManager
+    arguments: ['@config.factory', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@string_translation']
   ewp_institutions_get.route_subscriber:
     class: Drupal\ewp_institutions_get\Routing\RouteSubscriber
     tags:
