@@ -2,16 +2,37 @@
 
 namespace Drupal\ewp_institutions_get;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslationInterface;
+
 /**
  * Service for data formatting
  */
 class DataFormatter {
 
+  use StringTranslationTrait;
+
+  // JSON data keys
+  const TYPE_KEY = 'type';
+  const ID_KEY = 'id';
+  const ATTR_KEY = 'attributes';
+
+  /**
+   * Constructs a new JsonDataProcessor.
+   *
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
+   *   The string translation service.
+   */
+  public function __construct(
+    TranslationInterface $string_translation
+  ) {
+  }
+
   /**
    * Format data as HTML table
    */
   public function toTable($title, $data, $columns = [], $show_attr = TRUE) {
-    $header = ['type','id'];
+    $header = [self::TYPE_KEY,self::ID_KEY];
 
     // Additional columns
     if (!empty($columns)) {
@@ -22,35 +43,35 @@ class DataFormatter {
 
     // Attributes overview
     if ($show_attr) {
-      $header[] = 'attributes';
+      $header[] = self::ATTR_KEY;
     }
 
     $rows = [];
 
     foreach ($data as $item => $fields) {
       // Load the default columns first
-      $type = $fields['type'];
-      $id = $fields['id'];
+      $type = $fields[self::TYPE_KEY];
+      $id = $fields[self::ID_KEY];
       $row = [$type, $id];
 
       // Load the additional columns, if any
       foreach ($columns as $key => $value) {
         $cell = '';
 
-        if (array_key_exists('attributes', $fields)) {
-          if (array_key_exists($value, $fields['attributes'])) {
-            if (is_array($fields['attributes'][$value])) {
-              $array = $fields['attributes'][$value];
+        if (array_key_exists(self::ATTR_KEY, $fields)) {
+          if (array_key_exists($value, $fields[self::ATTR_KEY])) {
+            if (is_array($fields[self::ATTR_KEY][$value])) {
+              $array = $fields[self::ATTR_KEY][$value];
 
               if (count(array_filter(array_keys($array), 'is_string')) > 0) {
                 // associative array implies a single value of a complex field
-                $cell = 'complex';
+                $cell = $this->t('complex');
               } else {
                 // otherwise assume a field with multiple values
-                $cell = 'multiple';
+                $cell = $this->t('multiple');
               }
             } else {
-              $cell = $fields['attributes'][$value];
+              $cell = $fields[self::ATTR_KEY][$value];
             }
           }
         }
@@ -62,10 +83,10 @@ class DataFormatter {
       if ($show_attr) {
         $attributes = '';
 
-        if (array_key_exists('attributes', $fields)) {
+        if (array_key_exists(self::ATTR_KEY, $fields)) {
           $attr_list = [];
 
-          foreach ($fields['attributes'] as $key => $value) {
+          foreach ($fields[self::ATTR_KEY] as $key => $value) {
             if (! empty($value)) {
               // handle complex attributes
               if (is_array($value)) {
@@ -94,7 +115,8 @@ class DataFormatter {
     $build['intro'] = [
       '#type' => 'markup',
       '#markup' => '<h2>' . $title . '</h2>' .
-        '<p><strong>' . t('Total') . ': </strong>' . count($data) . '</p>',
+        '<p><strong>' . $this->t('Total') . ': </strong>' .
+        count($data) . '</p>',
     ];
 
     $build['table'] = [
@@ -115,8 +137,8 @@ class DataFormatter {
    */
   public function preview($title, $data, $item, $show_empty = TRUE) {
     foreach ($data as $key => $value) {
-      if ($value['id'] == $item) {
-        $attributes = $value['attributes'];
+      if ($value[self::ID_KEY] == $item) {
+        $attributes = $value[self::ATTR_KEY];
       }
     }
 
@@ -126,6 +148,7 @@ class DataFormatter {
     ];
 
     $content = '';
+    $empty = '<em>' . $this->t('empty') . '</em>';
 
     foreach ($attributes as $key => $value) {
       if (! empty($value)) {
@@ -139,8 +162,9 @@ class DataFormatter {
 
             foreach ($attributes[$key] as $subkey => $subvalue) {
               if ($subvalue || $show_empty) {
-                $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
-                $list .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+                $subvalue = ($subvalue) ? $subvalue : $empty ;
+                $list .= '<li><strong>' . $subkey . ':</strong> ';
+                $list .= $subvalue . '</li>';
               }
             }
 
@@ -158,8 +182,9 @@ class DataFormatter {
 
                 foreach ($attributes[$key][$delta] as $subkey => $subvalue) {
                   if ($subvalue || $show_empty) {
-                    $subvalue = ($subvalue) ? $subvalue : '<em>' . t('empty') . '</em>' ;
-                    $sublist .= '<li><strong>' . $subkey . ':</strong> ' . $subvalue . '</li>';
+                    $subvalue = ($subvalue) ? $subvalue : $empty ;
+                    $sublist .= '<li><strong>' . $subkey . ':</strong> ';
+                    $sublist .= $subvalue . '</li>';
                   }
                 }
 
@@ -181,7 +206,7 @@ class DataFormatter {
           $markup = ' ' . $value . '<br />';
         }
       } else {
-        $markup = ' <em>' . t('empty') . '</em><br />';
+        $markup = ' ' . $empty . '<br />';
       }
 
       $content .= '<strong>' . $key . ':</strong>';
