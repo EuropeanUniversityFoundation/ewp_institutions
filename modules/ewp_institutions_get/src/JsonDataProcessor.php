@@ -51,9 +51,13 @@ class JsonDataProcessor {
    * Extract attributes for a single key in JSON data
    */
   public function extract($json, $target_key) {
+    $decoded = json_decode($json, TRUE);
+
+    $data = $decoded[self::DATA_KEY];
+
     $target_data = [];
 
-    foreach ($json as $key => $array) {
+    foreach ($data as $key => $array) {
       if ($array[self::ID_KEY] == $target_key) {
         // Get expanded data array
         $expanded_data = $this->toArray($json, TRUE);

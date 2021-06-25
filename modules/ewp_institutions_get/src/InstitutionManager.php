@@ -18,6 +18,7 @@ class InstitutionManager {
 
   const ENTITY_TYPE = 'hei';
   const UNIQUE_FIELD = 'hei_id';
+  const INDEX_FIELD = 'index_key';
   const INDEX_KEYWORD = 'index';
   const INDEX_LINK_KEY = 'list';
 
@@ -114,7 +115,9 @@ class InstitutionManager {
 
     $this->fieldmap = $this->configFactory
       ->get('ewp_institutions_get.fieldmap')
-      ->get('ewp_institutions_get.field_mapping');
+      ->get('field_mapping');
+
+    $this->heiItemData = [];
   }
 
   /**
@@ -129,7 +132,7 @@ class InstitutionManager {
    * @return array $ids
    *   An array of entity IDs found in the system
    */
-  public function getInstitutionId($hei_id, $create_from = NULL) {
+  public function getInstitution($hei_id, $create_from = NULL) {
     // Check if an entity with the same hei_id already exists
     $exists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
@@ -147,7 +150,7 @@ class InstitutionManager {
     foreach ($exists as $key => $value) {
       $log_var = $key;
     }
-    $message = $this->t('getInstitutionId returns @id', ['@id' => $log_var]);
+    $message = $this->t('getInstitution returns @id', ['@id' => $log_var]);
     $this->logger->notice($message);
 
     return $exists;
@@ -173,12 +176,12 @@ class InstitutionManager {
       ->load(self::INDEX_KEYWORD, $this->indexEndpoint);
 
     $index_links = $this->jsonDataProcessor
-      ->idLinks($this->indexData, self::INDEX_LINK_KEY);
+      ->idLinks($index_data, self::INDEX_LINK_KEY);
 
     $hei_data = $this->jsonDataFetcher
       ->getUpdated($index_key, $index_links[$index_key]);
 
-    $this->$heiItemData = $this->jsonDataProcessor
+    $this->heiItemData = $this->jsonDataProcessor
       ->extract($hei_data, $hei_key);
 
     // Remove empty values from the fieldmap
@@ -195,13 +198,15 @@ class InstitutionManager {
       }
     }
 
-    // Create a new data array
+    // Create an array with the new data
     $new_data = [];
     foreach ($this->heiItemData as $key => $value) {
       $new_data[$this->fieldmap[$key]] = $value;
     }
 
-    // $new_entity = InstitutionEntity::create($new_data);
+    // Add the Index key to the new data
+    $new_data[self::INDEX_FIELD] = $index_key;
+
     $new_entity = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->create($new_data);
@@ -209,7 +214,7 @@ class InstitutionManager {
 
     $created = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
-      ->loadByProperties($new_data);
+      ->loadByProperties([self::UNIQUE_FIELD => $hei_key]);
 
     foreach ($created as $key => $value) {
       $id = $key;
@@ -218,7 +223,7 @@ class InstitutionManager {
     $message = $this->t('createInstitution returns @id', ['@id' => $id]);
     $this->logger->notice($message);
 
-    return $id;
+    return $created;
   }
 
   /**
