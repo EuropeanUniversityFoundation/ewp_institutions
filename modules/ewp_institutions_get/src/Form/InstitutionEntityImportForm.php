@@ -352,8 +352,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     if (empty($error) && !empty($hei_key)) {
       // Check if an entity with the same hei_id already exists
-      $exists = \Drupal::entityTypeManager()->getStorage('hei')
-        ->loadByProperties(['hei_id' => $hei_key]);
+      $exists = \Drupal::service('ewp_institutions_get.manager')
+        ->getInstitutionId($hei_key);
 
       if (!empty($exists)) {
         foreach ($exists as $id => $hei) {

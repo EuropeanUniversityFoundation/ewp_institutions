@@ -48,32 +48,21 @@ class JsonDataProcessor {
   }
 
   /**
-   * Validate JSON:API data object
+   * Extract attributes for a single key in JSON data
    */
-  public function validate($json) {
-    $decoded = json_decode($json, TRUE);
-    $message = '';
-    $status = TRUE;
+  public function extract($json, $target_key) {
+    $target_data = [];
 
-    if (array_key_exists(self::DATA_KEY, $decoded)) {
-      foreach ($decoded[self::DATA_KEY] as $key => $value) {
-        if (! array_key_exists(self::TYPE_KEY, $decoded[self::DATA_KEY][0])) {
-          $message = $this->t('Type key is not present.');
-        }
-        elseif (! array_key_exists(self::ID_KEY, $decoded[self::DATA_KEY][0])) {
-          $message = $this->t('ID key is not present.');
-        }
+    foreach ($json as $key => $array) {
+      if ($array[self::ID_KEY] == $target_key) {
+        // Get expanded data array
+        $expanded_data = $this->toArray($json, TRUE);
+        $target_data = $expanded_data[$key][self::ATTR_KEY];
+        ksort($target_data);
       }
-    } else {
-      $message = $this->t('Data key is not present.');
     }
 
-    if ($message) {
-      $this->logger->notice($message);
-      $status = FALSE;
-    }
-
-    return $status;
+    return $target_data;
   }
 
   /**
@@ -169,6 +158,35 @@ class JsonDataProcessor {
     }
 
     return $data;
+  }
+
+  /**
+   * Validate JSON:API data object
+   */
+  public function validate($json) {
+    $decoded = json_decode($json, TRUE);
+    $message = '';
+    $status = TRUE;
+
+    if (array_key_exists(self::DATA_KEY, $decoded)) {
+      foreach ($decoded[self::DATA_KEY] as $key => $value) {
+        if (! array_key_exists(self::TYPE_KEY, $decoded[self::DATA_KEY][0])) {
+          $message = $this->t('Type key is not present.');
+        }
+        elseif (! array_key_exists(self::ID_KEY, $decoded[self::DATA_KEY][0])) {
+          $message = $this->t('ID key is not present.');
+        }
+      }
+    } else {
+      $message = $this->t('Data key is not present.');
+    }
+
+    if ($message) {
+      $this->logger->notice($message);
+      $status = FALSE;
+    }
+
+    return $status;
   }
 
 }

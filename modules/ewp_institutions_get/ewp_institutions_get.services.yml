@@ -13,7 +13,7 @@ services:
     arguments: []
   ewp_institutions_get.manager:
     class: Drupal\ewp_institutions_get\InstitutionManager
-    arguments: ['@config.factory', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@string_translation']
+    arguments: ['@config.factory', '@entity_type.manager', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@logger.factory', '@string_translation']
   ewp_institutions_get.route_subscriber:
     class: Drupal\ewp_institutions_get\Routing\RouteSubscriber
     tags:
