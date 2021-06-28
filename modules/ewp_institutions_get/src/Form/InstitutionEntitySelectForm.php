@@ -162,9 +162,9 @@ class InstitutionEntitySelectForm extends PreviewForm {
     $index_item = $form_state->getValue('index_select');
     $hei_id = $form_state->getValue('hei_select');
 
-    $form_state->setRedirect('entity.hei.import_form',[
-      // 'index_key' => $index_item,
-      // 'hei_key' => $hei_id
+    $form_state->setRedirect('entity.hei.auto_import',[
+      'index_key' => $index_item,
+      'hei_key' => $hei_id
     ]);
   }
 

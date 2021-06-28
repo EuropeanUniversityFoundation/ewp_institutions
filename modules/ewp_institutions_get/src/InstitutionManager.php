@@ -5,6 +5,7 @@ namespace Drupal\ewp_institutions_get;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions\Entity\InstitutionEntity;
@@ -79,6 +80,13 @@ class InstitutionManager {
   protected $logger;
 
   /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -91,6 +99,8 @@ class InstitutionManager {
    *   JSON data processing service.
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
@@ -100,6 +110,7 @@ class InstitutionManager {
       JsonDataFetcher $json_data_fetcher,
       JsonDataProcessor $json_data_processor,
       LoggerChannelFactoryInterface $logger_factory,
+      MessengerInterface $messenger,
       TranslationInterface $string_translation
   ) {
     $this->configFactory      = $config_factory;
@@ -107,6 +118,7 @@ class InstitutionManager {
     $this->jsonDataFetcher    = $json_data_fetcher;
     $this->jsonDataProcessor  = $json_data_processor;
     $this->logger             = $logger_factory->get('ewp_institutions_get');
+    $this->messenger          = $messenger;
     $this->stringTranslation  = $string_translation;
 
     $this->indexEndpoint = $this->configFactory
@@ -129,8 +141,8 @@ class InstitutionManager {
    * @param string $create_from
    *   Key found in the API Index.
    *
-   * @return array $ids
-   *   An array of entity IDs found in the system
+   * @return array
+   *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
   public function getInstitution($hei_id, $create_from = NULL) {
     // Check if an entity with the same hei_id already exists
@@ -138,20 +150,27 @@ class InstitutionManager {
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
 
-    if (empty($exists) && !empty($create_from)) {
-      $new = $this->createInstitution($create_from, $hei_id);
-      if (!empty($new)) {
-        $exists = $this->entityTypeManager
+    if (!empty($create_from)) {
+      if (empty($exists)) {
+        $new = $this->createInstitution($create_from, $hei_id);
+        if (!empty($new)) {
+          $exists = $this->entityTypeManager
           ->getStorage(self::ENTITY_TYPE)
           ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
+
+          $message = $this->t('Institution successfully created');
+          $this->messenger->addMessage($message);
+        }
+        else {
+          $message = $this->t('Institution cannot be created');
+          $this->messenger->addError($message);
+        }
+      }
+      else {
+        $message = $this->t('Institution already exists');
+        $this->messenger->addWarning($message);
       }
     }
-
-    foreach ($exists as $key => $value) {
-      $log_var = $key;
-    }
-    $message = $this->t('getInstitution returns @id', ['@id' => $log_var]);
-    $this->logger->notice($message);
 
     return $exists;
   }
@@ -164,8 +183,8 @@ class InstitutionManager {
    * @param string $hei_key
    *   Key found in the HEI list.
    *
-   * @return int|NULL
-   *   The ID of the new Institution entity
+   * @return array
+   *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
   public function createInstitution($index_key, $hei_key) {
     if (!empty($this->checkErrors($index_key, $hei_key))) {
@@ -215,13 +234,6 @@ class InstitutionManager {
     $created = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties([self::UNIQUE_FIELD => $hei_key]);
-
-    foreach ($created as $key => $value) {
-      $id = $key;
-    }
-
-    $message = $this->t('createInstitution returns @id', ['@id' => $id]);
-    $this->logger->notice($message);
 
     return $created;
   }
