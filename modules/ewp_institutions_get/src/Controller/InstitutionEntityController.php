@@ -107,7 +107,7 @@ class InstitutionEntityController extends EntityController {
   public function autoImport(Request $request, $index_key, $hei_key) {
     // Create a new Institution if none exists with the same key
     $hei = $this->institutionManager->getInstitution($hei_key, $index_key);
-    if (empty($hei)) {
+    if (!empty($hei)) {
       foreach ($hei as $id => $value) {
         $params = [InstitutionManager::ENTITY_TYPE => $id];
       }
