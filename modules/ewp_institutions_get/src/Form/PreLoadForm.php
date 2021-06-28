@@ -64,11 +64,14 @@ class PreLoadForm extends FormBase {
     $this->indexLabels = [];
 
     if (! empty($this->indexEndpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $this->indexEndpoint);
+      $json_data = \Drupal::service('ewp_institutions_get.fetch')
+        ->getUpdated('index', $this->indexEndpoint);
 
       if ($json_data) {
-        $this->indexLinks = \Drupal::service('ewp_institutions_get.json')->idLinks($json_data, $this->indexLinkKey);
-        $this->indexLabels = \Drupal::service('ewp_institutions_get.json')->idLabel($json_data);
+        $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
+          ->idLinks($json_data, $this->indexLinkKey);
+        $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
+          ->idLabel($json_data);
       }
     } else {
       $warning = $this->t("Index endpoint is not defined.");
@@ -138,25 +141,17 @@ class PreLoadForm extends FormBase {
     $endpoint = $this->indexLinks[$index_item];
 
     if (! empty($endpoint)) {
-      // Check when the index was last updated
-      $index_updated = \Drupal::service('ewp_institutions_get.fetch')->checkUpdated('index');
-      // Check when this item was last updated
-      $item_updated = \Drupal::service('ewp_institutions_get.fetch')->checkUpdated($index_item);
-      // Decide whether to force a refresh
-      if ($item_updated && $index_updated < $item_updated) {
-        $refresh = FALSE;
-      } else {
-        $refresh = TRUE;
-      }
-
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load($index_item, $endpoint, $refresh);
+      $json_data = \Drupal::service('ewp_institutions_get.fetch')
+        ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         $title = $this->indexLabels[$index_item];
-        $data = \Drupal::service('ewp_institutions_get.json')->toArray($json_data);
+        $data = \Drupal::service('ewp_institutions_get.json')
+          ->toArray($json_data);
         $columns = $this->columns;
         $show_attr = $this->showAttr;
-        $message = \Drupal::service('ewp_institutions_get.format')->toTable($title, $data, $columns, $show_attr);
+        $message = \Drupal::service('ewp_institutions_get.format')
+          ->toTable($title, $data, $columns, $show_attr);
       } else {
         $message = $this->t('Nothing to display.');
       }
