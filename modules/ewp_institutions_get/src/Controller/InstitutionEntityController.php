@@ -10,6 +10,8 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Drupal\ewp_institutions_get\InstitutionManager;
 
 /**
@@ -18,6 +20,13 @@ use Drupal\ewp_institutions_get\InstitutionManager;
  * - An import title callback.
  */
 class InstitutionEntityController extends EntityController {
+
+  /**
+   * A router implementation which does not check access.
+   *
+   * @var \Symfony\Component\Routing\Matcher\UrlMatcherInterface
+   */
+  protected $accessUnawareRouter;
 
   /**
    * The Institution manager service.
@@ -41,6 +50,8 @@ class InstitutionEntityController extends EntityController {
    *   The string translation.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
    *   The url generator.
+   * @param \Symfony\Component\Routing\Matcher\UrlMatcherInterface $access_unaware_router
+   *   A router implementation which does not check access.
    * @param \Drupal\ewp_institutions_get\InstitutionManager $institution_manager
    *   The Institution manager service.
    */
@@ -51,6 +62,7 @@ class InstitutionEntityController extends EntityController {
     RendererInterface $renderer,
     TranslationInterface $string_translation,
     UrlGeneratorInterface $url_generator,
+    UrlMatcherInterface $access_unaware_router,
     InstitutionManager $institution_manager
   ) {
     parent::__construct(
@@ -61,6 +73,7 @@ class InstitutionEntityController extends EntityController {
       $string_translation,
       $url_generator
     );
+    $this->accessUnawareRouter = $access_unaware_router;
     $this->institutionManager = $institution_manager;
   }
 
@@ -75,6 +88,7 @@ class InstitutionEntityController extends EntityController {
       $container->get('renderer'),
       $container->get('string_translation'),
       $container->get('url_generator'),
+      $container->get('router.no_access_checks'),
       $container->get('ewp_institutions_get.manager')
     );
   }
@@ -88,14 +102,22 @@ class InstitutionEntityController extends EntityController {
    *   The Institution key to import.
    *
    * @return array
-   *   Array with entity id as key and entity data as value.
+   *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
-  public function autoImport($index_key, $hei_key) {
+  public function autoImport(Request $request, $index_key, $hei_key) {
     // Create a new Institution if none exists with the same key
     $hei = $this->institutionManager->getInstitution($hei_key, $index_key);
-    dpm($hei);
+    if (empty($hei)) {
+      foreach ($hei as $id => $value) {
+        $params = [InstitutionManager::ENTITY_TYPE => $id];
+      }
+      $route = 'entity.' . InstitutionManager::ENTITY_TYPE . '.canonical';
+      return $this->redirect($route, $params);
+    }
 
-    return [];
+    $referer = $request->headers->get('referer');
+    $result = $this->accessUnawareRouter->match($referer);
+    return $this->redirect($result['_route']);
   }
 
   /**

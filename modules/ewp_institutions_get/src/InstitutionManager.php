@@ -158,7 +158,12 @@ class InstitutionManager {
           ->getStorage(self::ENTITY_TYPE)
           ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
 
-          $message = $this->t('Institution successfully created');
+          foreach ($exists as $id => $hei) {
+            $renderable = $hei->toLink()->toRenderable();
+          }
+          $message = $this->t('Institution successfully created: @link', [
+            '@link' => render($renderable),
+          ]);
           $this->messenger->addMessage($message);
         }
         else {
@@ -167,7 +172,12 @@ class InstitutionManager {
         }
       }
       else {
-        $message = $this->t('Institution already exists');
+        foreach ($exists as $id => $hei) {
+          $renderable = $hei->toLink()->toRenderable();
+        }
+        $message = $this->t('Institution already exists: @link', [
+          '@link' => render($renderable),
+        ]);
         $this->messenger->addWarning($message);
       }
     }
