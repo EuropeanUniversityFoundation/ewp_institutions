@@ -220,25 +220,29 @@ class InstitutionManager {
       }
     }
 
+    $reciprocal = array_flip($this->fieldmap);
+
     // Remove non mapped values from the entity data
     foreach ($this->heiItemData as $key => $value) {
-      if (! array_key_exists($key, $this->fieldmap)) {
+      if (! array_key_exists($key, $reciprocal)) {
         unset($this->heiItemData[$key]);
       }
     }
 
-    // Create an array with the new data
-    $new_data = [];
+    // Change data keys to field names
     foreach ($this->heiItemData as $key => $value) {
-      $new_data[$this->fieldmap[$key]] = $value;
+      if (empty($this->fieldmap[$key])) {
+        $this->heiItemData[$reciprocal[$key]] = $value;
+        unset($this->heiItemData[$key]);
+      }
     }
 
-    // Add the Index key to the new data
-    $new_data[self::INDEX_FIELD] = $index_key;
+    // Add the Index key to the item data
+    $this->heiItemData[self::INDEX_FIELD] = $index_key;
 
     $new_entity = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
-      ->create($new_data);
+      ->create($this->heiItemData);
     $new_entity->save();
 
     $created = $this->entityTypeManager
