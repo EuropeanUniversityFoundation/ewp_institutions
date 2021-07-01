@@ -85,7 +85,17 @@ entity.hei.import_form:
       hei_key:
         type: hei_key
 
-# Import entity controller
+# Auto import entity form
+entity.hei.auto_import_form:
+  path: '/ewp/hei/auto_import'
+  defaults:
+    _form: '\Drupal\ewp_institutions_get\Form\InstitutionAutoImportForm'
+    entity_type_id: hei
+    _title_callback: 'Drupal\ewp_institutions_get\Controller\InstitutionEntityController::autoImportTitle'
+  requirements:
+    _entity_create_access: hei
+
+# Auto import entity controller
 entity.hei.auto_import:
   path: '/ewp/hei/auto_import/{index_key}/{hei_key}'
   defaults:

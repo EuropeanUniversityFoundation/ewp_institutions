@@ -106,7 +106,7 @@ class InstitutionEntityController extends EntityController {
    */
   public function autoImport(Request $request, $index_key, $hei_key) {
     // Create a new Institution if none exists with the same key
-    $hei = $this->institutionManager->getInstitution($hei_key, $index_key);
+    $hei = $this->institutionManager->getInstitution($hei_key, $index_key, TRUE);
     if (!empty($hei)) {
       foreach ($hei as $id => $value) {
         $params = [InstitutionManager::ENTITY_TYPE => $id];
@@ -133,6 +133,22 @@ class InstitutionEntityController extends EntityController {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     return $this->t('Add @entity-type from external source', [
       '@entity-type' => $entity_type->getSingularLabel()
+    ]);
+  }
+
+  /**
+   * Provides a generic auto import title callback.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID.
+   *
+   * @return string
+   *   The title for the auto import form.
+   */
+  public function autoImportTitle($entity_type_id) {
+    $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
+    return $this->t('Look up @entity-type', [
+      '@entity-type' => $entity_type->getPluralLabel()
     ]);
   }
 

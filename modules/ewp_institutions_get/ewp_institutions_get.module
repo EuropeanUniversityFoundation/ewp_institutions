@@ -80,11 +80,13 @@ function ewp_institutions_get_field_widget_multivalue_entity_reference_autocompl
     $elements[0]['target_id']['#selection_settings']['auto_create'] = FALSE;
 
     // Add a link to the description to launch a modal import form
-    $description = '<strong><a class="use-ajax" data-dialog-type="modal" href="';
-    $path = '/search/node';
+    $description = '<strong><a class="use-ajax" data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:800}" href="';
+    $path = '/ewp/hei/auto_import?modal';
     $description .= $path . '">';
     $description .= t('Click here to look up more Institutions');
     $description .= '</a></strong>';
+
+    // dpm($elements);
 
     // Place the description in the element according to cardinality
     if ($elements['#cardinality_multiple']) {

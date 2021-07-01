@@ -144,7 +144,7 @@ class InstitutionManager {
    * @return array
    *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
-  public function getInstitution($hei_id, $create_from = NULL) {
+  public function getInstitution($hei_id, $create_from = NULL, $verbose = FALSE) {
     // Check if an entity with the same hei_id already exists
     $exists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
@@ -155,30 +155,36 @@ class InstitutionManager {
         $new = $this->createInstitution($create_from, $hei_id);
         if (!empty($new)) {
           $exists = $this->entityTypeManager
-          ->getStorage(self::ENTITY_TYPE)
-          ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
+            ->getStorage(self::ENTITY_TYPE)
+            ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
 
-          foreach ($exists as $id => $hei) {
-            $renderable = $hei->toLink()->toRenderable();
+          if ($verbose) {
+            foreach ($exists as $id => $hei) {
+              $renderable = $hei->toLink()->toRenderable();
+            }
+            $message = $this->t('Institution successfully created: @link', [
+              '@link' => render($renderable),
+            ]);
+            $this->messenger->addMessage($message);
           }
-          $message = $this->t('Institution successfully created: @link', [
-            '@link' => render($renderable),
-          ]);
-          $this->messenger->addMessage($message);
         }
         else {
-          $message = $this->t('Institution cannot be created');
-          $this->messenger->addError($message);
+          if ($verbose) {
+            $message = $this->t('Institution cannot be created');
+            $this->messenger->addError($message);
+          }
         }
       }
       else {
-        foreach ($exists as $id => $hei) {
-          $renderable = $hei->toLink()->toRenderable();
+        if ($verbose) {
+          foreach ($exists as $id => $hei) {
+            $renderable = $hei->toLink()->toRenderable();
+          }
+          $message = $this->t('Institution already exists: @link', [
+            '@link' => render($renderable),
+          ]);
+          $this->messenger->addWarning($message);
         }
-        $message = $this->t('Institution already exists: @link', [
-          '@link' => render($renderable),
-        ]);
-        $this->messenger->addWarning($message);
       }
     }
 
