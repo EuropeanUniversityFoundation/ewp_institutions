@@ -5,3 +5,6 @@ field.formatter.settings.ewp_other_hei_id_unique:
     displayed_id:
       type: string
       label: 'ID to display'
+    display_label:
+      type: boolean
+      label: 'Display ID type'
