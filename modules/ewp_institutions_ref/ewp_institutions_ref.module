@@ -29,20 +29,5 @@ function ewp_institutions_ref_help($route_name, RouteMatchInterface $route_match
  * Implements hook_form_alter().
  */
 function ewp_institutions_ref_form_alter(&$form, FormStateInterface $form_state) {
-  dpm($form);
-}
-
-function ewp_institutions_ref_field_widget_multivalue_entity_reference_autocomplete_form_alter(array &$elements, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-  $description = '<a class="use-ajax" data-dialog-type="modal" href="';
-  $path = '/search/node';
-  $description .= $path;
-  $description .= '">' . t('Search') . '</a>';
-
-  if ($elements['#cardinality_multiple']) {
-    $break = (!empty($elements['#description'])) ? '<br/>' : '';
-    $elements['#description'] .= $break . $description;
-  } else {
-    $break = (!empty($elements[0]['target_id']['#description'])) ? '<br/>' : '';
-    $elements[0]['target_id']['#description'] .= $break . $description;
-  }
+  // dpm($form);
 }

@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\ewp_institutions_get\InstitutionManager;
 
 /**
  * Implements hook_help().
@@ -34,7 +35,7 @@ function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match
 function ewp_institutions_get_entity_type_build(array &$entity_types) {
 
   /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-  $entity_types['hei']
+  $entity_types[InstitutionManager::ENTITY_TYPE]
     ->setFormClass('import', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityImportForm')
     ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')
     ->setLinkTemplate('import-form', '/ewp/hei/import/{index_key}/{hei_key}')
@@ -47,8 +48,8 @@ function ewp_institutions_get_entity_type_build(array &$entity_types) {
  * Add new base field to the Institution entity for the API index key
  */
 function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if ($entity_type->id() === 'hei') {
-    $fields['index_key'] = BaseFieldDefinition::create('string')
+  if ($entity_type->id() === InstitutionManager::ENTITY_TYPE) {
+    $fields[InstitutionManager::INDEX_FIELD] = BaseFieldDefinition::create('string')
       ->setLabel(t('API index key'))
       ->setDisplayOptions('form', [
         'type' => 'textfield',
@@ -64,4 +65,35 @@ function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity
  */
 function ewp_institutions_get_form_alter(&$form, FormStateInterface $form_state) {
   // dpm($form);
+}
+
+/**
+ * Implements hook_field_widget_multivalue_WIDGET_TYPE_form_alter().
+ */
+function ewp_institutions_get_field_widget_multivalue_entity_reference_autocomplete_form_alter(array &$elements, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+  $target_type = $elements[0]['target_id']['#target_type'];
+  $selection_settings = $elements[0]['target_id']['#selection_settings'];
+  $auto_create = (array_key_exists('auto_create', $selection_settings)) ? $selection_settings['auto_create'] : FALSE ;
+
+  if ($target_type === InstitutionManager::ENTITY_TYPE && $auto_create) {
+    // Unset the auto create ability via the normal form element
+    $elements[0]['target_id']['#selection_settings']['auto_create'] = FALSE;
+
+    // Add a link to the description to launch a modal import form
+    $description = '<strong><a class="use-ajax" data-dialog-type="modal" href="';
+    $path = '/search/node';
+    $description .= $path . '">';
+    $description .= t('Click here to look up more Institutions');
+    $description .= '</a></strong>';
+
+    // Place the description in the element according to cardinality
+    if ($elements['#cardinality_multiple']) {
+      $break = (!empty($elements['#description'])) ? '<br/>' : '';
+      $elements['#description'] .= $break . $description;
+    } else {
+      $break = (!empty($elements[0]['target_id']['#description'])) ? '<br/>' : '';
+      $elements[0]['target_id']['#description'] .= $break . $description;
+    }
+  }
+
 }
