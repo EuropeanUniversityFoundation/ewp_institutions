@@ -195,9 +195,19 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
       }
     }
 
+    $reciprocal = array_flip($fieldmap);
+
     // Remove non mapped values from the entity data
     foreach ($this->heiItemData as $key => $value) {
-      if (! array_key_exists($key, $fieldmap)) {
+      if (! array_key_exists($key, $reciprocal)) {
+        unset($this->heiItemData[$key]);
+      }
+    }
+
+    // Change data keys to field names
+    foreach ($this->heiItemData as $key => $value) {
+      if (empty($fieldmap[$key])) {
+        $this->heiItemData[$reciprocal[$key]] = $value;
         unset($this->heiItemData[$key]);
       }
     }
