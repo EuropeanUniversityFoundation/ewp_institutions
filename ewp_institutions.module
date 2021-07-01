@@ -43,6 +43,9 @@ function ewp_institutions_theme($existing, $type, $theme, $path) {
     ],
     'other_id' => [
       'variables' => ['value' => NULL, 'type' => NULL],
+    ],
+    'other_id_unique' => [
+      'variables' => ['value' => NULL, 'type' => NULL],
     ]
   ];
 }
