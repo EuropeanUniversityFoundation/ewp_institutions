@@ -39,7 +39,7 @@ class JsonDataKeys {
   /**
    * Returns an associative array of keys after excluding and including
    */
-  public function getAssocKeys(array $keys, array $excluded = [], array $included = []) {
+  public function getAssocKeys(array $keys, $excluded = [], $included = []) {
     $assoc = [];
 
     // Gather the initial keys if not excluded

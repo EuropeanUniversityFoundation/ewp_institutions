@@ -85,18 +85,47 @@ entity.hei.import_form:
       hei_key:
         type: hei_key
 
-# Update entity form
-entity.hei.update_form:
-  path: '/ewp/hei/{hei}/update'
+# Auto import entity form
+entity.hei.auto_import_form:
+  path: '/ewp/hei/auto_import'
   defaults:
-      _entity_form: hei.update
-      entity_type_id: hei
-      _title_callback: 'Drupal\Core\Entity\Controller\EntityController::editTitle'
+    _form: '\Drupal\ewp_institutions_get\Form\InstitutionAutoImportForm'
+    entity_type_id: hei
+    _title_callback: 'Drupal\ewp_institutions_get\Controller\InstitutionEntityController::autoImportTitle'
   requirements:
-    _entity_access: hei.update
-    hei: '\d+'
+    _entity_create_access: hei
+
+# Auto import entity controller
+entity.hei.auto_import:
+  path: '/ewp/hei/auto_import/{index_key}/{hei_key}'
+  defaults:
+    _controller: 'Drupal\ewp_institutions_get\Controller\InstitutionEntityController::autoImport'
+  requirements:
+    _entity_create_access: hei
+    # RegEx for EWP ASCII Printable Identifier allows the / character
+    index_key: '[A-Za-z0–9_-]+'
+    # RegEx for a valid domain name, as expected in HEI IDs
+    hei_key: '(?=.{4,255}$)((?!-)[A-Za-z0–9-]{1,63}(?<!-)\.)+[A-Za-z]{2,24}'
   options:
     _admin_route: true
     parameters:
-      hei:
-        type: entity:hei
+      index_key:
+        type: index_key
+      hei_key:
+        type: hei_key
+
+# Update entity form
+# entity.hei.update_form:
+#   path: '/ewp/hei/{hei}/update'
+#   defaults:
+#       _entity_form: hei.update
+#       entity_type_id: hei
+#       _title_callback: 'Drupal\Core\Entity\Controller\EntityController::editTitle'
+#   requirements:
+#     _entity_access: hei.update
+#     hei: '\d+'
+#   options:
+#     _admin_route: true
+#     parameters:
+#       hei:
+#         type: entity:hei

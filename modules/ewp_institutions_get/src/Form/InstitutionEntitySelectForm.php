@@ -136,6 +136,20 @@ class InstitutionEntitySelectForm extends PreviewForm {
       ],
     ];
 
+    $form['actions']['load'] = [
+      '#type' => 'submit',
+      '#submit' => ['::loadImportForm'],
+      '#value' => $this->t('Load Import form'),
+      '#states' => [
+        'disabled' => [
+          ':input[name="hei_select"]' => ['value' => ''],
+        ],
+        'visible' => [
+          ':input[name="data_status"]' => ['value' => ''],
+        ],
+      ],
+    ];
+
     // dpm($form);
 
     return $form;
@@ -145,6 +159,19 @@ class InstitutionEntitySelectForm extends PreviewForm {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $index_item = $form_state->getValue('index_select');
+    $hei_id = $form_state->getValue('hei_select');
+
+    $form_state->setRedirect('entity.hei.auto_import',[
+      'index_key' => $index_item,
+      'hei_key' => $hei_id
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadImportForm(array &$form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $hei_id = $form_state->getValue('hei_select');
 
@@ -165,19 +192,8 @@ class InstitutionEntitySelectForm extends PreviewForm {
     $options = ['' => '- None -'];
 
     if (! empty($endpoint)) {
-      // Check when the index was last updated
-      $index_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated('index');
-
-      // Check when this item was last updated
-      $item_updated = \Drupal::service('ewp_institutions_get.fetch')
-        ->checkUpdated($index_item);
-
-      // Decide whether to force a refresh
-      $refresh = ($item_updated && $index_updated < $item_updated) ? FALSE : TRUE ;
-
       $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->load($index_item, $endpoint);
+        ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         // Build the options list
