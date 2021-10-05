@@ -1,7 +1,6 @@
 name: 'EWP Institutions'
 type: module
 description: 'Drupal implementation of the EWP Institutions API'
-core: 8.x
 core_version_requirement: ^8 || ^9
 package: 'EWP'
 dependencies:
