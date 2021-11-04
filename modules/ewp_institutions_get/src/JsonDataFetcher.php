@@ -126,7 +126,7 @@ class JsonDataFetcher {
    */
   public function checkUpdated($temp_store_key) {
     if (!empty($this->tempStore->get($temp_store_key))) {
-      return $this->tempStore->getMetadata($temp_store_key)->updated;
+      return $this->tempStore->getMetadata($temp_store_key)->getUpdated();
     } else {
       return NULL;
     }
