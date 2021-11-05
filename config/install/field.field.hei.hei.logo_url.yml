@@ -6,6 +6,9 @@ dependencies:
   module:
     - ewp_core
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.logo_url
 field_name: logo_url
 entity_type: hei

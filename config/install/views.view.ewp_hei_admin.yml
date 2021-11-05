@@ -18,6 +18,9 @@ dependencies:
     - ewp_flexible_address
     - ewp_institutions
     - user
+  enforced:
+    module:
+      - ewp_institutions
 id: ewp_hei_admin
 label: 'EWP Institution administration'
 module: views

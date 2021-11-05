@@ -3,6 +3,9 @@ status: true
 dependencies:
   module:
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.abbreviation
 field_name: abbreviation
 entity_type: hei

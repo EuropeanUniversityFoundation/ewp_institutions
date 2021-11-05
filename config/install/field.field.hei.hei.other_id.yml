@@ -5,6 +5,9 @@ dependencies:
     - field.storage.hei.other_id
   module:
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.other_id
 field_name: other_id
 entity_type: hei

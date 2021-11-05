@@ -5,6 +5,9 @@ dependencies:
     - field.storage.hei.abbreviation
   module:
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.abbreviation
 field_name: abbreviation
 entity_type: hei

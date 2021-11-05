@@ -17,6 +17,9 @@ dependencies:
     - ewp_contact
     - ewp_flexible_address
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.default
 targetEntityType: hei
 bundle: hei

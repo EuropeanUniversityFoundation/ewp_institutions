@@ -6,6 +6,9 @@ dependencies:
   module:
     - ewp_flexible_address
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.street_address
 field_name: street_address
 entity_type: hei

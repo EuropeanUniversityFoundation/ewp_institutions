@@ -4,6 +4,9 @@ dependencies:
   module:
     - ewp_contact
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.contact
 field_name: contact
 entity_type: hei

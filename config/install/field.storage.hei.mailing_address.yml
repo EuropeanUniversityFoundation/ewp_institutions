@@ -4,6 +4,9 @@ dependencies:
   module:
     - ewp_flexible_address
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.mailing_address
 field_name: mailing_address
 entity_type: hei

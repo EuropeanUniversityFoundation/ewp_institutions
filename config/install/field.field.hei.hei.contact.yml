@@ -5,6 +5,9 @@ dependencies:
     - field.storage.hei.contact
   module:
     - ewp_institutions
+  enforced:
+    module:
+      - ewp_institutions
 id: hei.hei.contact
 field_name: contact
 entity_type: hei
