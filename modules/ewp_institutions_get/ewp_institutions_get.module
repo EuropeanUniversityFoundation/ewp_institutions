@@ -30,7 +30,7 @@ function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match
 /**
  * Implements hook_entity_type_build().
  *
- * Add new forms and links to the Institution entity
+ * Adds new forms and links to the Institution entity.
  */
 function ewp_institutions_get_entity_type_build(array &$entity_types) {
 
@@ -45,7 +45,7 @@ function ewp_institutions_get_entity_type_build(array &$entity_types) {
 /**
  * Implements hook_base_field_info().
  *
- * Add new base field to the Institution entity for the API index key
+ * Adds new base field to the Institution entity for the API index key.
  */
 function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity_type) {
   if ($entity_type->id() === InstitutionManager::ENTITY_TYPE) {
@@ -76,19 +76,22 @@ function ewp_institutions_get_field_widget_multivalue_entity_reference_autocompl
   $auto_create = (array_key_exists('auto_create', $selection_settings)) ? $selection_settings['auto_create'] : FALSE ;
 
   if ($target_type === InstitutionManager::ENTITY_TYPE && $auto_create) {
-    // Unset the auto create ability via the normal form element
-    $elements[0]['target_id']['#selection_settings']['auto_create'] = FALSE;
+    foreach ($elements as $key => $value) {
+      if (is_numeric($key)) {
+        // Unset the auto create ability via the normal form element.
+        $elements[$key]['target_id']['#selection_settings']['auto_create'] = FALSE;
+        unset($elements[$key]['target_id']['#autocreate']);
+      }
+    }
 
-    // Add a link to the description to launch a modal import form
+    // Add a link to the description to launch a modal import form.
     $description = '<strong><a class="use-ajax" data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:800}" href="';
     $path = '/ewp/hei/auto_import?modal';
     $description .= $path . '">';
     $description .= t('Click here to look up more Institutions');
     $description .= '</a></strong>';
 
-    // dpm($elements);
-
-    // Place the description in the element according to cardinality
+    // Place the description in the element according to cardinality.
     if ($elements['#cardinality_multiple']) {
       $break = (!empty($elements['#description'])) ? '<br/>' : '';
       $elements['#description'] .= $break . $description;
