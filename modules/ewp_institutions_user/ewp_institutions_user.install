@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the EWP Institutions User bridge module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function myacademicid_user_fields_install() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function myacademicid_user_fields_uninstall() {
+  \Drupal::messenger()->addStatus(__FUNCTION__);
+}
