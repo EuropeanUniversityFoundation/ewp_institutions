@@ -1,0 +1,7 @@
+administer any user institution:
+  title: 'Administer any user institution'
+  description: 'Should be combined with Administer users.'
+  restrict access: true
+
+administer own user institution:
+  title: 'Administer own user institution'
