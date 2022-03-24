@@ -1,0 +1,4 @@
+services:
+  ewp_institutions_user.bridge:
+    class: Drupal\ewp_institutions_user\InstitutionUserBridge
+    arguments: ['@current_user', '@config.factory', '@entity_type.manager', '@logger.factory', '@messenger', '@string_translation']

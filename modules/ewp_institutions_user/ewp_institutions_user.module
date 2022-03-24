@@ -3,6 +3,7 @@
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @file
@@ -14,34 +15,15 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
  */
 function ewp_institutions_user_entity_base_field_info(EntityTypeInterface $entity_type) {
   if ($entity_type->id() == 'user') {
-
-    $fields['user_institution'] = BaseFieldDefinition::create('entity_reference')
-      ->setLabel(t('Institution'))
-      ->setDescription(t('The Institution with which the User is associated.'))
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setRequired(FALSE)
-      ->setSetting('handler', 'default:hei')
-      ->setSetting('target_type', 'hei')
-      ->setSetting('handler_settings', [
-        'auto_create' => TRUE,
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'entity_reference_autocomplete',
-        'settings' => [
-          'match_operator' => 'CONTAINS',
-          'size' => 60,
-          'placeholder' => '',
-        ],
-        'weight' => 20,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'label' => 'above',
-        'type' => 'string',
-        'weight' => 20,
-      ])
-      ->setDisplayConfigurable('view', TRUE);
-
-    return $fields;
+    $bridge = \Drupal::service('ewp_institutions_user.bridge');
+    return $bridge->attachBaseField();
   }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function ewp_institutions_user_form_user_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $bridge = \Drupal::service('ewp_institutions_user.bridge');
+  $bridge->userFormAlter($form, $form_state);
 }
