@@ -1,7 +1,7 @@
-administer any user institution:
-  title: 'Administer any user's Institution'
+set any user institution:
+  title: "Set any user's Institution"
   description: 'Should be combined with Administer users.'
   restrict access: true
 
-administer own user institution:
-  title: 'Administer own Institution'
+set own user institution:
+  title: 'Set own Institution'
