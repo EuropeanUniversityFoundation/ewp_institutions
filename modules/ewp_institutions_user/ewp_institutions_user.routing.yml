@@ -1,0 +1,8 @@
+# Settings form
+ewp_institutions_user.settings:
+  path: '/admin/config/people/ewp_institutions_user'
+  defaults:
+    _form: '\Drupal\ewp_institutions_user\Form\SettingsForm'
+    _title: 'Institutions User bridge settings'
+  requirements:
+    _permission: 'administer account settings'
