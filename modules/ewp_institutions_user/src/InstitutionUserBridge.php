@@ -61,13 +61,13 @@ class InstitutionUserBridge {
     $fields[self::BASE_FIELD] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Institution'))
       ->setDescription($this->t('The Institution with which the User is associated.'))
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
-      ->setRequired(FALSE)
       ->setSetting('target_type', self::ENTITY_TYPE)
       ->setSetting('handler', 'default:' . self::ENTITY_TYPE)
-      ->setSetting('handler_settings', [
-        'auto_create' => TRUE,
-      ])
+      // ->setSetting('handler_settings', [
+      //   'auto_create' => FALSE,
+      // ])
+      // ->setCardinality(1)
+      // ->setRequired(FALSE)
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',
         'settings' => [
