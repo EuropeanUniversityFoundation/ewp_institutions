@@ -4,11 +4,15 @@ namespace Drupal\ewp_institutions_user\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsForm extends ConfigFormBase {
+
+  const LIMITED   = 'limited';
+  const UNLIMITED = 'unlimited';
 
   /**
    * Config factory.
@@ -76,6 +80,16 @@ class SettingsForm extends ConfigFormBase {
     ];
 
     // Cardinality.
+    $cardinality = $config->get('cardinality');
+
+    if (\is_numeric($cardinality) && $cardinality > 0) {
+      $default_option = self::LIMITED;
+      $default_value = $cardinality;
+    } else {
+      $default_option = self::UNLIMITED;
+      $default_value = 1;
+    }
+
     $form['cardinality_label'] = [
       '#type' => 'label',
       '#title' => $this->t('Allowed number of values'),
@@ -90,9 +104,10 @@ class SettingsForm extends ConfigFormBase {
     $form['cardinality']['options'] = [
       '#type' => 'select',
       '#options' => [
-        $this->t('Limited'),
-        $this->t('Unlimited')
+        self::LIMITED   => $this->t('Limited'),
+        self::UNLIMITED => $this->t('Unlimited')
       ],
+      '#default_value' => $default_option,
       '#attributes' => [
         'name' => 'cardinality_select',
       ],
@@ -102,37 +117,46 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'number',
       '#min' => 1,
       '#size' => 2,
+      '#default_value' => $default_value,
       '#states' => [
         'visible' => [
-          ':input[name="cardinality_select"]' => ['value' => 0],
+          ':input[name="cardinality_select"]' => ['value' => self::LIMITED],
         ],
       ],
     ];
 
     // Required.
+    $required = $config->get('required');
+
     $form['required'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Required field')
+      '#title' => $this->t('Required field'),
+      '#default_value' => ($required) ? $required : FALSE
     ];
 
     // Auto create.
+    $auto_create = $config->get('auto_create');
+
     $auto_create_title = $this
       ->t("Create referenced entities if they don't already exist");
 
-    $auto_create_description = $this
+    $auto_create_description = '<strong>' . $this->t("Warning") . ':</strong> ';
+    $auto_create_description .= $this
       ->t("EWP Institutions GET module must be enabled.");
-
-    $auto_create_disabled = $this->moduleHandler
-      ->moduleExists('ewp_institutions_get');
 
     $form['auto_create'] = [
       '#type' => 'checkbox',
       '#title' => $auto_create_title,
-      '#disabled' => $auto_create_disabled
+      '#default_value' => ($auto_create) ? $auto_create : FALSE
     ];
 
+    $auto_create_disabled = ! $this->moduleHandler
+      ->moduleExists('ewp_institutions_get');
+
     if ($auto_create_disabled) {
+      $form['auto_create']['#default_value'] = FALSE;
       $form['auto_create']['#description'] = $auto_create_description;
+      $form['auto_create']['#disabled'] = TRUE;
     }
 
     return $form;
@@ -142,7 +166,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-
+    $user_input = $form_state->getUserInput();
+    $form_state->setValue('options', $user_input['cardinality_select']);
   }
 
   /**
@@ -150,6 +175,22 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_user.settings');
+
+    if ($form_state->getValue('options') === self::LIMITED) {
+      $cardinality = (int) $form_state->getValue('number');
+    } else {
+      $cardinality = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED;
+    }
+
+    $config->set('cardinality', $cardinality);
+
+    $required = (boolean) $form_state->getValue('required');
+    $config->set('required', $required);
+
+    $auto_create = (boolean) $form_state->getValue('auto_create');
+    $config->set('auto_create', $auto_create);
+
+    $config->save();
 
     return parent::submitForm($form, $form_state);
   }
