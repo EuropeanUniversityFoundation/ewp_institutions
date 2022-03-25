@@ -4,10 +4,10 @@ ewp_institutions_user.settings:
   mapping:
     cardinality:
       type: integer
-      label: 'Cardinality'
+      label: 'Allowed number of values'
     required:
       type: boolean
-      label: 'Required'
+      label: 'Required field'
     auto_create:
       type: boolean
-      label: 'Auto create'
+      label: "Create referenced entities if they don't already exist"
