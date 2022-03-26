@@ -7,6 +7,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ewp_institutions_user\InstitutionUserBridge;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsForm extends ConfigFormBase {
@@ -29,19 +30,30 @@ class SettingsForm extends ConfigFormBase {
   protected $moduleHandler;
 
   /**
+   * The EWP Institutions User bridge service.
+   *
+   * @var \Drupal\ewp_institutions_user\InstitutionUserBridge
+   */
+  protected $userBridge;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
+   * @param \Drupal\ewp_institutions_user\InstitutionUserBridge $user_bridge
+   *   The EWP Institutions User bridge service.
    */
   public function __construct(
       ConfigFactoryInterface $config_factory,
-      ModuleHandlerInterface $module_handler
+      ModuleHandlerInterface $module_handler,
+      InstitutionUserBridge $user_bridge
   ) {
     parent::__construct($config_factory);
     $this->moduleHandler = $module_handler;
+    $this->userBridge = $user_bridge;
   }
 
   /**
@@ -51,6 +63,7 @@ class SettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('module_handler'),
+      $container->get('ewp_institutions_user.bridge')
     );
   }
 
@@ -72,7 +85,7 @@ class SettingsForm extends ConfigFormBase {
 
     // Info text.
     $info = $this
-      ->t('These settings apply to the user\'s Institution base field.');
+      ->t('These settings apply to the User\'s Institution base field.');
 
     $form['info'] = [
       '#type' => 'markup',
@@ -90,9 +103,14 @@ class SettingsForm extends ConfigFormBase {
       $default_value = 1;
     }
 
+    $caveat = '<strong>' . $this->t("Warning") . ':</strong> ';
+    $caveat .= $this
+      ->t("This setting only impacts the User form, not the field storage.");
+
     $form['cardinality_label'] = [
       '#type' => 'label',
       '#title' => $this->t('Allowed number of values'),
+      '#description' => $caveat
     ];
 
     $form['cardinality'] = [
@@ -191,6 +209,8 @@ class SettingsForm extends ConfigFormBase {
     $config->set('auto_create', $auto_create);
 
     $config->save();
+
+    $this->userBridge->updateBaseField();
 
     return parent::submitForm($form, $form_state);
   }
