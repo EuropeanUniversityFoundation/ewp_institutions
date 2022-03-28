@@ -24,21 +24,21 @@ hei.fields:
   title: 'Manage fields'
   description: 'Manage the fields of Institution entities'
   route_name: entity.hei.field_ui_fields
-  parent: ewp_institutions.admin
+  parent: hei.settings
   weight: 2
 
 hei.form:
   title: 'Manage form display'
   description: 'Manage the form display of Institution entities'
   route_name: entity.entity_form_display.hei.default
-  parent: ewp_institutions.admin
+  parent: hei.settings
   weight: 3
 
 hei.display:
   title: 'Manage display'
   description: 'Manage the display of Institution entities'
   route_name: entity.entity_view_display.hei.default
-  parent: ewp_institutions.admin
+  parent: hei.settings
   weight: 4
 
 hei.collection:
