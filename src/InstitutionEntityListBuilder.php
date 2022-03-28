@@ -18,6 +18,7 @@ class InstitutionEntityListBuilder extends EntityListBuilder {
    */
   public function buildHeader() {
     $header['id'] = $this->t('Institution ID');
+    $header['hei_id'] = $this->t('SCHAC code');
     $header['label'] = $this->t('Label');
     return $header + parent::buildHeader();
   }
@@ -28,9 +29,11 @@ class InstitutionEntityListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $row['id'] = $entity->id();
+    $row['hei_id'] = $entity->get('hei_id')->value;
+    // $row['hei_id'] = $entity->get('hei_id')->value;
     $row['label'] = Link::createFromRoute(
       $entity->label(),
-      'entity.hei.edit_form',
+      'entity.hei.canonical',
       ['hei' => $entity->id()]
     );
     return $row + parent::buildRow($entity);
