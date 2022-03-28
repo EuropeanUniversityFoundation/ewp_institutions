@@ -2,13 +2,95 @@
 
 namespace Drupal\ewp_institutions_lookup\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\ewp_institutions_get\DataFormatter;
+use Drupal\ewp_institutions_get\JsonDataFetcher;
+use Drupal\ewp_institutions_get\JsonDataProcessor;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsForm extends ConfigFormBase {
+
+  /**
+   * Config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+  * JSON data fetching service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+  */
+  protected $jsonDataFetcher;
+
+  /**
+  * JSON data processing service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+  */
+  protected $jsonDataProcessor;
+
+  /**
+  * Data formatting service.
+  *
+  * @var \Drupal\ewp_institutions_get\DataFormatter
+  */
+  protected $dataFormatter;
+
+  /**
+   * Guzzle\Client instance.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
+   * The constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
+   *   JSON data fetching service.
+   * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
+   *   JSON data processing service.
+   * @param \Drupal\ewp_institutions_get\DataFormatter $data_formatter
+   *   Data formatting service.
+   * @param \GuzzleHttp\ClientInterface $http_client
+   *   Guzzle\Client instance.
+   */
+  public function __construct(
+      ConfigFactoryInterface $config_factory,
+      JsonDataFetcher $json_data_fetcher,
+      JsonDataProcessor $json_data_processor,
+      DataFormatter $data_formatter,
+      ClientInterface $http_client
+  ) {
+    parent::__construct($config_factory);
+    $this->jsonDataFetcher   = $json_data_fetcher;
+    $this->jsonDataProcessor = $json_data_processor;
+    $this->dataFormatter     = $data_formatter;
+    $this->httpClient        = $http_client;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('ewp_institutions_get.fetch'),
+      $container->get('ewp_institutions_get.json'),
+      $container->get('ewp_institutions_get.format'),
+      $container->get('http_client')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -70,16 +152,14 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('lookup_endpoint');
 
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')
-      ->load('lookup', $endpoint);
+    $json_data = $this->jsonDataFetcher->load('lookup', $endpoint);
 
     if ($json_data) {
       $title = $this->t('Lookup index');
-      $data = \Drupal::service('ewp_institutions_get.json')
-        ->toArray($json_data);
+      $data = $this->jsonDataProcessor->toArray($json_data);
       $columns = ['label'];
-      $show_attr = FALSE;
-      $processed = \Drupal::service('ewp_institutions_get.format')
+      $show_attr = TRUE;
+      $processed = $this->dataFormatter
         ->toTable($title, $data, $columns, $show_attr);
       $message = $processed;
     } else {
@@ -100,13 +180,11 @@ class SettingsForm extends ConfigFormBase {
     $endpoint = $form_state->getValue('lookup_endpoint');
 
     if ($endpoint) {
-      // Initialize an HTTP client
-      $client = \Drupal::httpClient();
       $status = NULL;
 
       // Build the HTTP request
       try {
-        $request = $client->get($endpoint);
+        $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();
       } catch (GuzzleException $e) {
         $status = $e->getResponse()->getStatusCode();
@@ -136,8 +214,7 @@ class SettingsForm extends ConfigFormBase {
     $refresh = $form_state->getValue('refresh');
 
     if ($refresh && !empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->load('lookup', $endpoint, TRUE);
+      $json_data = $this->jsonDataFetcher->load('lookup', $endpoint, TRUE);
     }
 
     return parent::submitForm($form, $form_state);
