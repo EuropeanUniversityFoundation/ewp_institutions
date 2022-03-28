@@ -1,0 +1,8 @@
+# Settings form
+ewp_institutions_lookup.settings:
+  path: '/admin/ewp/hei/get/lookup_settings'
+  defaults:
+    _form: '\Drupal\ewp_institutions_lookup\Form\SettingsForm'
+    _title: 'Lookup settings'
+  requirements:
+    _permission: 'administer institution entities'

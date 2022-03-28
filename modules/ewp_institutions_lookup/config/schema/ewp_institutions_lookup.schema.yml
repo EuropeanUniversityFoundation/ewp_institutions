@@ -1,0 +1,7 @@
+ewp_institutions_lookup.settings:
+  type: config_object
+  label: 'External API lookup settings'
+  mapping:
+    lookup_endpoint:
+      type: text
+      label: 'Lookup endpoint'
