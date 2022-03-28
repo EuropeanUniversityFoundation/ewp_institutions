@@ -223,9 +223,12 @@ class InstitutionUserBridge {
             unset($widget[$widget['#max_delta']]);
 
             if ($widget['#max_delta'] > $cardinality) {
+              $excess = TRUE;
+              for ($d = $cardinality; $d < $widget['#max_delta']; $d++) {
+                $widget[$d]['target_id']['#attributes']['class'][] = 'error';
+              }
               // Populated widgets must still be shown.
               $widget['#max_delta'] = $widget['#max_delta'] - 1;
-              $excess = TRUE;
 
               // Display a warning before the description.
               $text = $this->t('WARNING: Too many values!');
@@ -254,7 +257,6 @@ class InstitutionUserBridge {
         }
 
         $form[self::BASE_FIELD]['widget'] = $widget;
-        dpm($form[self::BASE_FIELD]['widget']);
       }
     }
   }
