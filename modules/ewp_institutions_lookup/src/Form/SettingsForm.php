@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\ewp_institutions_get\DataFormatter;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
+use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -152,16 +153,17 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('lookup_endpoint');
 
-    $json_data = $this->jsonDataFetcher->load('lookup', $endpoint);
+    $json_data = $this->jsonDataFetcher
+      ->load(InstitutionLookupManager::TEMPSTORE, $endpoint);
 
     if ($json_data) {
       $title = $this->t('Lookup index');
       $data = $this->jsonDataProcessor->toArray($json_data);
-      $columns = ['label'];
+      $columns = [InstitutionLookupManager::LABEL_KEY];
       $show_attr = TRUE;
-      $processed = $this->dataFormatter
+
+      $message = $this->dataFormatter
         ->toTable($title, $data, $columns, $show_attr);
-      $message = $processed;
     } else {
       $message = $this->t('Nothing to display.');
     }
