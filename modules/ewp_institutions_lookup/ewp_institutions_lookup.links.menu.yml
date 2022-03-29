@@ -1,4 +1,11 @@
-# Admin forms
+# Form routes.
+ewp_institutions_lookup.form:
+  title: 'Lookup'
+  description: 'Lookup an Institution'
+  parent: ewp_institutions_get.admin
+  route_name: ewp_institutions_lookup.form
+  weight: 9
+
 ewp_institutions_lookup.settings:
   title: 'Lookup settings'
   description: 'Settings for the external API lookup'
