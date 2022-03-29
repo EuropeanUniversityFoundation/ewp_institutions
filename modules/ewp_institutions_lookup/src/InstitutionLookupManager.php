@@ -3,8 +3,6 @@
 namespace Drupal\ewp_institutions_lookup;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\ewp_institutions_get\DataFormatter;
-use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 
@@ -19,20 +17,6 @@ class InstitutionLookupManager {
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
-
-  /**
-   * Data formatting service.
-   *
-   * @var \Drupal\ewp_institutions_get\DataFormatter
-   */
-  protected $dataFormatter;
-
-  /**
-   * Institution entity manager.
-   *
-   * @var \Drupal\ewp_institutions_get\InstitutionManager
-   */
-  protected $heiManager;
 
   /**
    * JSON data fetching service.
@@ -53,10 +37,6 @@ class InstitutionLookupManager {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
-   * @param \Drupal\ewp_institutions_get\DataFormatter $data_formatter
-   *   Data formatting service.
-   * @param \Drupal\ewp_institutions_get\InstitutionManager $hei_manager
-   *   Data formatting service.
    * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
    *   JSON data fetching service.
    * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
@@ -64,14 +44,10 @@ class InstitutionLookupManager {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
-    DataFormatter $data_formatter,
-    InstitutionManager $hei_manager,
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor
   ) {
     $this->configFactory     = $config_factory;
-    $this->dataFormatter     = $data_formatter;
-    $this->heiManager        = $hei_manager;
     $this->jsonDataFetcher   = $json_data_fetcher;
     $this->jsonDataProcessor = $json_data_processor;
   }
@@ -85,7 +61,7 @@ class InstitutionLookupManager {
    * @return array $result
    *   An array of Index key (i.e. country code) keyed by Institution ID.
    */
-  public function lookup($hei_id) {
+  public function lookup(string $hei_id): array {
     $config = $this->configFactory->get('ewp_institutions_lookup.settings');
     $endpoint = $config->get('lookup_endpoint');
 
