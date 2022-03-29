@@ -1,0 +1,4 @@
+services:
+  ewp_institutions_lookup.manager:
+    class: Drupal\ewp_institutions_lookup\InstitutionLookupManager
+    arguments: ['@ewp_institutions_get.format', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json']
