@@ -66,11 +66,11 @@ class SettingsForm extends ConfigFormBase {
    *   Guzzle\Client instance.
    */
   public function __construct(
-      ConfigFactoryInterface $config_factory,
-      JsonDataFetcher $json_data_fetcher,
-      JsonDataProcessor $json_data_processor,
-      DataFormatter $data_formatter,
-      ClientInterface $http_client
+    ConfigFactoryInterface $config_factory,
+    JsonDataFetcher $json_data_fetcher,
+    JsonDataProcessor $json_data_processor,
+    DataFormatter $data_formatter,
+    ClientInterface $http_client
   ) {
     parent::__construct($config_factory);
     $this->jsonDataFetcher   = $json_data_fetcher;
