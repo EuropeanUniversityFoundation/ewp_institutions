@@ -12,6 +12,6 @@ ewp_institutions_lookup.form:
   path: '/admin/ewp/hei/get/lookup'
   defaults:
     _form: '\Drupal\ewp_institutions_lookup\Form\InstitutionLookupForm'
-    _title: 'Lookup'
+    _title: 'Lookup Institution by ID'
   requirements:
     _permission: 'administer institution entities'

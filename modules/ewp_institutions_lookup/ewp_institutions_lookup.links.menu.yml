@@ -1,10 +1,10 @@
 # Form routes.
 ewp_institutions_lookup.form:
-  title: 'Lookup'
-  description: 'Lookup an Institution'
-  parent: ewp_institutions_get.admin
+  title: 'Lookup Institution'
+  description: 'Lookup an Institution by ID'
+  parent: ewp_institutions.admin
   route_name: ewp_institutions_lookup.form
-  weight: 9
+  weight: -8
 
 ewp_institutions_lookup.settings:
   title: 'Lookup settings'
