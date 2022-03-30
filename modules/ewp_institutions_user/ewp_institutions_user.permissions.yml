@@ -5,3 +5,6 @@ set any user institution:
 
 set own user institution:
   title: 'Set own Institution'
+
+select any institution:
+  title: 'Select any Institution in filtered entity reference fields'

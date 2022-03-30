@@ -11,3 +11,14 @@ ewp_institutions_user.settings:
     auto_create:
       type: boolean
       label: "Create referenced entities if they don't already exist"
+
+entity_reference_selection.ewp_institutions_user:
+  type: entity_reference_selection.default
+  label: "Filter by Institution handler settings"
+  mapping:
+    negate:
+      type: boolean
+      label: 'Negate the condition'
+    show_all:
+      type: boolean
+      label: 'If empty, show all'
