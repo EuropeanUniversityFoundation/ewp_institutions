@@ -11,6 +11,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\user\Entity\User;
+use Drupal\ewp_institutions\Entity\InstitutionEntity;
 
 /**
  * EWP Institutions User bridge service.
@@ -145,7 +147,7 @@ class InstitutionUserBridge {
   }
 
   /**
-   * Alters the form element according to permissions.
+   * Alters the user form element according to permissions.
    *
    * @param array $form
    * @param Drupal\Core\Form\FormStateInterface $form_state
@@ -261,4 +263,47 @@ class InstitutionUserBridge {
     }
   }
 
+  /**
+   * Alters Institution reference autocomplete form element.
+   *
+   * @param array $form
+   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param array $context
+   */
+  public function autocompleteAlter(array &$elements, FormStateInterface $form_state, array $context) {
+    $target_type = $elements[0]['target_id']['#target_type'];
+    $selection_settings = $elements[0]['target_id']['#selection_settings'];
+
+    if ($target_type === self::ENTITY_TYPE) {
+      // Get the current user.
+      $user = User::load($this->currentUser->id());
+      // Get the referenced Institutions from the user account.
+      $user_hei = $user->get(InstitutionUserBridge::BASE_FIELD)->getValue();
+      dpm($user_hei);
+
+      if (
+        ! empty($user_hei) &&
+        empty($elements[0]['target_id']['#default_value'])
+      ) {
+        // Set a default value.
+        $hei = InstitutionEntity::load($user_hei[0]['target_id']);
+
+        $elements[0]['target_id']['#default_value'] = $hei;
+      }
+
+      if (
+        empty($user_hei) &&
+        ! $user->hasPermission('select any institution') &&
+        ! $selection_settings[self::SHOW_ALL] &&
+        ! $selection_settings[self::NEGATE]
+      ) {
+        // Set error with a message.
+        $message = $this->t('No Institution available to reference.');
+
+        $form_state->setErrorByName($elements['#field_name'], $message);
+      }
+
+      dpm($elements);
+    }
+  }
 }
