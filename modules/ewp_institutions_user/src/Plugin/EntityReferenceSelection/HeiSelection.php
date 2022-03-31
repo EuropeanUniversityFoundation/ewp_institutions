@@ -59,6 +59,8 @@ class HeiSelection extends DefaultSelection {
       '#weight' => -4
     ];
 
+    unset($form['auto_create']);
+
     return $form;
   }
 
