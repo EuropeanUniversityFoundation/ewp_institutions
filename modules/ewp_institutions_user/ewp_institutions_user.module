@@ -27,9 +27,9 @@ function ewp_institutions_user_form_user_form_alter(&$form, FormStateInterface $
 }
 
 /**
- * Implements hook_field_widget_multivalue_WIDGET_TYPE_form_alter().
+ * Implements hook_field_widget_complete_WIDGET_TYPE_form_alter().
  */
-function ewp_institutions_user_field_widget_multivalue_entity_reference_autocomplete_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
+function ewp_institutions_user_field_widget_complete_entity_reference_autocomplete_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
   $bridge = \Drupal::service('ewp_institutions_user.bridge');
   $bridge->autocompleteAlter($elements, $form_state, $context);
 }
