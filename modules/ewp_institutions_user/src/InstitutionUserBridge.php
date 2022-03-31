@@ -24,6 +24,9 @@ class InstitutionUserBridge {
   const ENTITY_TYPE = 'hei';
   const BASE_FIELD = 'user_institution';
 
+  const NEGATE   = 'negate';
+  const SHOW_ALL = 'show_all';
+
   /**
    * The current user.
    */
@@ -147,7 +150,7 @@ class InstitutionUserBridge {
   }
 
   /**
-   * Alters the user form element according to permissions.
+   * Alter the user form element according to permissions.
    *
    * @param array $form
    * @param Drupal\Core\Form\FormStateInterface $form_state
@@ -171,7 +174,8 @@ class InstitutionUserBridge {
 
       // If not allowed, the form element must be replaced with links.
       if (! $allowed) {
-        $markup = '';
+        $markup_empty = '<em>' . $this->t('Institution is not set.') . '</em>';
+        $markup_value = '';
 
         foreach ($form[self::BASE_FIELD]['widget'] as $key => $value) {
           if (\is_numeric($key)) {
@@ -179,10 +183,13 @@ class InstitutionUserBridge {
 
             if (!empty($default_value)) {
               // Add a link to the target entity.
-              $markup .= '<p>' . $default_value->toLink()->toString() . '</p>';
+              $link = $default_value->toLink()->toString();
+              $markup_value .= '<p>' . $link . '</p>';
             }
           }
         }
+
+        $markup = (empty($markup_value)) ? $markup_empty : $markup_value;
 
         // Build the new form element.
         $new_element = [
@@ -264,46 +271,81 @@ class InstitutionUserBridge {
   }
 
   /**
-   * Alters Institution reference autocomplete form element.
+   * Alter Institution reference autocomplete form element.
    *
-   * @param array $form
+   * @param array $elements
    * @param Drupal\Core\Form\FormStateInterface $form_state
    * @param array $context
    */
   public function autocompleteAlter(array &$elements, FormStateInterface $form_state, array $context) {
-    $target_type = $elements[0]['target_id']['#target_type'];
-    $selection_settings = $elements[0]['target_id']['#selection_settings'];
+    $target_type = $elements['widget'][0]['target_id']['#target_type'];
+    $handler = $elements['widget'][0]['target_id']['#selection_handler'];
+    $settings = $elements['widget'][0]['target_id']['#selection_settings'];
 
     if ($target_type === self::ENTITY_TYPE) {
       // Get the current user.
       $user = User::load($this->currentUser->id());
       // Get the referenced Institutions from the user account.
-      $user_hei = $user->get(InstitutionUserBridge::BASE_FIELD)->getValue();
-      dpm($user_hei);
+      $user_hei = $user->get(self::BASE_FIELD)->getValue();
 
-      if (
-        ! empty($user_hei) &&
-        empty($elements[0]['target_id']['#default_value'])
-      ) {
-        // Set a default value.
-        $hei = InstitutionEntity::load($user_hei[0]['target_id']);
+      // Set a default value.
+      $this->setDefault($elements, $user_hei);
 
-        $elements[0]['target_id']['#default_value'] = $hei;
+      // Handle empty value in filtered autocomplete widgets.
+      if ($handler === 'ewp_institutions_user') {
+        $this->handleEmpty($elements, $user, $user_hei);
       }
-
-      if (
-        empty($user_hei) &&
-        ! $user->hasPermission('select any institution') &&
-        ! $selection_settings[self::SHOW_ALL] &&
-        ! $selection_settings[self::NEGATE]
-      ) {
-        // Set error with a message.
-        $message = $this->t('No Institution available to reference.');
-
-        $form_state->setErrorByName($elements['#field_name'], $message);
-      }
-
-      dpm($elements);
     }
   }
+
+  /**
+   * Set a default value for an Institution reference autocomplete form element.
+   *
+   * @param array $elements
+   * @param array $user_hei
+   */
+  protected function setDefault(array &$elements, array $user_hei) {
+    if (
+      ! \in_array('default_value_input', $elements['#parents']) &&
+      ! empty($user_hei[0]) &&
+      empty($elements['widget'][0]['target_id']['#default_value'])
+    ) {
+      // Set a default value.
+      $hei = InstitutionEntity::load($user_hei[0]['target_id']);
+
+      $elements['widget'][0]['target_id']['#default_value'] = $hei;
+    }
+  }
+
+  /**
+   * Handle empty value for an Institution reference autocomplete form element.
+   *
+   * @param array $elements
+   * @param Drupal\user\Entity\User $user
+   * @param array $user_hei
+   */
+  protected function handleEmpty(array &$elements, User $user, array $user_hei) {
+    $settings = $elements['widget'][0]['target_id']['#selection_settings'];
+
+    if (
+      empty($user_hei) &&
+      ! $user->hasPermission('select any institution') &&
+      ! $settings[self::SHOW_ALL] &&
+      ! $settings[self::NEGATE]
+    ) {
+      // Set an error message.
+      $message = $this->t('No Institution available to reference.');
+
+      // Indicate how serious this is.
+      $required = $elements['widget']['#required'];
+      $level = ($required) ? $this->t('Error') : $this->t('Warning');
+      $description = '<strong>' . $level . '</strong>: ' . $message;
+
+      // Alter the element regardless of cardinality.
+      $elements['#disabled'] = TRUE;
+      $elements['widget']['#description'] = $description;
+      $elements['widget'][0]['target_id']['#description'] = $description;
+    }
+  }
+
 }
