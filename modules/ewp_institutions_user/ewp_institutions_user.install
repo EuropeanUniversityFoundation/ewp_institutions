@@ -8,13 +8,13 @@
 /**
  * Implements hook_install().
  */
-function myacademicid_user_fields_install() {
+function ewp_institutions_user_install() {
   \Drupal::messenger()->addStatus(__FUNCTION__);
 }
 
 /**
  * Implements hook_uninstall().
  */
-function myacademicid_user_fields_uninstall() {
+function ewp_institutions_user_uninstall() {
   \Drupal::messenger()->addStatus(__FUNCTION__);
 }
