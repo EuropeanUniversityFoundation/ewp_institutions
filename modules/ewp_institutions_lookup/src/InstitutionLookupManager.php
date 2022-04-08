@@ -3,9 +3,12 @@
 namespace Drupal\ewp_institutions_lookup;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\DependencyInjection\DependencySerializationTrait;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ewp_institutions_get\DataFormatter;
+use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 
@@ -14,6 +17,7 @@ use Drupal\ewp_institutions_get\JsonDataProcessor;
 */
 class InstitutionLookupManager {
 
+  use DependencySerializationTrait;
   use StringTranslationTrait;
 
   const TEMPSTORE = 'lookup';
@@ -160,6 +164,57 @@ class InstitutionLookupManager {
     ];
 
     return Link::createFromRoute($text, $route_name, $route_parameters);
+  }
+
+  /**
+   * Add lookup functionality to the API index key form element.
+   *
+   * @param array $form
+   * @param Drupal\Core\Form\FormStateInterface $form_state
+   */
+  public function heiFormAlter(&$form, FormStateInterface $form_state) {
+    $base_field = InstitutionManager::INDEX_FIELD;
+
+    // If the base field is in the Institution form, changes may be needed,
+    if (\array_key_exists($base_field, $form)) {
+      // When no default value is set, provide the option to look it up.
+      if (empty($form[$base_field]['widget'][0]['value']['#default_value'])) {
+        $prefix = '<div id="lookup-target">';
+        $suffix = '</div>';
+        $form[$base_field]['widget'][0]['value']['#prefix'] = $prefix;
+        $form[$base_field]['widget'][0]['value']['#suffix'] = $suffix;
+
+        $form[$base_field]['widget'][0]['lookup'] = [
+          '#type' => 'button',
+          '#value' => $this->t('Lookup'),
+          '#attributes' => ['style' => "margin: 0"],
+          '#states' => [
+            'enabled' => [
+              ':input[name="' . $base_field . '[0][value]"]' => ['value' => ''],
+            ],
+          ],
+          '#ajax' => [
+            'callback' => [$this, 'lookupCallback'],
+            'wrapper' => 'lookup-target',
+          ],
+        ];
+      }
+    }
+  }
+
+  /**
+  * Lookup callback.
+  */
+  public function lookupCallback(array $form, FormStateInterface $form_state) {
+    $base_field = InstitutionManager::INDEX_FIELD;
+
+    $hei_id = $form_state->getValue('hei_id')[0]['value'];
+
+    $lookup = $this->lookup($hei_id);
+
+    $form[$base_field]['widget'][0]['value']['#value'] = $lookup[$hei_id];
+
+    return $form[$base_field]['widget'][0]['value'];
   }
 
 }

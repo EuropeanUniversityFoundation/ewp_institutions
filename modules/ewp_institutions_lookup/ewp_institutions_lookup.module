@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for EWP Institutions Lookup module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function ewp_institutions_lookup_form_hei_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $manager = \Drupal::service('ewp_institutions_lookup.manager');
+  $manager->heiFormAlter($form, $form_state);
+}
