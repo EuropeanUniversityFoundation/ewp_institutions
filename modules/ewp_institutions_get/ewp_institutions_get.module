@@ -52,7 +52,7 @@ function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity
     $fields[InstitutionManager::INDEX_FIELD] = BaseFieldDefinition::create('string')
       ->setLabel(t('API index key'))
       ->setDisplayOptions('form', [
-        'type' => 'textfield',
+        'type' => 'string_textfield',
         'weight' => 100,
       ])
       ->setDisplayConfigurable('form', TRUE);
