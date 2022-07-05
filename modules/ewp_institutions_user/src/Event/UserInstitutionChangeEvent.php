@@ -3,7 +3,7 @@
 namespace Drupal\ewp_institutions_user\Event;
 
 use Drupal\Component\EventDispatcher\Event;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\user\UserInterface;
 use Drupal\ewp_institutions_user\InstitutionUserBridge;
 
 /**
@@ -16,14 +16,14 @@ class UserInstitutionChangeEvent extends Event {
   /**
    * The user entity.
    *
-   * @var \Drupal\Core\Entity\EntityInterface
+   * @var \Drupal\user\UserInterface
    */
   public $user;
 
   /**
    * Array of Institution entities.
    *
-   * @var \Drupal\Core\Entity\EntityInterface[]
+   * @var \Drupal\ewp_institutions\Entity\InstitutionEntity[]
    */
   public $hei;
 
@@ -37,10 +37,10 @@ class UserInstitutionChangeEvent extends Event {
   /**
    * Constructs the object.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $user
+   * @param \Drupal\user\UserInterface $user
    *   The user entity.
    */
-  public function __construct(EntityInterface $user) {
+  public function __construct(UserInterface $user) {
     $this->user = $user;
     $this->hei = $user->get(InstitutionUserBridge::BASE_FIELD)
       ->referencedEntities();

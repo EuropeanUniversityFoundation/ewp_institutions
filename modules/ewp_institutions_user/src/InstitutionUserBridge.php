@@ -11,7 +11,10 @@ use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 use Drupal\ewp_institutions\Entity\InstitutionEntity;
+use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * EWP Institutions User bridge service.
@@ -44,6 +47,13 @@ class InstitutionUserBridge {
   protected $entityFieldManager;
 
   /**
+   * Event dispatcher.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Session\AccountProxy $current_user
@@ -52,6 +62,8 @@ class InstitutionUserBridge {
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   *   The event dispatcher service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
@@ -59,11 +71,13 @@ class InstitutionUserBridge {
     AccountProxy $current_user,
     ConfigFactoryInterface $config_factory,
     EntityFieldManagerInterface $entity_field_manager,
+    EventDispatcherInterface $event_dispatcher,
     TranslationInterface $string_translation
   ) {
     $this->currentUser        = $current_user;
     $this->configFactory      = $config_factory;
     $this->entityFieldManager = $entity_field_manager;
+    $this->eventDispatcher    = $event_dispatcher;
     $this->stringTranslation  = $string_translation;
   }
 
@@ -144,6 +158,24 @@ class InstitutionUserBridge {
     }
 
     $override->save();
+  }
+
+  /**
+   *  Check for changes in the user entity to dispatch an event.
+   */
+  public function checkInstitutionChange(UserInterface $user) {
+    $old_value = (empty($user->original)) ? NULL : $user->original
+      ->get(self::BASE_FIELD)->getValue();
+    $new_value = $user
+      ->get(self::BASE_FIELD)->getValue();
+
+    if ($old_value !== $new_value) {
+      // Instantiate our event.
+      $event = new UserInstitutionChangeEvent($user);
+      // Dispatch the event.
+      $this->eventDispatcher
+        ->dispatch($event, UserInstitutionChangeEvent::EVENT_NAME);
+    }
   }
 
 }

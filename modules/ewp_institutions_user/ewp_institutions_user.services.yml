@@ -1,7 +1,7 @@
 services:
   ewp_institutions_user.bridge:
     class: Drupal\ewp_institutions_user\InstitutionUserBridge
-    arguments: ['@current_user', '@config.factory', '@entity_field.manager', '@string_translation']
+    arguments: ['@current_user', '@config.factory', '@entity_field.manager', '@event_dispatcher', '@string_translation']
 
   ewp_institutions_user.form_alter:
     class: Drupal\ewp_institutions_user\InstitutionUserFormAlter

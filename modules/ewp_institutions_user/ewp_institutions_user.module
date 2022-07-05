@@ -3,7 +3,6 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
 
 /**
  * @file
@@ -39,11 +38,7 @@ function ewp_institutions_user_field_widget_complete_entity_reference_autocomple
 /**
  * Implements hook_ENTITY_TYPE_presave().
  */
-function ewp_institutions_user_user_presave(EntityInterface $entity) {
-  // Instantiate our event.
-  $event = new UserInstitutionChangeEvent($entity);
-
-  // Get the event_dispatcher service and dispatch the event.
-  $event_dispatcher = \Drupal::service('event_dispatcher');
-  $event_dispatcher->dispatch($event, UserInstitutionChangeEvent::EVENT_NAME);
+function ewp_institutions_user_user_presave(EntityInterface $user) {
+  $bridge = \Drupal::service('ewp_institutions_user.bridge');
+  $bridge->checkInstitutionChange($user);
 }
