@@ -3,6 +3,10 @@ services:
     class: Drupal\ewp_institutions_user\InstitutionUserBridge
     arguments: ['@current_user', '@config.factory', '@entity_field.manager', '@string_translation']
 
+  ewp_institutions_user.form_alter:
+    class: Drupal\ewp_institutions_user\InstitutionUserFormAlter
+    arguments: ['@current_user', '@config.factory', '@string_translation']
+
   ewp_institutions_user.event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber
     arguments: ['@messenger']
