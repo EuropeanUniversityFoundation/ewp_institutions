@@ -9,6 +9,6 @@ services:
 
   ewp_institutions_user.event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber
-    arguments: ['@messenger']
+    arguments: ['@messenger', '@string_translation']
     tags:
       - { name: event_subscriber }
