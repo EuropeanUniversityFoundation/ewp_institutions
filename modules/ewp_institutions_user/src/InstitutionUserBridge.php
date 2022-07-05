@@ -22,6 +22,7 @@ class InstitutionUserBridge {
   use StringTranslationTrait;
 
   const ENTITY_TYPE = 'hei';
+  const UNIQUE_FIELD = 'hei_id';
   const BASE_FIELD = 'user_institution';
 
   const NEGATE   = 'negate';

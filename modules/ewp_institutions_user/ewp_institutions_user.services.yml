@@ -2,3 +2,9 @@ services:
   ewp_institutions_user.bridge:
     class: Drupal\ewp_institutions_user\InstitutionUserBridge
     arguments: ['@current_user', '@config.factory', '@entity_field.manager', '@string_translation']
+
+  ewp_institutions_user.event_subscriber:
+    class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber
+    arguments: ['@messenger']
+    tags:
+      - { name: event_subscriber }
