@@ -7,8 +7,14 @@ services:
     class: Drupal\ewp_institutions_user\InstitutionUserFormAlter
     arguments: ['@current_user', '@config.factory', '@string_translation']
 
-  ewp_institutions_user.event_subscriber:
+  ewp_institutions_user.change_event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber
     arguments: ['@messenger', '@string_translation']
+    tags:
+      - { name: event_subscriber }
+
+  ewp_institutions_user.set_event_subscriber:
+    class: Drupal\ewp_institutions_user\EventSubscriber\SetUserInstitutionEventSubscriber
+    arguments: ['@ewp_institutions_user.bridge', '@messenger', '@string_translation']
     tags:
       - { name: event_subscriber }

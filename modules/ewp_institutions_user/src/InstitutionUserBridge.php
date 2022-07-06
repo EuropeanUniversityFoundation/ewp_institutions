@@ -85,7 +85,7 @@ class InstitutionUserBridge {
    * Attach an entity reference as a base field.
    *
    * @return array $fields[]
-  */
+   */
   public function attachBaseField(): array {
     $desc = $this->t('The Institution with which the User is associated.');
 
@@ -117,7 +117,7 @@ class InstitutionUserBridge {
 
   /**
    * Update a base field from config.
-  */
+   */
   public function updateBaseField() {
     // Get the module config.
     $config = $this->configFactory->get('ewp_institutions_user.settings');
@@ -161,7 +161,9 @@ class InstitutionUserBridge {
   }
 
   /**
-   *  Check for changes in the user entity to dispatch an event.
+   * Check for changes in the user entity to dispatch an event.
+   *
+   * @param \Drupal\user\UserInterface $user
    */
   public function checkInstitutionChange(UserInterface $user) {
     $old_value = (empty($user->original)) ? NULL : $user->original
@@ -176,6 +178,23 @@ class InstitutionUserBridge {
       $this->eventDispatcher
         ->dispatch($event, UserInstitutionChangeEvent::EVENT_NAME);
     }
+  }
+
+  /**
+   * Set entity reference to Institutions on a user entity.
+   *
+   * @param \Drupal\user\UserInterface $user
+   * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
+   */
+  public function setUserInstitution(UserInterface $user, array $hei) {
+    $target_id = [];
+
+    foreach ($hei as $idx => $entity) {
+      $target_id[] = ['target_id' => $entity->id()];
+    }
+
+    $user->self::BASE_FIELD = $target_id;
+    $user->save();
   }
 
 }
