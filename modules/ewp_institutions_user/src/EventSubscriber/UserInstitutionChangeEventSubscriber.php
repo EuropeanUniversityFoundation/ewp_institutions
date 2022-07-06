@@ -9,7 +9,7 @@ use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * EWP Institutions User bridge event subscriber.
+ * EWP Institutions User Institution Change event subscriber.
  */
 class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
 
@@ -34,7 +34,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
     MessengerInterface $messenger,
     TranslationInterface $string_translation
   ) {
-    $this->messenger = $messenger;
+    $this->messenger         = $messenger;
     $this->stringTranslation = $string_translation;
   }
 
@@ -63,6 +63,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
     }
     else {
       $hei = [];
+
       foreach ($event->hei as $idx => $entity) {
         $hei[] = $entity->label();
       }

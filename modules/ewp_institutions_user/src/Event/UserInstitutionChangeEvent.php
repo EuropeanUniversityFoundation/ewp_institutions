@@ -44,6 +44,7 @@ class UserInstitutionChangeEvent extends Event {
     $this->user = $user;
     $this->hei = $user->get(InstitutionUserBridge::BASE_FIELD)
       ->referencedEntities();
+
     foreach ($this->hei as $idx => $entity) {
       $this->hei_id[] = $entity->get(InstitutionUserBridge::UNIQUE_FIELD)
         ->getValue()[0]['value'];
