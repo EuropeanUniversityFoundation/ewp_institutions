@@ -5,7 +5,7 @@ namespace Drupal\ewp_institutions_user\EventSubscriber;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
+use Drupal\ewp_institutions_user\Event\SetUserInstitutionEvent;
 use Drupal\ewp_institutions_user\InstitutionUserBridge;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -55,14 +55,14 @@ class SetUserInstitutionEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     return [
-      UserInstitutionChangeEvent::EVENT_NAME => ['onSetUserInstitution'],
+      SetUserInstitutionEvent::EVENT_NAME => ['onSetUserInstitution'],
     ];
   }
 
   /**
    * Subscribe to the user institution change event dispatched.
    *
-   * @param \Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent $event
+   * @param \Drupal\ewp_institutions_user\Event\SetUserInstitutionEvent $event
    *   The event object.
    */
   public function onSetUserInstitution(SetUserInstitutionEvent $event) {

@@ -6,3 +6,11 @@ ewp_institutions_user.settings:
     _title: 'Institutions User bridge settings'
   requirements:
     _permission: 'administer account settings'
+
+ewp_institutions_user.trigger_set_event:
+  path: '/admin/config/people/ewp_institutions_user/trigger-set-event'
+  defaults:
+    _title: 'Trigger set event'
+    _form: 'Drupal\ewp_institutions_user\Form\TriggerSetEventForm'
+  requirements:
+    _permission: 'set own user institution via event'

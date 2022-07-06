@@ -8,3 +8,7 @@ set own user institution:
 
 select any institution:
   title: 'Select any Institution in filtered entity reference fields'
+
+set own user institution via event:
+  title: 'Set own Institution via SetUserInstitutionEvent'
+  restrict access: true
