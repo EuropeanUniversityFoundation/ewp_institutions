@@ -188,12 +188,13 @@ class InstitutionUserBridge {
    */
   public function setUserInstitution(UserInterface $user, array $hei) {
     $target_id = [];
+    $base_field = self::BASE_FIELD;
 
     foreach ($hei as $idx => $entity) {
       $target_id[] = ['target_id' => $entity->id()];
     }
 
-    $user->self::BASE_FIELD = $target_id;
+    $user->$base_field = $target_id;
     $user->save();
   }
 
