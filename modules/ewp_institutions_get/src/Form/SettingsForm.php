@@ -12,6 +12,7 @@ use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_get\DataFormatter;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
+use Drupal\ewp_institutions_get\InstitutionManager;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -163,7 +164,8 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
-    $json_data = $this->jsonDataFetcher->load('index', $endpoint);
+    $json_data = $this->jsonDataFetcher
+      ->load(InstitutionManager::INDEX_KEYWORD, $endpoint);
 
     if ($json_data) {
       $title = $this->t('Index');
@@ -216,13 +218,16 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.settings');
+
     $config->set('index_endpoint', $form_state->getValue('index_endpoint'));
+
     $config->save();
 
     $refresh = $form_state->getValue('refresh');
 
     if ($refresh && !empty($endpoint)) {
-      $json_data = $this->jsonDataFetcher->load('index', $endpoint, TRUE);
+      $json_data = $this->jsonDataFetcher
+        ->load(InstitutionManager::INDEX_KEYWORD, $endpoint, TRUE);
     }
 
     return parent::submitForm($form, $form_state);

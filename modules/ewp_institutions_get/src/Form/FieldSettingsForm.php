@@ -6,30 +6,13 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ewp_institutions_get\JsonDataKeys;
+use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class FieldSettingsForm extends ConfigFormBase {
 
-  /**
-   * The entity type.
-   *
-   * @var string
-   */
-  protected $entityType = 'hei';
-
-  /**
-   * The entity bundle.
-   *
-   * @var string
-   */
-  protected $entityBundle = 'hei';
-
-  /**
-   * The entity field manager.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
+  const ENTITY_TYPE = InstitutionManager::ENTITY_TYPE;
 
   /**
    * The entity fields to exclude from mapping.
@@ -64,14 +47,28 @@ class FieldSettingsForm extends ConfigFormBase {
    *
    * @var array
    */
-  protected $remoteKeysExclude;
+  protected $remoteExclude;
 
   /**
    * The remote keys to include in the options.
    *
    * @var array
    */
-  protected $remoteKeysInclude;
+  protected $remoteInclude;
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
+   * JSON Data Keys service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataKeys
+   */
+  protected $dataKeys;
 
   /**
    * The constructor.
@@ -80,13 +77,17 @@ class FieldSettingsForm extends ConfigFormBase {
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
+   * @param \Drupal\ewp_institutions_get\JsonDataKeys $data_keys
+   *   JSON Data Keys service.
    */
   public function __construct(
-      ConfigFactoryInterface $config_factory,
-      EntityFieldManagerInterface $entity_field_manager
+    ConfigFactoryInterface $config_factory,
+    EntityFieldManagerInterface $entity_field_manager,
+    JsonDataKeys $data_keys
   ) {
     parent::__construct($config_factory);
     $this->entityFieldManager = $entity_field_manager;
+    $this->dataKeys           = $data_keys;
   }
 
   /**
@@ -96,6 +97,7 @@ class FieldSettingsForm extends ConfigFormBase {
     return new static(
       $container->get('config.factory'),
       $container->get('entity_field.manager'),
+      $container->get('ewp_institutions_get.keys'),
     );
   }
 
@@ -123,19 +125,23 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $form['#tree'] = TRUE;
 
-    $form['field_wrapper'] = [
+    $form['fields'] = [
       '#type' => 'details',
       '#title' => $this->t('Exclude entity fields'),
-      '#description' => $this->t('Check the target entity fields to be excluded from field mapping, such as base fields and Entity References'),
+      '#description' => $this
+        ->t('Check the @fields to be excluded from field mapping, @example.', [
+          '@fields' => 'target entity fields',
+          '@example' => 'such as base fields and Entity References'
+        ]),
     ];
 
-    $form['field_wrapper']['field_exclude'] = [
+    $form['fields']['field_exclude'] = [
       '#type' => 'checkboxes',
     ];
 
     // Load the individual entity fields
     $fields = $this->entityFieldManager
-      ->getFieldDefinitions($this->entityType, $this->entityBundle);
+      ->getFieldDefinitions(self::ENTITY_TYPE, self::ENTITY_TYPE);
 
     // Generate the options
     foreach ($fields as $field_name => $field) {
@@ -144,51 +150,59 @@ class FieldSettingsForm extends ConfigFormBase {
       }
     }
 
-    $form['field_wrapper']['field_exclude']['#options'] = $options;
+    $form['fields']['field_exclude']['#options'] = $options;
 
     // Get the excluded fields from configuration
     $this->entityFieldsExclude = (array) $config->get('field_exclude');
 
     foreach ($this->entityFieldsExclude as $field) {
-      if (array_key_exists($field, $form['field_wrapper']['field_exclude']['#options'])) {
-        $form['field_wrapper']['field_exclude'][$field]['#default_value'] = TRUE;
+      if (array_key_exists($field, $options)) {
+        $form['fields']['field_exclude'][$field]['#default_value'] = TRUE;
       }
     }
 
-    $form['key_wrapper'] = [
+    $form['keys'] = [
       '#type' => 'details',
       '#title' => $this->t('Manage remote keys'),
       '#open' => TRUE,
     ];
 
-    $form['key_wrapper']['key_exclude'] = [
+    $form['keys']['key_exclude'] = [
       '#type' => 'checkboxes',
       '#title' => t('Exclude remote keys'),
-      '#description' => $this->t('Check the default remote keys to exclude from the field mapping options'),
+      '#description' => $this
+        ->t('Check the @keys to exclude from the field mapping options.', [
+          '@keys' => 'default remote keys'
+        ]),
     ];
 
-    $this->remoteKeys = \Drupal::service('ewp_institutions_get.keys')->getDefaultKeys();
+    $this->remoteKeys = $this->dataKeys->getDefaultKeys();
     // Build the checkbox options
-    $options = \Drupal::service('ewp_institutions_get.keys')->getAssocKeys($this->remoteKeys);
+    $options = $this->dataKeys->getAssocKeys($this->remoteKeys);
 
-    $form['key_wrapper']['key_exclude']['#options'] = $options;
+    $form['keys']['key_exclude']['#options'] = $options;
 
     // Get the excluded keys from configuration
-    $this->remoteKeysExclude = (array) $config->get('remote_exclude');
+    $this->remoteExclude = (array) $config->get('remote_exclude');
 
-    foreach ($this->remoteKeysExclude as $field) {
-      $form['key_wrapper']['key_exclude'][$field]['#default_value'] = TRUE;
+    foreach ($this->remoteExclude as $field) {
+      $form['keys']['key_exclude'][$field]['#default_value'] = TRUE;
     }
 
     // Get the included keys from configuration
-    $this->remoteKeysInclude = (array) $config->get('remote_include');
+    $this->remoteInclude = (array) $config->get('remote_include');
 
-    $default_text = ($this->remoteKeysInclude) ? implode("\n", $this->remoteKeysInclude) : '';
+    $default_text = ($this->remoteInclude) ?
+      implode("\n", $this->remoteInclude) : '';
 
-    $form['key_wrapper']['key_include'] = [
+    $form['keys']['key_include'] = [
       '#type' => 'textarea',
       '#title' => t('Include remote keys'),
-      '#description' => $this->t('List the additional remote keys to include in the field mapping options (one per line)'),
+      '#description' => $this
+        ->t('List the @keys to include in the field mapping options @howto.', [
+          '@keys' => 'additional remote keys',
+          '@howto' => '(one per line)'
+        ]),
       '#default_value' => $default_text,
       '#rows' => 5,
     ];
@@ -212,7 +226,7 @@ class FieldSettingsForm extends ConfigFormBase {
     // Fields to exclude
     $excluded_fields = $this->baseFieldsExclude;
 
-    $field_exclude = $form_state->getValue('field_wrapper')['field_exclude'];
+    $field_exclude = $form_state->getValue('fields')['field_exclude'];
 
     foreach ($field_exclude as $key => $value) {
       if ($field_exclude[$key]) {
@@ -223,7 +237,7 @@ class FieldSettingsForm extends ConfigFormBase {
     $config->set('field_exclude', $excluded_fields);
 
     // Remote keys to exclude
-    $key_exclude = $form_state->getValue('key_wrapper')['key_exclude'];
+    $key_exclude = $form_state->getValue('keys')['key_exclude'];
 
     foreach ($key_exclude as $key => $value) {
       if ($key_exclude[$key]) {
@@ -234,12 +248,15 @@ class FieldSettingsForm extends ConfigFormBase {
     $config->set('remote_exclude', $excluded_keys);
 
     // Remote keys to include
-    $key_include = $form_state->getValue('key_wrapper')['key_include'];
+    $key_include = $form_state->getValue('keys')['key_include'];
 
-    $included_keys = [];
-    $included_keys = explode("\n", $key_include);
-    $included_keys = array_map('trim', $included_keys);
-    $included_keys = array_filter($included_keys, 'strlen');
+    $included_keys = array_filter(
+      array_map(
+        'trim', explode(
+          "\n", $key_include
+        )
+      ), 'strlen'
+    );
 
     $config->set('remote_include', $included_keys);
 

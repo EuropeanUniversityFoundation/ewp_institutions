@@ -13,6 +13,7 @@ use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_get\DataFormatter;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
+use Drupal\ewp_institutions_get\InstitutionManager;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,8 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PreLoadForm extends FormBase {
 
   use StringTranslationTrait;
-
-  const INDEX_LINK_KEY = 'list';
 
   /**
    * Index endpoint.
@@ -129,11 +128,11 @@ class PreLoadForm extends FormBase {
 
     if (! empty($this->indexEndpoint)) {
       $json_data = $this->jsonDataFetcher
-        ->getUpdated('index', $this->indexEndpoint);
+        ->getUpdated(InstitutionManager::INDEX_KEYWORD, $this->indexEndpoint);
 
       if ($json_data) {
         $this->indexLinks = $this->jsonDataProcessor
-          ->idLinks($json_data, self::INDEX_LINK_KEY);
+          ->idLinks($json_data, InstitutionManager::INDEX_LINK_KEY);
         $this->indexLabels = $this->jsonDataProcessor
           ->idLabel($json_data);
       }
