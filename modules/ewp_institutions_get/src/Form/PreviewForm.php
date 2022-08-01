@@ -3,7 +3,6 @@
 namespace Drupal\ewp_institutions_get\Form;
 
 use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\ewp_institutions_get\Form\PreLoadForm;
@@ -99,13 +98,11 @@ class PreviewForm extends PreLoadForm {
     $options = ['' => '- None -'];
 
     if (! empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->getUpdated($index_item, $endpoint);
+      $json_data = $this->jsonDataFetcher->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         // Build the options list
-        $options += \Drupal::service('ewp_institutions_get.json')
-          ->idLabel($json_data);
+        $options += $this->jsonDataProcessor->idLabel($json_data);
       }
     }
 
@@ -121,19 +118,15 @@ class PreviewForm extends PreLoadForm {
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     // JSON data has to be stored at this point per previous step
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')
-      ->load($index_item, $endpoint);
-    $hei_list = \Drupal::service('ewp_institutions_get.json')
-      ->idLabel($json_data);
+    $json_data = $this->jsonDataFetcher->load($index_item, $endpoint);
+    $hei_list = $this->jsonDataProcessor->idLabel($json_data);
 
     $hei_item = $form_state->getValue('hei_select');
 
     $title = $hei_list[$hei_item];
 
-    $data = \Drupal::service('ewp_institutions_get.json')
-      ->toArray($json_data, TRUE);
-    $message = \Drupal::service('ewp_institutions_get.format')
-      ->preview($title, $data, $hei_item);
+    $data = $this->jsonDataProcessor->toArray($json_data, TRUE);
+    $message = $this->dataFormatter->preview($title, $data, $hei_item);
 
     $ajax_response = new AjaxResponse();
     $ajax_response->addCommand(
