@@ -6,7 +6,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
 /**
- * Service for data formatting
+ * Data formatting service.
  */
 class DataFormatter {
 

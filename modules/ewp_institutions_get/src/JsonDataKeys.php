@@ -5,12 +5,12 @@ namespace Drupal\ewp_institutions_get;
 /**
  * Class JsonDataKeys
  *
- * Service to handle JSON:API object keys
+ * Service to handle JSON:API object keys.
  */
 class JsonDataKeys {
 
   /**
-   * Returns the default keys expected in a full JSON:API response
+   * Returns the default keys expected in a full JSON:API response.
    */
   public function getDefaultKeys() {
     $default_keys = [
@@ -37,19 +37,19 @@ class JsonDataKeys {
   }
 
   /**
-   * Returns an associative array of keys after excluding and including
+   * Returns an associative array of keys after excluding and including.
    */
   public function getAssocKeys(array $keys, $excluded = [], $included = []) {
     $assoc = [];
 
-    // Gather the initial keys if not excluded
+    // Gather the initial keys if not excluded.
     foreach ($keys as $key) {
       if (! in_array($key, $excluded)) {
         $assoc[$key] = $key;
       }
     }
 
-    // Add the included keys
+    // Add the included keys.
     foreach ($included as $key) {
       $assoc[$key] = $key;
     }

@@ -2,19 +2,112 @@
 
 namespace Drupal\ewp_institutions_get\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
-use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\ewp_institutions_get\DataFormatter;
+use Drupal\ewp_institutions_get\JsonDataFetcher;
+use Drupal\ewp_institutions_get\JsonDataProcessor;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsForm extends ConfigFormBase {
+
+  use StringTranslationTrait;
+
+  /**
+   * HTTP Client for API calls.
+   *
+   * @var \GuzzleHttp\Client
+   */
+  protected $httpClient;
+
+  /**
+  * Data formatting service.
+  *
+  * @var \Drupal\ewp_institutions_get\DataFormatter
+  */
+  protected $dataFormatter;
+
+  /**
+  * JSON data fetching service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+  */
+  protected $jsonDataFetcher;
+
+  /**
+  * JSON data processing service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+  */
+  protected $jsonDataProcessor;
+
+  /**
+   * The constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \GuzzleHttp\Client $http_client
+   *   HTTP Client for API calls.
+   * @param \Drupal\ewp_institutions_get\DataFormatter $data_formatter
+   *   Data formatting service.
+   * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
+   *   JSON data fetching service.
+   * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
+   *   JSON data processing service.
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
+   *   The string translation service.
+   */
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    Client $http_client,
+    DataFormatter $data_formatter,
+    JsonDataFetcher $json_data_fetcher,
+    JsonDataProcessor $json_data_processor,
+    TranslationInterface $string_translation
+  ) {
+    parent::__construct($config_factory);
+    $this->httpClient        = $http_client;
+    $this->dataFormatter     = $data_formatter;
+    $this->jsonDataFetcher   = $json_data_fetcher;
+    $this->jsonDataProcessor = $json_data_processor;
+    $this->stringTranslation = $string_translation;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('http_client'),
+      $container->get('ewp_institutions_get.format'),
+      $container->get('ewp_institutions_get.fetch'),
+      $container->get('ewp_institutions_get.json'),
+      $container->get('string_translation'),
+    );
+  }
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
     return 'ewp_institutions_get_settings_form';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditableConfigNames() {
+    return [
+      'ewp_institutions_get.settings',
+    ];
   }
 
   /**
@@ -30,8 +123,9 @@ class SettingsForm extends ConfigFormBase {
     $form['index_endpoint'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Index endpoint'),
-      '#default_value' => $config->get('ewp_institutions_get.index_endpoint'),
-      '#description' => $this->t('External API endpoint that returns the main index.'),
+      '#default_value' => $config->get('index_endpoint'),
+      '#description' => $this
+        ->t('External API endpoint that returns the main index.'),
     ];
 
     $form['refresh'] = [
@@ -69,15 +163,16 @@ class SettingsForm extends ConfigFormBase {
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint);
+    $json_data = $this->jsonDataFetcher->load('index', $endpoint);
 
     if ($json_data) {
       $title = $this->t('Index');
-      $data = \Drupal::service('ewp_institutions_get.json')->toArray($json_data);
+      $data = $this->jsonDataProcessor->toArray($json_data);
       $columns = ['label'];
       $show_attr = FALSE;
-      $processed = \Drupal::service('ewp_institutions_get.format')->toTable($title, $data, $columns, $show_attr);
-      $message = $processed;
+
+      $message = $this->dataFormatter
+        ->toTable($title, $data, $columns, $show_attr);
     } else {
       $message = $this->t('Nothing to display.');
     }
@@ -96,13 +191,10 @@ class SettingsForm extends ConfigFormBase {
     $endpoint = $form_state->getValue('index_endpoint');
 
     if ($endpoint) {
-      // Initialize an HTTP client
-      $client = \Drupal::httpClient();
       $status = NULL;
-
       // Build the HTTP request
       try {
-        $request = $client->get($endpoint);
+        $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();
       } catch (GuzzleException $e) {
         $status = $e->getResponse()->getStatusCode();
@@ -111,7 +203,9 @@ class SettingsForm extends ConfigFormBase {
       }
 
       if ($status != '200') {
-        $form_state->setErrorByName('index_endpoint', $this->t('The given endpoint is invalid.'));
+        $form_state->setErrorByName('index_endpoint', $this->t(
+          'The given endpoint is invalid.'
+        ));
       }
     }
 
@@ -122,26 +216,16 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.settings');
-    $endpoint = $form_state->getValue('index_endpoint');
-    $config->set('ewp_institutions_get.index_endpoint', $endpoint);
+    $config->set('index_endpoint', $form_state->getValue('index_endpoint'));
     $config->save();
 
     $refresh = $form_state->getValue('refresh');
 
     if ($refresh && !empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')->load('index', $endpoint, TRUE);
+      $json_data = $this->jsonDataFetcher->load('index', $endpoint, TRUE);
     }
 
     return parent::submitForm($form, $form_state);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getEditableConfigNames() {
-    return [
-      'ewp_institutions_get.settings',
-    ];
   }
 
 }
