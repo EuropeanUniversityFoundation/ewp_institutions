@@ -2,82 +2,161 @@
 
 namespace Drupal\ewp_institutions_get\Form;
 
-use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormStateInterface;
-use GuzzleHttp\Exception\GuzzleException;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\ewp_institutions_get\DataFormatter;
+use Drupal\ewp_institutions_get\JsonDataFetcher;
+use Drupal\ewp_institutions_get\JsonDataProcessor;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PreLoadForm extends FormBase {
 
+  use StringTranslationTrait;
+
+  const INDEX_LINK_KEY = 'list';
+
   /**
-   * Index endpoint
+   * Index endpoint.
    *
    * @var string
    */
   protected $indexEndpoint;
 
   /**
-   * Index link key
-   *
-   * @var string
-   */
-  protected $indexLinkKey;
-
-  /**
-   * Index item links
+   * Index item links.
    *
    * @var array
    */
   protected $indexLinks;
 
   /**
-   * Index item labels
+   * Index item labels.
    *
    * @var array
    */
   protected $indexLabels;
 
   /**
-   * Additional columns for the data table
+   * HTTP Client for API calls.
    *
-   * @var array
+   * @var \GuzzleHttp\Client
    */
-  protected $columns = [];
+  protected $httpClient;
 
   /**
-   * Attributes overview in the data table
+   * Config factory.
    *
-   * @var array
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $showAttr = TRUE;
+  protected $configFactory;
 
   /**
-   * {@inheritdoc}
+  * Data formatting service.
+  *
+  * @var \Drupal\ewp_institutions_get\DataFormatter
+  */
+  protected $dataFormatter;
+
+  /**
+  * JSON data fetching service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+  */
+  protected $jsonDataFetcher;
+
+  /**
+  * JSON data processing service.
+  *
+  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+  */
+  protected $jsonDataProcessor;
+
+  /**
+   * The messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
    */
-  public function __construct() {
+  protected $messenger;
+
+  /**
+   * The constructor.
+   *
+   * @param \GuzzleHttp\Client $http_client
+   *   HTTP Client for API calls.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   * @param \Drupal\ewp_institutions_get\DataFormatter $data_formatter
+   *   Data formatting service.
+   * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
+   *   JSON data fetching service.
+   * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
+   *   JSON data processing service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
+   *   The string translation service.
+   */
+  public function __construct(
+    Client $http_client,
+    ConfigFactoryInterface $config_factory,
+    DataFormatter $data_formatter,
+    JsonDataFetcher $json_data_fetcher,
+    JsonDataProcessor $json_data_processor,
+    MessengerInterface $messenger,
+    TranslationInterface $string_translation
+  ) {
+    $this->httpClient         = $http_client;
+    $this->configFactory      = $config_factory;
+    $this->dataFormatter      = $data_formatter;
+    $this->jsonDataFetcher    = $json_data_fetcher;
+    $this->jsonDataProcessor  = $json_data_processor;
+    $this->messenger          = $messenger;
+    $this->stringTranslation  = $string_translation;
+
     // Load the settings.
-    $config = \Drupal::config('ewp_institutions_get.settings');
-    $this->indexEndpoint = $config->get('ewp_institutions_get.index_endpoint');
-    $this->indexLinkKey = 'list';
+    $config = $this->configFactory->get('ewp_institutions_get.settings');
+    $this->indexEndpoint = $config->get('index_endpoint');
     $this->indexLinks = [];
     $this->indexLabels = [];
 
     if (! empty($this->indexEndpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
+      $json_data = $this->jsonDataFetcher
         ->getUpdated('index', $this->indexEndpoint);
 
       if ($json_data) {
-        $this->indexLinks = \Drupal::service('ewp_institutions_get.json')
-          ->idLinks($json_data, $this->indexLinkKey);
-        $this->indexLabels = \Drupal::service('ewp_institutions_get.json')
+        $this->indexLinks = $this->jsonDataProcessor
+          ->idLinks($json_data, self::INDEX_LINK_KEY);
+        $this->indexLabels = $this->jsonDataProcessor
           ->idLabel($json_data);
       }
-    } else {
-      $warning = $this->t("Index endpoint is not defined.");
-      \Drupal::service('messenger')->addWarning($warning);
     }
+    else {
+      $warning = $this->t("Index endpoint is not defined.");
+      $this->messenger->addWarning($warning);
+    }
+  }
 
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('http_client'),
+      $container->get('config.factory'),
+      $container->get('ewp_institutions_get.format'),
+      $container->get('ewp_institutions_get.fetch'),
+      $container->get('ewp_institutions_get.json'),
+      $container->get('messenger'),
+      $container->get('string_translation'),
+    );
   }
 
   /**
@@ -141,17 +220,13 @@ class PreLoadForm extends FormBase {
     $endpoint = $this->indexLinks[$index_item];
 
     if (! empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
-        ->getUpdated($index_item, $endpoint);
+      $json_data = $this->jsonDataFetcher->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         $title = $this->indexLabels[$index_item];
-        $data = \Drupal::service('ewp_institutions_get.json')
-          ->toArray($json_data);
-        $columns = $this->columns;
-        $show_attr = $this->showAttr;
-        $message = \Drupal::service('ewp_institutions_get.format')
-          ->toTable($title, $data, $columns, $show_attr);
+        $data = $this->jsonDataProcessor->toArray($json_data);
+
+        $message = $this->dataFormatter->toTable($title, $data, [], TRUE);
       } else {
         $message = $this->t('Nothing to display.');
       }
