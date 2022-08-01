@@ -11,12 +11,10 @@ ewp_institutions_get.fieldmap:
   label: 'Field mapping'
   mapping:
     field_mapping:
-      type: mapping
+      type: sequence
       label: 'Entity fields'
-      mapping:
-        label:
-          type: string
-          label: 'Label'
+      sequence:
+        type: string
 
 ewp_institutions_get.field_settings:
   type: config_object
