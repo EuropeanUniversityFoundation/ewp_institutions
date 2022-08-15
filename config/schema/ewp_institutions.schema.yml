@@ -1,3 +1,13 @@
+# Schema for the configuration of the String field type.
+
+field.storage_settings.ewp_other_hei_id:
+  type: mapping
+  label: 'String settings'
+  mapping:
+    max_length:
+      type: integer
+      label: 'Maximum length'
+
 field.formatter.settings.ewp_other_hei_id_unique:
   type: mapping
   label: 'Other IDs type picker'
