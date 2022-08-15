@@ -1,4 +1,4 @@
-# Schema for the configuration of the String field type.
+# Schema for the configuration of the Other ID field type.
 
 field.storage_settings.ewp_other_hei_id:
   type: mapping
@@ -7,6 +7,17 @@ field.storage_settings.ewp_other_hei_id:
     max_length:
       type: integer
       label: 'Maximum length'
+
+field.widget.settings.ewp_other_hei_id_default:
+  type: mapping
+  label: 'Other HEI ID default widget settings'
+  mapping:
+    size:
+      type: integer
+      label: 'Size'
+    placeholder:
+      type: string
+      label: 'Placeholder'
 
 field.formatter.settings.ewp_other_hei_id_unique:
   type: mapping
