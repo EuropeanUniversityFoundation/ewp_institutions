@@ -2,18 +2,29 @@ services:
   ewp_institutions_get.fetch:
     class: Drupal\ewp_institutions_get\JsonDataFetcher
     arguments: ['@http_client', '@ewp_institutions_get.json', '@logger.factory', '@tempstore.shared', '@string_translation']
+
   ewp_institutions_get.format:
     class: Drupal\ewp_institutions_get\DataFormatter
     arguments: ['@string_translation']
+
   ewp_institutions_get.json:
     class: Drupal\ewp_institutions_get\JsonDataProcessor
     arguments: ['@logger.factory', '@string_translation']
+
   ewp_institutions_get.keys:
     class: Drupal\ewp_institutions_get\JsonDataKeys
     arguments: []
+
   ewp_institutions_get.manager:
     class: Drupal\ewp_institutions_get\InstitutionManager
-    arguments: ['@config.factory', '@entity_type.manager', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@logger.factory', '@messenger', '@string_translation']
+    arguments: ['@config.factory', '@entity_type.manager', '@event_dispatcher', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@logger.factory', '@messenger', '@string_translation']
+
+  ewp_institutions_get.change_event_subscriber:
+    class: Drupal\ewp_institutions_get\EventSubscriber\InstitutionIdChangeEventSubscriber
+    arguments: ['@logger.factory', '@string_translation']
+    tags:
+      - { name: event_subscriber }
+
   ewp_institutions_get.route_subscriber:
     class: Drupal\ewp_institutions_get\Routing\RouteSubscriber
     tags:

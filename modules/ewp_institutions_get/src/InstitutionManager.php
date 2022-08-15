@@ -9,6 +9,8 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions\Entity\InstitutionEntity;
+use Drupal\ewp_institutions_get\Event\InstitutionIdChangeEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Service for managing Institution entities
@@ -36,6 +38,13 @@ class InstitutionManager {
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
+
+  /**
+   * Event dispatcher.
+   *
+   * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+   */
+  protected $eventDispatcher;
 
   /**
    * Field mapping
@@ -93,6 +102,8 @@ class InstitutionManager {
    *   The config factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Symfony\Contracts\EventDispatcher\EventDispatcherInterface $event_dispatcher
+   *   The event dispatcher service.
    * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
    *   JSON data fetching service.
    * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
@@ -105,16 +116,18 @@ class InstitutionManager {
    *   The string translation service.
    */
   public function __construct(
-      ConfigFactoryInterface $config_factory,
-      EntityTypeManagerInterface $entity_type_manager,
-      JsonDataFetcher $json_data_fetcher,
-      JsonDataProcessor $json_data_processor,
-      LoggerChannelFactoryInterface $logger_factory,
-      MessengerInterface $messenger,
-      TranslationInterface $string_translation
+    ConfigFactoryInterface $config_factory,
+    EntityTypeManagerInterface $entity_type_manager,
+    EventDispatcherInterface $event_dispatcher,
+    JsonDataFetcher $json_data_fetcher,
+    JsonDataProcessor $json_data_processor,
+    LoggerChannelFactoryInterface $logger_factory,
+    MessengerInterface $messenger,
+    TranslationInterface $string_translation
   ) {
     $this->configFactory      = $config_factory;
     $this->entityTypeManager  = $entity_type_manager;
+    $this->eventDispatcher    = $event_dispatcher;
     $this->jsonDataFetcher    = $json_data_fetcher;
     $this->jsonDataProcessor  = $json_data_processor;
     $this->logger             = $logger_factory->get('ewp_institutions_get');
@@ -328,6 +341,26 @@ class InstitutionManager {
     // SUCCESS! Second argument is validated
 
     return NULL;
+  }
+
+  /**
+   * Check for changes in the Institution ID to dispatch an event.
+   *
+   * @param \Drupal\ewp_institutions\Entity\InstitutionEntity $hei
+   */
+  public function checkIdChange(InstitutionEntity $hei) {
+    $old_value = (empty($hei->original)) ? NULL : $hei->original
+      ->get(self::UNIQUE_FIELD)->getValue();
+    $new_value = $hei
+      ->get(self::UNIQUE_FIELD)->getValue();
+
+    if ($old_value !== $new_value) {
+      // Instantiate our event.
+      $event = new InstitutionIdChangeEvent($hei);
+      // Dispatch the event.
+      $this->eventDispatcher
+        ->dispatch($event, InstitutionIdChangeEvent::EVENT_NAME);
+    }
   }
 
 }

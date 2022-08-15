@@ -5,6 +5,7 @@
  * Contains ewp_institutions_get.module.
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Form\FormStateInterface;
@@ -101,4 +102,12 @@ function ewp_institutions_get_field_widget_multivalue_entity_reference_autocompl
     }
   }
 
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function ewp_institutions_get_hei_presave(EntityInterface $hei) {
+  $manager = \Drupal::service('ewp_institutions_get.manager');
+  $manager->checkIdChange($hei);
 }
