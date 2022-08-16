@@ -136,7 +136,7 @@ class InstitutionManager {
 
     $this->indexEndpoint = $this->configFactory
       ->get('ewp_institutions_get.settings')
-      ->get('ewp_institutions_get.index_endpoint');
+      ->get('index_endpoint');
 
     $this->fieldmap = $this->configFactory
       ->get('ewp_institutions_get.fieldmap')

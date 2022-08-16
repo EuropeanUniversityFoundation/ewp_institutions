@@ -50,8 +50,6 @@ class InstitutionIdChangeEvent extends Event {
     $this->current = $this->hei
       ->get(InstitutionManager::UNIQUE_FIELD)
       ->getValue()[0]['value'];
-
-    dpm($this);
   }
 
 }
