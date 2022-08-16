@@ -27,6 +27,9 @@ class InstitutionUserBridge {
   const UNIQUE_FIELD = 'hei_id';
   const BASE_FIELD = 'user_institution';
 
+  const NEGATE   = 'negate';
+  const SHOW_ALL = 'show_all';
+
   /**
    * The current user.
    */

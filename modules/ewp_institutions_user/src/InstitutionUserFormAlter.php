@@ -21,8 +21,8 @@ class InstitutionUserFormAlter {
   const ENTITY_TYPE = InstitutionUserBridge::ENTITY_TYPE;
   const BASE_FIELD = InstitutionUserBridge::BASE_FIELD;
 
-  const NEGATE   = 'negate';
-  const SHOW_ALL = 'show_all';
+  const NEGATE = InstitutionUserBridge::NEGATE;
+  const SHOW_ALL = InstitutionUserBridge::SHOW_ALL;
 
   /**
    * The current user.

@@ -5,7 +5,7 @@ namespace Drupal\ewp_institutions_user\Plugin\EntityReferenceSelection;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
-use Drupal\ewp_institutions_user\InstitutionUserBridge as Bridge;
+use Drupal\ewp_institutions_user\InstitutionUserBridge;
 
 /**
  * Plugin description.
@@ -20,14 +20,17 @@ use Drupal\ewp_institutions_user\InstitutionUserBridge as Bridge;
  */
 class HeiSelection extends DefaultSelection {
 
+  const NEGATE = InstitutionUserBridge::NEGATE;
+  const SHOW_ALL = InstitutionUserBridge::SHOW_ALL;
+
   /**
    * {@inheritdoc}
    */
   public function defaultConfiguration() {
 
     $default_configuration = [
-      Bridge::NEGATE => FALSE,
-      Bridge::SHOW_ALL => FALSE,
+      self::NEGATE => FALSE,
+      self::SHOW_ALL => FALSE,
     ];
 
     return $default_configuration + parent::defaultConfiguration();
@@ -39,19 +42,19 @@ class HeiSelection extends DefaultSelection {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildConfigurationForm($form, $form_state);
 
-    $form[Bridge::NEGATE] = [
+    $form[self::NEGATE] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Negate the condition'),
       '#description' => $this->t('Shows Institutions that are NOT referenced.'),
-      '#default_value' => $this->configuration[Bridge::NEGATE],
+      '#default_value' => $this->configuration[self::NEGATE],
       '#return_value' => TRUE,
       '#weight' => -5
     ];
 
-    $form[Bridge::SHOW_ALL] = [
+    $form[self::SHOW_ALL] = [
       '#type' => 'checkbox',
       '#title' => $this->t('If empty, show all'),
-      '#default_value' => $this->configuration[Bridge::SHOW_ALL],
+      '#default_value' => $this->configuration[self::SHOW_ALL],
       '#return_value' => TRUE,
       '#weight' => -4
     ];
@@ -76,10 +79,10 @@ class HeiSelection extends DefaultSelection {
     }
 
     // Get the referenced Institutions from the user account.
-    $user_hei = $user->get(Bridge::BASE_FIELD)->getValue();
+    $user_hei = $user->get(InstitutionUserBridge::BASE_FIELD)->getValue();
 
     // Skip when the user has no Institution but "show all" option is enabled.
-    if (empty($user_hei) && $this->configuration[Bridge::SHOW_ALL]) {
+    if (empty($user_hei) && $this->configuration[self::SHOW_ALL]) {
       return $query;
     }
 
@@ -89,7 +92,7 @@ class HeiSelection extends DefaultSelection {
       $hei_entity_id[] = $array['target_id'];
     }
 
-    $operator = ($this->configuration[Bridge::NEGATE]) ? 'NOT IN' : 'IN';
+    $operator = ($this->configuration[self::NEGATE]) ? 'NOT IN' : 'IN';
 
     $query->condition('id', $hei_entity_id, $operator);
 
