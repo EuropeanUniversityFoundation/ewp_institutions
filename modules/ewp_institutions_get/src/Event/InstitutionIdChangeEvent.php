@@ -43,9 +43,9 @@ class InstitutionIdChangeEvent extends Event {
   public function __construct(InstitutionEntity $hei) {
     $this->hei = $hei;
 
-    $this->previous = $this->hei->original
+    $this->previous = (isset($this->hei->original)) ? $this->hei->original
       ->get(InstitutionManager::UNIQUE_FIELD)
-      ->getValue()[0]['value'];
+      ->getValue()[0]['value'] : NULL;
 
     $this->current = $this->hei
       ->get(InstitutionManager::UNIQUE_FIELD)

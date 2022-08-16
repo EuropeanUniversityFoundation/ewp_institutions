@@ -462,8 +462,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Enable all disabled fields prior to submission.
-    $attr = $form['add_form']['status']['widget']['#attributes']['disabled'];
-    if (! empty($attr)) {
+    if (
+      ! empty($form['add_form']['status']['widget']['#attributes']['disabled'])
+    ) {
       unset($form['add_form']['status']['widget']['#attributes']['disabled']);
     }
 

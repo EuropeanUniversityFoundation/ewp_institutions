@@ -54,15 +54,17 @@ class InstitutionIdChangeEventSubscriber implements EventSubscriberInterface {
    *   The event object.
    */
   public function onInstitutionIdChange(InstitutionIdChangeEvent $event) {
-    $renderable = $event->hei->toLink()->toRenderable();
+    if (! empty($event->previous)) {
+      $renderable = $event->hei->toLink()->toRenderable();
 
-    $message = $this->t('@hei ID changed from %previous to %current.', [
-      '@hei' => render($renderable),
-      '%previous' => $event->previous,
-      '%current' => $event->current,
-    ]);
+      $message = $this->t('@hei ID changed from %previous to %current.', [
+        '@hei' => render($renderable),
+        '%previous' => $event->previous,
+        '%current' => $event->current,
+      ]);
 
-    $this->logger->notice($message);
+      $this->logger->notice($message);
+    }
   }
 
 }
