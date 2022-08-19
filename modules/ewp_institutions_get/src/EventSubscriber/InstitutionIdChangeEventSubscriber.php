@@ -24,18 +24,29 @@ class InstitutionIdChangeEventSubscriber implements EventSubscriberInterface {
   protected $logger;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Constructs event subscriber.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
    *   The logger factory service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
     LoggerChannelFactoryInterface $logger_factory,
+    RendererInterface $renderer,
     TranslationInterface $string_translation
   ) {
     $this->logger            = $logger_factory->get('ewp_institutions_get');
+    $this->renderer          = $renderer;
     $this->stringTranslation = $string_translation;
   }
 
@@ -59,7 +70,7 @@ class InstitutionIdChangeEventSubscriber implements EventSubscriberInterface {
       $renderable = $event->hei->toLink()->toRenderable();
 
       $message = $this->t('@hei ID changed from %previous to %current.', [
-        '@hei' => RendererInterface::render($renderable),
+        '@hei' => $this->renderer->render($renderable),
         '%previous' => $event->previous,
         '%current' => $event->current,
       ]);

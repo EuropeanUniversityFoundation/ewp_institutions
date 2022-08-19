@@ -97,6 +97,13 @@ class InstitutionManager {
   protected $messenger;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -113,6 +120,8 @@ class InstitutionManager {
    *   The logger factory service.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
@@ -124,6 +133,7 @@ class InstitutionManager {
     JsonDataProcessor $json_data_processor,
     LoggerChannelFactoryInterface $logger_factory,
     MessengerInterface $messenger,
+    RendererInterface $renderer,
     TranslationInterface $string_translation
   ) {
     $this->configFactory      = $config_factory;
@@ -133,6 +143,7 @@ class InstitutionManager {
     $this->jsonDataProcessor  = $json_data_processor;
     $this->logger             = $logger_factory->get('ewp_institutions_get');
     $this->messenger          = $messenger;
+    $this->renderer           = $renderer;
     $this->stringTranslation  = $string_translation;
 
     $this->indexEndpoint = $this->configFactory
@@ -177,7 +188,7 @@ class InstitutionManager {
               $renderable = $hei->toLink()->toRenderable();
             }
             $message = $this->t('Institution successfully created: @link', [
-              '@link' => RendererInterface::render($renderable),
+              '@link' => $this->renderer->render($renderable),
             ]);
             $this->messenger->addMessage($message);
           }
@@ -195,7 +206,7 @@ class InstitutionManager {
             $renderable = $hei->toLink()->toRenderable();
           }
           $message = $this->t('Institution already exists: @link', [
-            '@link' => RendererInterface::render($renderable),
+            '@link' => $this->renderer->render($renderable),
           ]);
           $this->messenger->addWarning($message);
         }

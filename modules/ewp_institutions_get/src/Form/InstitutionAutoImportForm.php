@@ -54,6 +54,13 @@ class InstitutionAutoImportForm extends PreLoadForm {
   protected $institutionManager;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The request stack.
    *
    * @var \Symfony\Component\HttpFoundation\RequestStack
@@ -68,6 +75,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
     $instance = parent::create($container);
     $instance->entityTypeManager  = $container->get('entity_type.manager');
     $instance->institutionManager = $container->get('ewp_institutions_get.manager');
+    $instance->renderer           = $container->get('renderer');
     $instance->requestStack       = $container->get('request_stack');
     return $instance;
   }
@@ -195,7 +203,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
       $view_builder = $this->entityTypeManager
         ->getViewBuilder(InstitutionManager::ENTITY_TYPE);
       $pre_render = $view_builder->view($entity, $view_mode);
-      $html= RendererInterface::render($pre_render);
+      $html= $this->renderer->render($pre_render);
 
       $text = $this->t('This institution is now available for selection.');
       $modal = $this->requestStack->getCurrentRequest()->query->has('modal');

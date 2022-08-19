@@ -158,6 +158,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   protected $messenger;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
@@ -187,6 +194,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $instance->jsonDataFetcher    = $container->get('ewp_institutions_get.fetch');
     $instance->jsonDataProcessor  = $container->get('ewp_institutions_get.json');
     $instance->messenger          = $container->get('messenger');
+    $instance->renderer           = $container->get('renderer');
     $instance->stringTranslation  = $container->get('string_translation');
     return $instance;
   }
@@ -282,7 +290,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $show_empty = FALSE;
     $preview = $this->dataFormatter
       ->preview($title, $hei_data, $this->heiKey, $show_empty);
-    $form['data']['preview']['#markup'] = RendererInterface::render($preview);
+    $form['data']['preview']['#markup'] = $this->renderer->render($preview);
 
     // Extract the data for the target entity.
     foreach ($hei_data as $key => $array) {
@@ -491,7 +499,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         }
         $error = $this->t('Institution with ID @hei_id already exists: @link', [
           '@hei_id' => $this->t('<code>' . $hei_key . '</code>'),
-          '@link' => RendererInterface::render($renderable),
+          '@link' => $this->renderer->render($renderable),
         ]);
       }
     }

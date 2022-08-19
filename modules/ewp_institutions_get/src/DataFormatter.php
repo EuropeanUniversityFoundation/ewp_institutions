@@ -19,14 +19,25 @@ class DataFormatter {
   const ATTR_KEY = 'attributes';
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * Constructs a new DataFormatter.
    *
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
+    RendererInterface $renderer,
     TranslationInterface $string_translation
   ) {
+    $this->renderer = $renderer;
   }
 
   /**
@@ -128,7 +139,7 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => RendererInterface::render($build)
+      '#markup' => $this->renderer->render($build)
     ];
   }
 
@@ -220,7 +231,7 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => RendererInterface::render($build)
+      '#markup' => $this->renderer->render($build)
     ];
   }
 

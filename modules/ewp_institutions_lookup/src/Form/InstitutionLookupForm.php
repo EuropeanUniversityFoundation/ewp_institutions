@@ -45,6 +45,13 @@ class InstitutionLookupForm extends FormBase {
   protected $messenger;
 
   /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -55,17 +62,21 @@ class InstitutionLookupForm extends FormBase {
    *   Institution entity manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     InstitutionLookupManager $lookup_manager,
     InstitutionManager $hei_manager,
-    MessengerInterface $messenger
+    MessengerInterface $messenger,
+    RendererInterface $renderer
   ) {
     $this->configFactory = $config_factory;
     $this->lookupManager = $lookup_manager;
     $this->heiManager    = $hei_manager;
     $this->messenger     = $messenger;
+    $this->renderer      = $renderer;
   }
 
   /**
@@ -77,6 +88,7 @@ class InstitutionLookupForm extends FormBase {
       $container->get('ewp_institutions_lookup.manager'),
       $container->get('ewp_institutions_get.manager'),
       $container->get('messenger'),
+      $container->get('renderer'),
     );
   }
 
@@ -159,7 +171,7 @@ class InstitutionLookupForm extends FormBase {
         $renderable = $hei->toLink()->toRenderable();
       }
       $warning = $this->t('Institution already exists: @link', [
-        '@link' => RendererInterface::render($renderable),
+        '@link' => $this->renderer->render($renderable),
       ]);
       $this->messenger->addWarning($warning);
     }

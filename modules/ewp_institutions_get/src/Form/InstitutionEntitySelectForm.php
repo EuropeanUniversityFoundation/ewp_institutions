@@ -7,7 +7,9 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ewp_institutions_get\Form\PreviewForm;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Alternative for Institution Add form.
@@ -15,6 +17,37 @@ use Drupal\ewp_institutions_get\Form\PreviewForm;
  * @ingroup ewp_institutions
  */
 class InstitutionEntitySelectForm extends PreviewForm {
+
+  /**
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $account;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * The renderer service.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    $instance = parent::create($container);
+    $instance->account           = $container->get('current_user');
+    $instance->entityTypeManager = $container->get('entity_type.manager');
+    $instance->renderer          = $container->get('renderer');
+    return $instance;
+  }
 
   /**
    * {@inheritdoc}
@@ -27,10 +60,8 @@ class InstitutionEntitySelectForm extends PreviewForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $user = \Drupal::currentUser();
-
     // Give a user with permission the opportunity to add an entity manually
-    if ($user->hasPermission('bypass import institution entities')) {
+    if ($this->account->hasPermission('bypass import institution entities')) {
       $add_link = Link::fromTextAndUrl(t('add a new Institution'),
         Url::fromRoute('entity.hei.add_form'))->toString();
 
@@ -193,12 +224,12 @@ class InstitutionEntitySelectForm extends PreviewForm {
     $options = ['' => '- None -'];
 
     if (! empty($endpoint)) {
-      $json_data = \Drupal::service('ewp_institutions_get.fetch')
+      $json_data = $this->jsonDataFetcher
         ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
         // Build the options list
-        $options += \Drupal::service('ewp_institutions_get.json')
+        $options += $this->jsonDataProcessor
           ->idLabel($json_data);
       }
     }
@@ -217,16 +248,16 @@ class InstitutionEntitySelectForm extends PreviewForm {
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     // JSON data has to be stored at this point per previous step
-    $json_data = \Drupal::service('ewp_institutions_get.fetch')
+    $json_data = $this->jsonDataFetcher
       ->load($index_item, $endpoint);
 
-    $hei_list = \Drupal::service('ewp_institutions_get.json')
+    $hei_list = $this->jsonDataProcessor
       ->idLabel($json_data);
 
     $hei_id = $form_state->getValue('hei_select');
 
     // Check if an entity with the same hei_id already exists
-    $exists = \Drupal::entityTypeManager()->getStorage('hei')
+    $exists = $this->entityTypeManager->getStorage('hei')
       ->loadByProperties(['hei_id' => $hei_id]);
 
     if (!empty($exists)) {
@@ -235,12 +266,12 @@ class InstitutionEntitySelectForm extends PreviewForm {
         $renderable = $link->toRenderable();
       }
 
-      $error = $this->t('Institution with ID <code>@hei_id</code> already exists: @link', [
-        '@hei_id' => $hei_id,
-        '@link' => RendererInterface::render($renderable),
+      $error = $this->t('Institution with ID @hei_id already exists: @link', [
+        '@hei_id' => $this->t('<code>' . $hei_id . '</code>'),
+        '@link' => $this->renderer->render($renderable),
       ]);
 
-      \Drupal::service('messenger')->addError($error);
+      $this->messenger->addError($error);
 
       $message = StatusMessages::renderMessages();
 
@@ -248,18 +279,18 @@ class InstitutionEntitySelectForm extends PreviewForm {
     } else {
       $title = $hei_list[$hei_id];
 
-      $data = \Drupal::service('ewp_institutions_get.json')
+      $data = $this->jsonDataProcessor
         ->toArray($json_data);
 
       $show_empty = FALSE;
 
-      $message = \Drupal::service('ewp_institutions_get.format')
+      $message = $this->dataFormatter
         ->preview($title, $data, $hei_id, $show_empty);
 
       $status = '';
     }
 
-    $form['data']['preview']['#markup'] = RendererInterface::render($message);
+    $form['data']['preview']['#markup'] = $this->renderer->render($message);
     $form['data']['status']['#value'] = $status;
 
     return $form['data'];

@@ -5,7 +5,7 @@ services:
 
   ewp_institutions_get.format:
     class: Drupal\ewp_institutions_get\DataFormatter
-    arguments: ['@string_translation']
+    arguments: ['@renderer', '@string_translation']
 
   ewp_institutions_get.json:
     class: Drupal\ewp_institutions_get\JsonDataProcessor
@@ -17,11 +17,11 @@ services:
 
   ewp_institutions_get.manager:
     class: Drupal\ewp_institutions_get\InstitutionManager
-    arguments: ['@config.factory', '@entity_type.manager', '@event_dispatcher', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@logger.factory', '@messenger', '@string_translation']
+    arguments: ['@config.factory', '@entity_type.manager', '@event_dispatcher', '@ewp_institutions_get.fetch', '@ewp_institutions_get.json', '@logger.factory', '@messenger', '@renderer', '@string_translation']
 
   ewp_institutions_get.change_event_subscriber:
     class: Drupal\ewp_institutions_get\EventSubscriber\InstitutionIdChangeEventSubscriber
-    arguments: ['@logger.factory', '@string_translation']
+    arguments: ['@logger.factory', '@renderer', '@string_translation']
     tags:
       - { name: event_subscriber }
 
