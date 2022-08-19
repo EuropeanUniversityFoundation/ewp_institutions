@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions\Entity\InstitutionEntity;
@@ -176,7 +177,7 @@ class InstitutionManager {
               $renderable = $hei->toLink()->toRenderable();
             }
             $message = $this->t('Institution successfully created: @link', [
-              '@link' => render($renderable),
+              '@link' => RendererInterface::render($renderable),
             ]);
             $this->messenger->addMessage($message);
           }
@@ -194,7 +195,7 @@ class InstitutionManager {
             $renderable = $hei->toLink()->toRenderable();
           }
           $message = $this->t('Institution already exists: @link', [
-            '@link' => render($renderable),
+            '@link' => RendererInterface::render($renderable),
           ]);
           $this->messenger->addWarning($message);
         }

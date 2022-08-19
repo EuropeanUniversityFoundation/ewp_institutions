@@ -32,20 +32,22 @@ function ewp_institutions_help($route_name, RouteMatchInterface $route_match) {
  */
 function ewp_institutions_theme($existing, $type, $theme, $path) {
   return [
-    'ewp_institutions' => [
-      'render element' => 'children',
-    ],
-    'hei' => [                                // the entity id
-      'path' => $path . '/templates',         // template directory in module or theme
-      'template'  => 'hei',                   // defines base template as /hei.html.twig
-      'render element' => 'elements',         // Theme API call to define the container of the entity in the render array
-                                              // The entity will be prefixed with a hash sign as ['elements']['#hei']
+    'hei' => [
+      'path' => $path . '/templates',
+      'template'  => 'hei',
+      'render element' => 'elements',
     ],
     'other_id' => [
-      'variables' => ['value' => NULL, 'type' => NULL],
+      'variables' => [
+        'value' => NULL,
+        'type' => NULL
+      ],
     ],
     'other_id_unique' => [
-      'variables' => ['value' => NULL, 'type' => NULL],
+      'variables' => [
+        'value' => NULL,
+        'type' => NULL
+      ],
     ]
   ];
 }

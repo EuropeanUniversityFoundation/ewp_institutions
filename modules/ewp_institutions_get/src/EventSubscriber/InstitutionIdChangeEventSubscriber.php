@@ -3,6 +3,7 @@
 namespace Drupal\ewp_institutions_get\EventSubscriber;
 
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_get\Event\InstitutionIdChangeEvent;
@@ -58,7 +59,7 @@ class InstitutionIdChangeEventSubscriber implements EventSubscriberInterface {
       $renderable = $event->hei->toLink()->toRenderable();
 
       $message = $this->t('@hei ID changed from %previous to %current.', [
-        '@hei' => render($renderable),
+        '@hei' => RendererInterface::render($renderable),
         '%previous' => $event->previous,
         '%current' => $event->current,
       ]);

@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\StatusMessages;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions\Form\InstitutionEntityForm;
@@ -281,7 +282,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $show_empty = FALSE;
     $preview = $this->dataFormatter
       ->preview($title, $hei_data, $this->heiKey, $show_empty);
-    $form['data']['preview']['#markup'] = render($preview);
+    $form['data']['preview']['#markup'] = RendererInterface::render($preview);
 
     // Extract the data for the target entity.
     foreach ($hei_data as $key => $array) {
@@ -490,7 +491,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         }
         $error = $this->t('Institution with ID @hei_id already exists: @link', [
           '@hei_id' => $this->t('<code>' . $hei_key . '</code>'),
-          '@link' => render($renderable),
+          '@link' => RendererInterface::render($renderable),
         ]);
       }
     }

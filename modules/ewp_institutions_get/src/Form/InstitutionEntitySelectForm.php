@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Render\Element\StatusMessages;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\ewp_institutions_get\Form\PreviewForm;
 
 /**
@@ -236,7 +237,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
 
       $error = $this->t('Institution with ID <code>@hei_id</code> already exists: @link', [
         '@hei_id' => $hei_id,
-        '@link' => render($renderable),
+        '@link' => RendererInterface::render($renderable),
       ]);
 
       \Drupal::service('messenger')->addError($error);
@@ -258,7 +259,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
       $status = '';
     }
 
-    $form['data']['preview']['#markup'] = render($message);
+    $form['data']['preview']['#markup'] = RendererInterface::render($message);
     $form['data']['status']['#value'] = $status;
 
     return $form['data'];

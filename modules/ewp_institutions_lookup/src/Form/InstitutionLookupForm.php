@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\Element\StatusMessages;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -158,7 +159,7 @@ class InstitutionLookupForm extends FormBase {
         $renderable = $hei->toLink()->toRenderable();
       }
       $warning = $this->t('Institution already exists: @link', [
-        '@link' => render($renderable),
+        '@link' => RendererInterface::render($renderable),
       ]);
       $this->messenger->addWarning($warning);
     }

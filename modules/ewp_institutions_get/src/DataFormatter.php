@@ -2,11 +2,12 @@
 
 namespace Drupal\ewp_institutions_get;
 
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
 /**
- * Data formatting service.
+ * Data formatter service.
  */
 class DataFormatter {
 
@@ -18,7 +19,7 @@ class DataFormatter {
   const ATTR_KEY = 'attributes';
 
   /**
-   * Constructs a new JsonDataProcessor.
+   * Constructs a new DataFormatter.
    *
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
@@ -29,19 +30,19 @@ class DataFormatter {
   }
 
   /**
-   * Format data as HTML table
+   * Format data as HTML table.
    */
   public function toTable($title, $data, $columns = [], $show_attr = TRUE) {
     $header = [self::TYPE_KEY,self::ID_KEY];
 
-    // Additional columns
+    // Additional columns.
     if (!empty($columns)) {
       foreach ($columns as $key => $value) {
         $header[] = $value;
       }
     }
 
-    // Attributes overview
+    // Attributes overview.
     if ($show_attr) {
       $header[] = self::ATTR_KEY;
     }
@@ -49,12 +50,12 @@ class DataFormatter {
     $rows = [];
 
     foreach ($data as $item => $fields) {
-      // Load the default columns first
+      // Load the default columns first.
       $type = $fields[self::TYPE_KEY];
       $id = $fields[self::ID_KEY];
       $row = [$type, $id];
 
-      // Load the additional columns, if any
+      // Load the additional columns, if any.
       foreach ($columns as $key => $value) {
         $cell = '';
 
@@ -64,10 +65,10 @@ class DataFormatter {
               $array = $fields[self::ATTR_KEY][$value];
 
               if (count(array_filter(array_keys($array), 'is_string')) > 0) {
-                // associative array implies a single value of a complex field
+                // A keyed array implies a single value of a complex field.
                 $cell = $this->t('complex');
               } else {
-                // otherwise assume a field with multiple values
+                // Otherwise assume a field with multiple values.
                 $cell = $this->t('multiple');
               }
             } else {
@@ -79,7 +80,7 @@ class DataFormatter {
         array_push($row, $cell);
       }
 
-      // Load the attributes overview
+      // Load the attributes overview.
       if ($show_attr) {
         $attributes = '';
 
@@ -88,13 +89,13 @@ class DataFormatter {
 
           foreach ($fields[self::ATTR_KEY] as $key => $value) {
             if (! empty($value)) {
-              // handle complex attributes
+              // Handle complex attributes.
               if (is_array($value)) {
                 if (count(array_filter(array_keys($value), 'is_string')) > 0) {
-                  // associative array implies a single value of a complex field
+                  // A keyed array implies a single value of a complex field.
                   $attr_list[] = $key . '*';
                 } else {
-                  // otherwise assume a field with multiple values
+                  // Otherwise assume a field with multiple values.
                   $attr_list[] = $key . ' (' . count($value) . ')';
                 }
               } else {
@@ -127,13 +128,12 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => render($build)
+      '#markup' => RendererInterface::render($build)
     ];
-
   }
 
   /**
-   * Format data for preview
+   * Format data for preview.
    */
   public function preview($title, $data, $item, $show_empty = TRUE) {
     foreach ($data as $key => $value) {
@@ -152,12 +152,12 @@ class DataFormatter {
 
     foreach ($attributes as $key => $value) {
       if (! empty($value)) {
-        // handle complex attributes
+        // Handle complex attributes.
         if (is_array($value)) {
           $list = '';
 
           if (count(array_filter(array_keys($value), 'is_string')) > 0) {
-            // associative array implies a single value of a complex field
+            // A keyed array implies a single value of a complex field.
             $list .= '<ul>';
 
             foreach ($attributes[$key] as $subkey => $subvalue) {
@@ -170,14 +170,14 @@ class DataFormatter {
 
             $list .= '</ul>';
           } else {
-            // otherwise assume a field with multiple values
+            // Otherwise assume a field with multiple values.
             $list .= '<ol start="0">';
 
             foreach ($attributes[$key] as $delta => $fieldvalue) {
               if (is_array($fieldvalue)) {
                 $sublist = '';
 
-                // in case of multiple value complex field
+                // In case of multiple value complex field.
                 $sublist .= '<ul>';
 
                 foreach ($attributes[$key][$delta] as $subkey => $subvalue) {
@@ -220,9 +220,8 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => render($build)
+      '#markup' => RendererInterface::render($build)
     ];
-
   }
 
 }

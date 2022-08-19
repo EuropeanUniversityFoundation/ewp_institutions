@@ -7,6 +7,7 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\StatusMessages;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ewp_institutions_get\Form\PreLoadForm;
 use Drupal\ewp_institutions_get\InstitutionManager;
@@ -194,7 +195,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
       $view_builder = $this->entityTypeManager
         ->getViewBuilder(InstitutionManager::ENTITY_TYPE);
       $pre_render = $view_builder->view($entity, $view_mode);
-      $html= render($pre_render);
+      $html= RendererInterface::render($pre_render);
 
       $text = $this->t('This institution is now available for selection.');
       $modal = $this->requestStack->getCurrentRequest()->query->has('modal');
