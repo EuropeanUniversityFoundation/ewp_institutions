@@ -2,12 +2,13 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Utility\Html;
-
-use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\ewp_institutions\OtherIdTypeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id_unique' formatter.
@@ -20,15 +21,58 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class OtherHeiIdUniqueFormatter extends FormatterBase {
+class OtherHeiIdUniqueFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+
+  const DISPLAYED_ID = 'displayed_id';
+  const DISPLAY_LABEL = 'display_label';
+
+  /**
+   * Other ID type manager.
+   *
+   * @var \Drupal\ewp_institutions\OtherIdTypeManager
+   */
+  protected $otherIdManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+      $plugin_id,
+      $plugin_definition,
+      FieldDefinitionInterface $field_definition,
+      array $settings,
+      $label,
+      $view_mode,
+      array $third_party_settings,
+      OtherIdTypeManager $other_id_manager
+    ) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->otherIdManager = $other_id_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('ewp_institutions.other_id_types')
+    );
+  }
 
   /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
     return [
-      'displayed_id' => 'erasmus',
-      'display_label' => false,
+      self::DISPLAYED_ID => 'erasmus',
+      self::DISPLAY_LABEL => FALSE,
     ] + parent::defaultSettings();
   }
 
@@ -36,22 +80,22 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
+    $types = $this->otherIdManager->getUniqueTypeList();
 
-    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
-    $types = $type_manager->getUniqueTypeList();
-
-    $form['displayed_id'] = [
+    $form[self::DISPLAYED_ID] = [
       '#title' => $this->t('Unique ID type'),
       '#type' => 'select',
       '#options' => $types,
-      '#default_value' => $this->getSetting('displayed_id'),
-    ] + parent::settingsForm($form, $form_state);
+      '#default_value' => $this->getSetting(self::DISPLAYED_ID),
+    ];
 
-    $form['display_label'] = [
+    $form[self::DISPLAY_LABEL] = [
       '#title' => $this->t('Display ID type'),
       '#type' => 'checkbox',
-      '#default_value' => $this->getSetting('display_label'),
-    ] + parent::settingsForm($form, $form_state);
+      '#default_value' => $this->getSetting(self::DISPLAY_LABEL),
+    ];
+
+    $form += parent::settingsForm($form, $form_state);
 
     return $form;
   }
@@ -60,8 +104,18 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function settingsSummary() {
+    $types = $this->otherIdManager->getUniqueTypeList();
+
     $summary = [];
-    // Implement settings summary.
+
+    $summary[] = $this->t('Unique ID type: @type', [
+      '@type' => $types[$this->getSetting(self::DISPLAYED_ID)],
+    ]);
+
+    $summary[] = $this->t('Display ID type: @bool', [
+      '@bool' => ($this->getSetting(self::DISPLAY_LABEL)) ?
+        $this->t('Yes') : $this->t('No'),
+    ]);
 
     return $summary;
   }
@@ -70,24 +124,24 @@ class OtherHeiIdUniqueFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-
     $elements = [];
 
-    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
-    $types = $type_manager->getUniqueTypeList();
+    $types = $this->otherIdManager->getUniqueTypeList();
 
     foreach ($items as $delta => $item) {
       $key = $item->type;
-      if($key == $this->getSetting('displayed_id')){
-        $value = $item->value;
-        $type = (array_key_exists($key, $types)) ? $types[$key]->render() : $key ;
+
+      if ($key === $this->getSetting(self::DISPLAYED_ID)) {
+        $type = (array_key_exists($item->type, $types)) ?
+          $types[$item->type]->render() :
+          $item->type ;
 
         $elements[$delta] = [
           '#theme' => 'other_id_unique',
-          '#value' => $value,
+          '#value' => $item->value,
         ];
 
-        if($this->getSetting('display_label') == true){
+        if ($this->getSetting(self::DISPLAY_LABEL)) {
           $elements[$delta]['#type'] = $type;
         }
       }

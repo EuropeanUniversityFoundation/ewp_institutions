@@ -2,11 +2,13 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldFormatter;
 
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\ewp_institutions\OtherIdTypeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id_default' formatter.
@@ -19,7 +21,47 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class OtherHeiIdDefaultFormatter extends FormatterBase {
+class OtherHeiIdDefaultFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * Other ID type manager.
+   *
+   * @var \Drupal\ewp_institutions\OtherIdTypeManager
+   */
+  protected $otherIdManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+      $plugin_id,
+      $plugin_definition,
+      FieldDefinitionInterface $field_definition,
+      array $settings,
+      $label,
+      $view_mode,
+      array $third_party_settings,
+      OtherIdTypeManager $other_id_manager
+    ) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
+    $this->otherIdManager = $other_id_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['label'],
+      $configuration['view_mode'],
+      $configuration['third_party_settings'],
+      $container->get('ewp_institutions.other_id_types')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -53,8 +95,7 @@ class OtherHeiIdDefaultFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
-    $types = $type_manager->getDefinedTypes();
+    $types = $this->otherIdManager->getDefinedTypes();
 
     $elements = [];
 

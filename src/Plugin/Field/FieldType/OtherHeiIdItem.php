@@ -75,12 +75,14 @@ class OtherHeiIdItem extends FieldItemBase {
   public function storageSettingsForm(array &$form, FormStateInterface $form_state, $has_data) {
     $elements = [];
 
+    $text = $this->t('The maximum length of the field in characters.');
+
     $elements['max_length'] = [
       '#type' => 'number',
       '#title' => t('Maximum length'),
       '#default_value' => $this->getSetting('max_length'),
       '#required' => TRUE,
-      '#description' => t('The maximum length of the field in characters.'),
+      '#description' => $text,
       '#min' => 1,
       '#disabled' => $has_data,
     ];

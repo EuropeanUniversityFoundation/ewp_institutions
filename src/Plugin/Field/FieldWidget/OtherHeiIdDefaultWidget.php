@@ -2,9 +2,13 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\ewp_institutions\OtherIdTypeManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id_default' widget.
@@ -18,7 +22,45 @@ use Drupal\Core\Form\FormStateInterface;
  *   }
  * )
  */
-class OtherHeiIdDefaultWidget extends WidgetBase {
+class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPluginInterface {
+
+  const CUSTOM = 'custom';
+
+  /**
+   * Other ID type manager.
+   *
+   * @var \Drupal\ewp_institutions\OtherIdTypeManager
+   */
+  protected $otherIdManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+      $plugin_id,
+      $plugin_definition,
+      FieldDefinitionInterface $field_definition,
+      array $settings,
+      array $third_party_settings,
+      OtherIdTypeManager $other_id_manager
+    ) {
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
+    $this->otherIdManager = $other_id_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $plugin_id,
+      $plugin_definition,
+      $configuration['field_definition'],
+      $configuration['settings'],
+      $configuration['third_party_settings'],
+      $container->get('ewp_institutions.other_id_types')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -38,17 +80,20 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
 
     $elements['size'] = [
       '#type' => 'number',
-      '#title' => t('Size of textfield'),
+      '#title' => $this->t('Size of textfield'),
       '#default_value' => $this->getSetting('size'),
       '#required' => TRUE,
       '#min' => 1,
     ];
 
+    $text = 'Text shown inside the form field until a value is entered.';
+    $hint = 'Usually a sample value or description of the expected format.';
+
     $elements['placeholder'] = [
       '#type' => 'textfield',
-      '#title' => t('Placeholder'),
+      '#title' => $this->t('Placeholder'),
       '#default_value' => $this->getSetting('placeholder'),
-      '#description' => t('Text that will be shown inside the field until a value is entered. This hint is usually a sample value or a brief description of the expected format.'),
+      '#description' => $this->t($text . ' ' . $hint),
     ];
 
     return $elements;
@@ -60,9 +105,14 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
   public function settingsSummary() {
     $summary = [];
 
-    $summary[] = t('Textfield size: @size', ['@size' => $this->getSetting('size')]);
+    $summary[] = $this->t('Textfield size: @size', [
+      '@size' => $this->getSetting('size')
+    ]);
+
     if (!empty($this->getSetting('placeholder'))) {
-      $summary[] = t('Placeholder: @placeholder', ['@placeholder' => $this->getSetting('placeholder')]);
+      $summary[] = $this->t('Placeholder: @placeholder', [
+        '@placeholder' => $this->getSetting('placeholder')
+      ]);
     }
 
     return $summary;
@@ -81,27 +131,26 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
     ];
     $element['#attached']['library'][] = 'ewp_core/inline_widget';
 
-    // Get the field name from this particular field definiton
+    // Get the field name from this particular field definiton.
     $field_name = $items->getFieldDefinition()->getName();
 
-    // Get the options from the Other ID type manager service
-    $type_manager = \Drupal::service('ewp_institutions.other_id_types');
-    $options = $type_manager->getOptions();
-    $options['custom'] = '- ' . t('custom type') . ' -';
+    // Get the options from the Other ID type manager service.
+    $options = $this->otherIdManager->getOptions();
+    $options[self::CUSTOM] = '- ' . $this->t('custom type') . ' -';
 
-    // Get the field defaults
-    $default_type = isset($items[$delta]->type) ? $items[$delta]->type : NULL;
+    // Get the field defaults.
+    $default_type = $items[$delta]->type ?? NULL;
     $default_option = NULL;
     $default_custom = NULL;
-    $default_value = isset($items[$delta]->value) ? $items[$delta]->value : NULL;
+    $default_value = $items[$delta]->value ?? NULL;
 
-    // Handle the custom type case
+    // Handle the custom type case.
     if ($default_type) {
       if (array_key_exists($default_type, $options)) {
         $default_option = $default_type;
         $default_custom = NULL;
       } else {
-        $default_option = 'custom';
+        $default_option = self::CUSTOM;
         $default_custom = $default_type;
       }
     }
@@ -109,7 +158,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
     $element['type'] = [
       '#type' => 'select',
       '#options' => $options,
-      '#empty_option' => '- '.t('ID type').' -',
+      '#empty_option' => '- ' . $this->t('ID type') . ' -',
       '#empty_value' => '',
       '#default_value' => $default_option,
       '#attributes' => [
@@ -117,15 +166,15 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
       ],
     ];
 
-    $element['custom'] = [
+    $element[self::CUSTOM] = [
       '#type' => 'textfield',
       '#default_value' => $default_custom,
       '#size' => 15,
-      '#placeholder' => t('custom type key'),
+      '#placeholder' => $this->t('custom type key'),
       '#states' => [
         'visible' => [
           'select[id="' . $field_name . '-type-' . $delta . '"]' => [
-            'value' => 'custom'
+            'value' => self::CUSTOM
           ],
         ],
       ],
@@ -140,7 +189,11 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
     ];
 
     // If cardinality is 1, ensure a proper label is output for the field.
-    if ($this->fieldDefinition->getFieldStorageDefinition()->getCardinality() == 1) {
+    $cardinality = $this->fieldDefinition
+      ->getFieldStorageDefinition()
+      ->getCardinality();
+
+    if ($cardinality === 1) {
       $element['#type'] = 'fieldset';
     }
 
@@ -148,24 +201,24 @@ class OtherHeiIdDefaultWidget extends WidgetBase {
   }
 
   /**
-   * Validate the field and replace any 'custom' key with the new custom type
+   * Validate the field and replace any 'custom' key with the new custom type.
    */
   public function validate($element, FormStateInterface $form_state) {
-    // Extract all relevant values
+    // Extract all relevant values.
     $type = $element['type']['#value'];
-    $custom = $element['custom']['#value'];
+    $custom = $element[self::CUSTOM]['#value'];
     $value = $element['value']['#value'];
 
-    // Store the custom type instead of the generic key
-    if (($type === 'custom') && isset($custom)) {
+    // Store the custom type instead of the generic key.
+    if (($type === self::CUSTOM) && isset($custom)) {
       $type = $custom;
     }
 
-    // Prepare the clean values
+    // Prepare the clean values.
     $new_value['type'] = $type;
     $new_value['value'] = $value;
 
-    // Handle the weight for multiple value fields
+    // Handle the weight for multiple value fields.
     if (array_key_exists('_weight', $element)) {
       $weight = $element['_weight']['#value'];
       $new_value['_weight'] = $weight;
