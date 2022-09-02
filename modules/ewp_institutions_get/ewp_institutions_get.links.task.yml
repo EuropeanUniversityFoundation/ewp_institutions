@@ -1,4 +1,4 @@
-# Local tasks
+# Local tasks.
 ewp_institutions_get.settings:
   title: 'Settings'
   base_route: ewp_institutions_get.settings
@@ -16,3 +16,15 @@ ewp_institutions_get.mapping:
   base_route: ewp_institutions_get.settings
   route_name: ewp_institutions_get.mapping
   weight: 3
+
+ewp_institutions_get.preload:
+  title: 'Preload form'
+  base_route: ewp_institutions_get.settings
+  route_name: ewp_institutions_get.preload
+  weight: 10
+
+ewp_institutions_get.preview:
+  title: 'Preview form'
+  base_route: ewp_institutions_get.settings
+  route_name: ewp_institutions_get.preview
+  weight: 11

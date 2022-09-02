@@ -1,0 +1,6 @@
+# Local tasks.
+ewp_institutions_lookup.settings:
+  title: 'Lookup settings'
+  base_route: ewp_institutions_get.settings
+  route_name: ewp_institutions_lookup.settings
+  weight: 5

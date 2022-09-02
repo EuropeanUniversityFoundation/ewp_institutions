@@ -10,11 +10,17 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\Element\StatusMessages;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class InstitutionLookupForm extends FormBase {
+
+  /**
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $account;
 
   /**
    * Config factory.
@@ -54,6 +60,8 @@ class InstitutionLookupForm extends FormBase {
   /**
    * The constructor.
    *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The current user account.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\ewp_institutions_lookup\InstitutionLookupManager $lookup_manager
@@ -66,13 +74,14 @@ class InstitutionLookupForm extends FormBase {
    *   The renderer service.
    */
   public function __construct(
+    AccountProxyInterface $account,
     ConfigFactoryInterface $config_factory,
     InstitutionLookupManager $lookup_manager,
     InstitutionManager $hei_manager,
     MessengerInterface $messenger,
     RendererInterface $renderer
   ) {
-    $this->configFactory = $config_factory;
+    $this->account       = $account;
     $this->lookupManager = $lookup_manager;
     $this->heiManager    = $hei_manager;
     $this->messenger     = $messenger;
@@ -84,6 +93,7 @@ class InstitutionLookupForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('current_user'),
       $container->get('config.factory'),
       $container->get('ewp_institutions_lookup.manager'),
       $container->get('ewp_institutions_get.manager'),
@@ -103,7 +113,6 @@ class InstitutionLookupForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // $result = $this->lookupManager->lookup('ua.pt');
     $form['hei_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Institution ID to lookup'),
@@ -179,9 +188,11 @@ class InstitutionLookupForm extends FormBase {
       $lookup = $this->lookupManager->lookup($hei_id);
 
       if (! empty($lookup)) {
-        $import_link = $this->lookupManager->importLink($hei_id);
+        if ($this->account->hasPermission('add institution entities')) {
+          $import_link = $this->lookupManager->importLink($hei_id)->toString();
+        }
         $success = $this->t('Institution found. @link', [
-          '@link' => $import_link->toString()
+          '@link' => $import_link ?? ''
         ]);
         $this->messenger->addMessage($success);
 

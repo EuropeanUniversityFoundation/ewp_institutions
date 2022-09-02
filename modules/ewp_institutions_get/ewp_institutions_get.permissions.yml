@@ -1,3 +1,6 @@
+autoimport institution entities:
+  title: 'Automatically import Institution entities'
+
 bypass import institution entities:
   title: 'Bypass Import Institution form'
   restrict access: true

@@ -105,12 +105,15 @@ class InstitutionEntityController extends EntityController {
    *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
   public function autoImport(Request $request, $index_key, $hei_key) {
-    // Create a new Institution if none exists with the same key
-    $hei = $this->institutionManager->getInstitution($hei_key, $index_key, TRUE);
+    // Create a new Institution if none exists with the same key.
+    $hei = $this->institutionManager
+      ->getInstitution($hei_key, $index_key, TRUE);
+
     if (!empty($hei)) {
       foreach ($hei as $id => $value) {
         $params = [InstitutionManager::ENTITY_TYPE => $id];
       }
+
       $route = 'entity.' . InstitutionManager::ENTITY_TYPE . '.canonical';
       return $this->redirect($route, $params);
     }
