@@ -75,8 +75,8 @@ entity.hei.import_form:
     _entity_create_access: hei
     # RegEx for EWP ASCII Printable Identifier allows the / character
     index_key: '[A-Za-z0–9_-]+'
-    # RegEx for a valid domain name, as expected in HEI IDs
-    hei_key: '(?=.{4,255}$)((?!-)[A-Za-z0–9-]{1,63}(?<!-)\.)+[A-Za-z]{2,24}'
+    # (incomplete) RegEx for a valid domain name: https://regexr.com/3g5j0
+    hei_key: '^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$'
   options:
     _admin_route: true
     parameters:
@@ -104,8 +104,8 @@ entity.hei.auto_import:
     _permission: 'autoimport institution entities+add institution entities'
     # RegEx for EWP ASCII Printable Identifier allows the / character
     index_key: '[A-Za-z0–9_-]+'
-    # RegEx for a valid domain name, as expected in HEI IDs
-    hei_key: '(?=.{4,255}$)((?!-)[A-Za-z0–9-]{1,63}(?<!-)\.)+[A-Za-z]{2,24}'
+    # (incomplete) RegEx for a valid domain name: https://regexr.com/3g5j0
+    hei_key: '^(?!:\/\/)(?=.{1,255}$)((.{1,63}\.){1,127}(?![0-9]*$)[a-z0-9-]+\.?)$'
   options:
     _admin_route: true
     parameters:
