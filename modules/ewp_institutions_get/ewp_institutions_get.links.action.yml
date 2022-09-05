@@ -4,3 +4,4 @@ entity.hei.select_form:
   appears_on:
     - hei.settings
     - entity.hei.collection
+    - ewp_institutions_get.settings

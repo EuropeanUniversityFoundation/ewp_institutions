@@ -10,6 +10,6 @@ ewp_institutions_lookup.form:
 ewp_institutions_lookup.settings:
   title: 'Lookup settings'
   description: 'Settings for the external API lookup'
-  parent: ewp_institutions_get.settings
+  parent: ewp_institutions.admin
   route_name: ewp_institutions_lookup.settings
-  weight: 10
+  weight: 8

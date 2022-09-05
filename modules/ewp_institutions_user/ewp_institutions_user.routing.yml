@@ -1,6 +1,6 @@
 # Settings form
 ewp_institutions_user.settings:
-  path: '/admin/config/people/ewp_institutions_user'
+  path: '/admin/ewp/hei/user'
   defaults:
     _form: '\Drupal\ewp_institutions_user\Form\SettingsForm'
     _title: 'Institutions User bridge settings'
@@ -8,7 +8,7 @@ ewp_institutions_user.settings:
     _permission: 'administer account settings'
 
 ewp_institutions_user.trigger_set_event:
-  path: '/admin/config/people/ewp_institutions_user/trigger-set-event'
+  path: '/admin/ewp/hei/user/trigger-set-event'
   defaults:
     _title: 'Trigger set event'
     _form: 'Drupal\ewp_institutions_user\Form\TriggerSetEventForm'

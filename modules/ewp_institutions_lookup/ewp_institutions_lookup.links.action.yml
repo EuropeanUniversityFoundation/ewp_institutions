@@ -1,0 +1,7 @@
+ewp_institutions_lookup.form:
+  route_name: ewp_institutions_lookup.form
+  title: 'Lookup Institution'
+  appears_on:
+    - hei.settings
+    - entity.hei.collection
+    - ewp_institutions_lookup.settings

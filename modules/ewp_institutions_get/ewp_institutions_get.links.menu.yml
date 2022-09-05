@@ -8,7 +8,7 @@ hei.select_form:
 
 # Main settings form.
 ewp_institutions_get.settings:
-  title: 'Institutions GET'
+  title: 'GET settings'
   description: 'Settings for the external API'
   parent: ewp_institutions.admin
   route_name: ewp_institutions_get.settings

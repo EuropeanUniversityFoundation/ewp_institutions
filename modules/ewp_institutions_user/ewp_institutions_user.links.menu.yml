@@ -1,6 +1,7 @@
-# Admin forms
+# Admin form.
 ewp_institutions_user.settings:
-  title: 'Institutions User bridge'
-  description: 'EWP Institutions User bridge settings'
-  parent: user.admin_index
+  title: 'User bridge settings'
+  description: 'Setting for the user bridge'
+  parent: ewp_institutions.admin
   route_name: ewp_institutions_user.settings
+  weight: 9

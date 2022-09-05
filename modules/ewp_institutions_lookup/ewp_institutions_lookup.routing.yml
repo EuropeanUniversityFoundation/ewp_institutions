@@ -1,6 +1,6 @@
 # Settings form.
 ewp_institutions_lookup.settings:
-  path: '/admin/ewp/hei/get/lookup-settings'
+  path: '/admin/ewp/hei/lookup'
   defaults:
     _form: '\Drupal\ewp_institutions_lookup\Form\SettingsForm'
     _title: 'Lookup settings'
