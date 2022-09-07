@@ -28,16 +28,26 @@ class SetUserInstitutionEvent extends Event {
   public $hei;
 
   /**
+   * Whether the user entity should be saved after setting the value.
+   *
+   * @var boolean
+   */
+  public $save;
+
+  /**
    * Constructs the object.
    *
    * @param \Drupal\user\UserInterface $user
    *   The user entity.
    * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
    *   Array of Institution entities.
+   * @param boolean $save
+   *   Whether the user entity should be saved after setting the value.
    */
-  public function __construct(UserInterface $user, array $hei) {
+  public function __construct(UserInterface $user, array $hei, $save = TRUE) {
     $this->user = $user;
     $this->hei = $hei;
+    $this->save = $save;
   }
 
 }

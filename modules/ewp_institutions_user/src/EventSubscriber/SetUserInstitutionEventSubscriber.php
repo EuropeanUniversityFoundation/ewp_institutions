@@ -88,7 +88,7 @@ class SetUserInstitutionEventSubscriber implements EventSubscriberInterface {
       $this->messenger->addStatus($message);
     }
 
-    $this->bridge->setUserInstitution($event->user, $event->hei);
+    $this->bridge->setUserInstitution($event->user, $event->hei, $event->save);
   }
 
 }

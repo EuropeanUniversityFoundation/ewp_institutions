@@ -187,9 +187,13 @@ class InstitutionUserBridge {
    * Set entity reference to Institutions on a user entity.
    *
    * @param \Drupal\user\UserInterface $user
+   *   The user entity.
    * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
+   *   Array of Institution entities.
+   * @param boolean $save
+   *   Whether the user entity should be saved after setting the value.
    */
-  public function setUserInstitution(UserInterface $user, array $hei) {
+  public function setUserInstitution(UserInterface $user, array $hei, $save = TRUE) {
     $target_id = [];
     $base_field = self::BASE_FIELD;
 
@@ -198,7 +202,10 @@ class InstitutionUserBridge {
     }
 
     $user->$base_field = $target_id;
-    $user->save();
+
+    if ($save) {
+      $user->save();
+    }
   }
 
 }
