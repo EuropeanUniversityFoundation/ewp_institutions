@@ -3,6 +3,10 @@ services:
     class: Drupal\ewp_institutions_get\JsonDataFetcher
     arguments: ['@http_client', '@ewp_institutions_get.json', '@logger.factory', '@tempstore.shared', '@string_translation']
 
+  ewp_institutions_get.form_alter:
+    class: Drupal\ewp_institutions_get\InstitutionFormAlter
+    arguments: ['@renderer', '@string_translation']
+
   ewp_institutions_get.format:
     class: Drupal\ewp_institutions_get\DataFormatter
     arguments: ['@renderer', '@string_translation']

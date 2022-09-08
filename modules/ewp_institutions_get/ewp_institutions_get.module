@@ -62,46 +62,11 @@ function ewp_institutions_get_entity_base_field_info(EntityTypeInterface $entity
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_field_widget_complete_WIDGET_TYPE_form_alter().
  */
-function ewp_institutions_get_form_alter(&$form, FormStateInterface $form_state) {
-  // dpm($form);
-}
-
-/**
- * Implements hook_field_widget_multivalue_WIDGET_TYPE_form_alter().
- */
-function ewp_institutions_get_field_widget_multivalue_entity_reference_autocomplete_form_alter(array &$elements, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
-  $target_type = $elements[0]['target_id']['#target_type'];
-  $selection_settings = $elements[0]['target_id']['#selection_settings'];
-  $auto_create = (array_key_exists('auto_create', $selection_settings)) ? $selection_settings['auto_create'] : FALSE ;
-
-  if ($target_type === InstitutionManager::ENTITY_TYPE && $auto_create) {
-    foreach ($elements as $key => $value) {
-      if (is_numeric($key)) {
-        // Unset the auto create ability via the normal form element.
-        $elements[$key]['target_id']['#selection_settings']['auto_create'] = FALSE;
-        unset($elements[$key]['target_id']['#autocreate']);
-      }
-    }
-
-    // Add a link to the description to launch a modal import form.
-    $description = '<strong><a class="use-ajax" data-dialog-type="modal" data-dialog-options="{&quot;width&quot;:800}" href="';
-    $path = '/ewp/hei/auto_import?modal';
-    $description .= $path . '">';
-    $description .= t('Click here to look up more Institutions');
-    $description .= '</a></strong>';
-
-    // Place the description in the element according to cardinality.
-    if ($elements['#cardinality_multiple']) {
-      $break = (!empty($elements['#description'])) ? '<br/>' : '';
-      $elements['#description'] .= $break . $description;
-    } else {
-      $break = (!empty($elements[0]['target_id']['#description'])) ? '<br/>' : '';
-      $elements[0]['target_id']['#description'] .= $break . $description;
-    }
-  }
-
+function ewp_institutions_get_field_widget_complete_entity_reference_autocomplete_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
+  $form_alter = \Drupal::service('ewp_institutions_get.form_alter');
+  $form_alter->autocompleteAlter($elements, $form_state, $context);
 }
 
 /**
