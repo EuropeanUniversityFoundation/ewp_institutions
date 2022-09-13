@@ -12,8 +12,8 @@ field_name: street_address
 entity_type: hei
 type: ewp_flexible_address
 settings:
-  max_length_long: '255'
-  max_length_short: '16'
+  max_length_long: 255
+  max_length_short: 16
 module: ewp_flexible_address
 locked: false
 cardinality: 1

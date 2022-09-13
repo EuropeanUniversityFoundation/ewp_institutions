@@ -12,7 +12,7 @@ field_name: name
 entity_type: hei
 type: ewp_string_lang
 settings:
-  max_length: '255'
+  max_length: 255
 module: ewp_core
 locked: false
 cardinality: -1
