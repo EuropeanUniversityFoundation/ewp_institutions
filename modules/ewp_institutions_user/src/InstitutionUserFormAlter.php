@@ -63,132 +63,130 @@ class InstitutionUserFormAlter {
    * @param Drupal\Core\Form\FormStateInterface $form_state
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
-    if (!$this->currentUser->isAnonymous()) {
-      // If the base field is in the user form, changes may be needed,
-      if (\array_key_exists(self::BASE_FIELD, $form)) {
-        $current_user_id = $this->currentUser->id();
-        $form_user_id = $form_state->getformObject()->getEntity()->id();
+    // If the base field is in the user form, changes may be needed,
+    if (\array_key_exists(self::BASE_FIELD, $form)) {
+      $current_user_id = $this->currentUser->id();
+      $form_user_id = $form_state->getformObject()->getEntity()->id();
 
-        // Determine whether the current user is allowed to set the value.
-        $allowed = (
-          $this->currentUser
-            ->hasPermission('set any user institution', $this->currentUser) ||
-          (
-            $current_user_id == $form_user_id &&
-            $this->currentUser
-              ->hasPermission('set own user institution', $this->currentUser)
-          )
-        );
+      // Determine whether the current user is allowed to set the value.
+      $can_set_any = $this->currentUser
+        ->hasPermission('set any user institution', $this->currentUser);
+      $can_set_own = $this->currentUser
+        ->hasPermission('set own user institution', $this->currentUser);
+      $own_form = ($current_user_id === $form_user_id);
 
-        // If not allowed, the form element must be replaced with links.
-        if (! $allowed) {
-          $markup_empty = $this->t('%warning', [
-            '%warning' => $this->t('Institution is not set.')
-          ]);
-          $markup_value = '';
+      $allowed = ($can_set_any || ($own_form && $can_set_own));
 
-          foreach ($form[self::BASE_FIELD]['widget'] as $key => $value) {
-            if (\is_numeric($key)) {
-              $default_value = $value['target_id']['#default_value'];
-
-              if (!empty($default_value)) {
-                // Add a link to the target entity.
-                $link = $default_value->toLink()->toString();
-                $markup_value .= '<p>' . $link . '</p>';
-              }
-            }
+      // If not allowed, the form element must be altered.
+      if (!$allowed) {
+        // Hide the form element.
+        $form[self::BASE_FIELD]['#type'] = 'hidden';
+        // If required, remove the requirement.
+        $form[self::BASE_FIELD]['widget']['#required'] = FALSE;
+        foreach ($form[self::BASE_FIELD]['widget'] as $key => $value) {
+          if (\is_numeric($key)) {
+            $value['target_id']['#required'] = FALSE;
+            $form[self::BASE_FIELD]['widget'][$key] = $value;
           }
-
-          $markup = (empty($markup_value)) ? $markup_empty : $markup_value;
-
-          // Build the new form element.
-          $new_element = [
-            '#type' => 'item',
-            '#title' => $form[self::BASE_FIELD]['widget']['#title'],
-            '#markup' => $markup,
-          ];
-
-          $form[self::BASE_FIELD] = $new_element;
         }
 
-        // Otherwise cardinality from config must be enforced.
-        else {
-          // Get the module config.
-          $config = $this->configFactory->get('ewp_institutions_user.settings');
-          $cardinality = $config->get('cardinality');
+        // Prepare a placeholder for the hidden form element.
+        $markup_empty = $this->t('%warning', [
+          '%warning' => $this->t('Institution is not set.')
+        ]);
+        $markup_items = '';
 
-          $widget = $form[self::BASE_FIELD]['widget'];
-          $widget['#cardinality'] = $cardinality;
+        foreach ($form[self::BASE_FIELD]['widget'] as $key => $value) {
+          if (\is_numeric($key)) {
+            $default_value = $value['target_id']['#default_value'];
 
-          // Handle limited cardinality.
-          $excess = FALSE;
-
-          if ($cardinality > 0) {
-            // Last widget is always empty when storage is unlimited.
-            $empty = $widget[$widget['#max_delta']];
-
-            // Number of widgets is less than or equal to cardinality.
-            if ($widget['#max_delta'] < $cardinality) {
-              for ($d = $widget['#max_delta']; $d < $cardinality; $d++) {
-                $widget[$d] = $empty;
-                $widget[$d]['target_id']['#delta'] = $d;
-                $widget[$d]['target_id']['#weight'] = $d;
-              }
-
-              $widget['#max_delta'] = $cardinality - 1;
+            if (!empty($default_value)) {
+              // Add a link to the target entity.
+              $link = $default_value->toLink()->toString();
+              $item = (!empty($markup_items)) ? '<br />' . $link : $link;
+              $markup_items .= $item;
             }
-            else {
-              // Number of widgets exceeds cardinality, delete last.
-              unset($widget[$widget['#max_delta']]);
-
-              if ($widget['#max_delta'] > $cardinality) {
-                $excess = TRUE;
-                for ($d = $cardinality; $d < $widget['#max_delta']; $d++) {
-                  $widget[$d]['target_id']['#attributes']['class'][] = 'error';
-                }
-                // Populated widgets must still be shown.
-                $widget['#max_delta'] = $widget['#max_delta'] - 1;
-
-                // Display a warning before the description.
-                $text = $this->t('WARNING: Too many values!');
-                $warning = '<p><strong>' . $text . '</strong></p>';
-                $widget['#description'] = $warning . $widget['#description'];
-              }
-            }
-
-            // Remove unnecessary parts.
-            unset($widget['add_more']);
           }
-
-          // Handle single value.
-          if ($cardinality === 1 && ! $excess) {
-            $widget['#cardinality_multiple'] = FALSE;
-
-            // Copy title and description to the individual widget.
-            $widget[0]['target_id']['#title'] = $widget['#title'];
-            $widget[0]['target_id']['#title_display'] = 'before';
-            $widget[0]['target_id']['#description'] = $widget['#description'];
-
-            // Remove unnecessary parts.
-            unset($widget['#prefix']);
-            unset($widget['#suffix']);
-            unset($widget[0]['_weight']);
-          }
-
-          $form[self::BASE_FIELD]['widget'] = $widget;
         }
+
+        $markup = (empty($markup_items)) ? $markup_empty : $markup_items;
+
+        // Build the new form element.
+        $new_element = [
+          '#type' => 'item',
+          '#title' => $form[self::BASE_FIELD]['widget']['#title'],
+          '#markup' => $markup,
+          '#weight' => $form[self::BASE_FIELD]['#weight'],
+        ];
+
+        $form[self::BASE_FIELD . '_placeholder'] = $new_element;
       }
-    }
-    else {
-      // Hide the element in the registration form.
-      $form[self::BASE_FIELD]['#type'] = 'hidden';
-      // If required, remove the requirement it in the registration form.
-      $form[self::BASE_FIELD]['widget']['#required'] = FALSE;
-      foreach ($form[self::BASE_FIELD]['widget'] as $key => $value) {
-        if (\is_numeric($key)) {
-          $value['target_id']['#required'] = FALSE;
-          $form[self::BASE_FIELD]['widget'][$key] = $value;
+
+      // Otherwise cardinality from config must be enforced.
+      else {
+        // Get the module config.
+        $config = $this->configFactory->get('ewp_institutions_user.settings');
+        $cardinality = $config->get('cardinality');
+
+        $widget = $form[self::BASE_FIELD]['widget'];
+        $widget['#cardinality'] = $cardinality;
+
+        // Handle limited cardinality.
+        $excess = FALSE;
+
+        if ($cardinality > 0) {
+          // Last widget is always empty when storage is unlimited.
+          $empty = $widget[$widget['#max_delta']];
+
+          // Number of widgets is less than or equal to cardinality.
+          if ($widget['#max_delta'] < $cardinality) {
+            for ($d = $widget['#max_delta']; $d < $cardinality; $d++) {
+              $widget[$d] = $empty;
+              $widget[$d]['target_id']['#delta'] = $d;
+              $widget[$d]['target_id']['#weight'] = $d;
+            }
+
+            $widget['#max_delta'] = $cardinality - 1;
+          }
+          else {
+            // Number of widgets exceeds cardinality, delete last.
+            unset($widget[$widget['#max_delta']]);
+
+            if ($widget['#max_delta'] > $cardinality) {
+              $excess = TRUE;
+              for ($d = $cardinality; $d < $widget['#max_delta']; $d++) {
+                $widget[$d]['target_id']['#attributes']['class'][] = 'error';
+              }
+              // Populated widgets must still be shown.
+              $widget['#max_delta'] = $widget['#max_delta'] - 1;
+
+              // Display a warning before the description.
+              $text = $this->t('WARNING: Too many values!');
+              $warning = '<p><strong>' . $text . '</strong></p>';
+              $widget['#description'] = $warning . $widget['#description'];
+            }
+          }
+
+          // Remove unnecessary parts.
+          unset($widget['add_more']);
         }
+
+        // Handle single value.
+        if ($cardinality === 1 && ! $excess) {
+          $widget['#cardinality_multiple'] = FALSE;
+
+          // Copy title and description to the individual widget.
+          $widget[0]['target_id']['#title'] = $widget['#title'];
+          $widget[0]['target_id']['#title_display'] = 'before';
+          $widget[0]['target_id']['#description'] = $widget['#description'];
+
+          // Remove unnecessary parts.
+          unset($widget['#prefix']);
+          unset($widget['#suffix']);
+          unset($widget[0]['_weight']);
+        }
+
+        $form[self::BASE_FIELD]['widget'] = $widget;
       }
     }
   }
