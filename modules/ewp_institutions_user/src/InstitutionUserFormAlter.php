@@ -18,6 +18,8 @@ class InstitutionUserFormAlter {
 
   use StringTranslationTrait;
 
+  const HANDLER = 'ewp_institutions_user';
+
   const ENTITY_TYPE = InstitutionUserBridge::ENTITY_TYPE;
   const BASE_FIELD = InstitutionUserBridge::BASE_FIELD;
 
@@ -203,7 +205,7 @@ class InstitutionUserFormAlter {
     $handler = $elements['widget'][0]['target_id']['#selection_handler'];
     $settings = $elements['widget'][0]['target_id']['#selection_settings'];
 
-    if ($target_type === self::ENTITY_TYPE) {
+    if ($target_type === self::ENTITY_TYPE && $handler === self::HANDLER) {
       // Get the current user.
       $user = User::load($this->currentUser->id());
       // Get the referenced Institutions from the user account.
@@ -213,9 +215,7 @@ class InstitutionUserFormAlter {
       $this->setDefault($elements, $user_hei);
 
       // Handle empty value in filtered autocomplete widgets.
-      if ($handler === 'ewp_institutions_user') {
-        $this->handleEmpty($elements, $user, $user_hei);
-      }
+      $this->handleEmpty($elements, $user, $user_hei);
     }
   }
 
@@ -226,11 +226,11 @@ class InstitutionUserFormAlter {
    * @param array $user_hei
    */
   protected function setDefault(array &$elements, array $user_hei) {
-    if (
-      ! \in_array('default_value_input', $elements['#parents']) &&
-      ! empty($user_hei[0]) &&
-      empty($elements['widget'][0]['target_id']['#default_value'])
-    ) {
+    $default_parents = \in_array('default_value_input', $elements['#parents']);
+    $user_has_hei = !empty($user_hei[0]);
+    $default_widget = $elements['widget'][0]['target_id']['#default_value'];
+
+    if (!$default_parents && $user_has_hei && empty($default_widget)) {
       // Set a default value.
       $hei = InstitutionEntity::load($user_hei[0]['target_id']);
 
@@ -248,12 +248,12 @@ class InstitutionUserFormAlter {
   protected function handleEmpty(array &$elements, User $user, array $user_hei) {
     $settings = $elements['widget'][0]['target_id']['#selection_settings'];
 
-    if (
-      empty($user_hei) &&
-      ! $user->hasPermission('select any institution') &&
-      ! $settings[self::SHOW_ALL] &&
-      ! $settings[self::NEGATE]
-    ) {
+    $show_all = $settings[self::SHOW_ALL];
+    $negate = $settings[self::NEGATE];
+    
+    $allowed = $user->hasPermission('select any institution');
+
+    if (empty($user_hei) && !$allowed && !$show_all && !$negate) {
       // Set an error message.
       $message = $this->t('No Institution available to reference.');
 
