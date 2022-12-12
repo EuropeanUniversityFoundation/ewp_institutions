@@ -59,7 +59,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
         '%user' => $event->user->label()
       ]);
 
-      $this->messenger->addWarning($message);
+      // $this->messenger->addWarning($message);
     }
     else {
       $hei = [];
@@ -73,7 +73,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
         '%hei' => \implode(', ', $hei)
       ]);
 
-      $this->messenger->addStatus($message);
+      // $this->messenger->addStatus($message);
     }
   }
 

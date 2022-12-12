@@ -4,9 +4,3 @@ ewp_institutions_user.settings:
   base_route: ewp_institutions_user.settings
   route_name: ewp_institutions_user.settings
   weight: 1
-
-ewp_institutions_user.trigger_set_event:
-  title: 'Trigger Set Event'
-  base_route: ewp_institutions_user.settings
-  route_name: ewp_institutions_user.trigger_set_event
-  weight: 2

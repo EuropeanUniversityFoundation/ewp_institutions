@@ -1,6 +1,6 @@
 name: 'EWP Institutions User bridge'
 type: module
-description: 'EXPERIMENTAL - Associate Users with Institutions'
+description: 'Associate Users with Institutions'
 core: 8.x
 core_version_requirement: ^8 || ^9 || ^10
 package: 'EWP'
