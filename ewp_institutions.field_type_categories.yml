@@ -1,0 +1,6 @@
+ewp_institutions:
+  label: 'EWP Institutions'
+  description: 'EWP Registry & Institutions related data types.'
+  weight: 110
+  libraries:
+    - ewp_institutions/field_ui
