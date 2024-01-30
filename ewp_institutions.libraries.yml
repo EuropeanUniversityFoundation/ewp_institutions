@@ -1,5 +1,13 @@
 other_id:
-  version: 1.x
+  version: 'VERSION'
   css:
     theme:
       css/other-id.css: {}
+
+field_ui:
+  version: 'VERSION'
+  css:
+    theme:
+      css/field_ui.icons.theme.css: {}
+  dependencies:
+    - field_ui/drupal.field_ui.manage_fields

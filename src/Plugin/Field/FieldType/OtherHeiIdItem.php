@@ -16,8 +16,12 @@ use Drupal\Core\TypedData\DataDefinition;
  * @FieldType(
  *   id = "ewp_other_hei_id",
  *   label = @Translation("Other HEI ID"),
- *   description = @Translation("EWP data type OtherHeiId"),
- *   category = @Translation("EWP"),
+ *   description = {
+ *     @Translation("Stores pairs of ID type and value."),
+ *     @Translation("Allows selection of predefined ID types."),
+ *     @Translation("Allows custom ID types."),
+ *   },
+ *   category = "ewp_institutions",
  *   default_widget = "ewp_other_hei_id_default",
  *   default_formatter = "ewp_other_hei_id_default"
  * )
