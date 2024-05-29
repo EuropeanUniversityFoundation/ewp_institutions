@@ -186,6 +186,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       '#size' => $this->getSetting('size'),
       '#placeholder' => $this->getSetting('placeholder'),
       '#maxlength' => $this->getFieldSetting('max_length'),
+      '#attributes' => ['class' => ['inline-shrink']],
     ];
 
     // If cardinality is 1, ensure a proper label is output for the field.
@@ -194,7 +195,9 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       ->getCardinality();
 
     if ($cardinality === 1) {
-      $element['#type'] = 'fieldset';
+      $element['type']['#title'] = $element['#title'];
+      $element[self::CUSTOM]['#title'] = '&nbsp;';
+      $element['value']['#title'] = '&nbsp;';
     }
 
     return $element;
