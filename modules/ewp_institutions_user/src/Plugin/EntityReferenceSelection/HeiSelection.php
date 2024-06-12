@@ -48,7 +48,7 @@ class HeiSelection extends DefaultSelection {
       '#description' => $this->t('Shows Institutions that are NOT referenced.'),
       '#default_value' => $this->configuration[self::NEGATE],
       '#return_value' => TRUE,
-      '#weight' => -5
+      '#weight' => -5,
     ];
 
     $form[self::SHOW_ALL] = [
@@ -56,7 +56,7 @@ class HeiSelection extends DefaultSelection {
       '#title' => $this->t('If empty, show all'),
       '#default_value' => $this->configuration[self::SHOW_ALL],
       '#return_value' => TRUE,
-      '#weight' => -4
+      '#weight' => -4,
     ];
 
     unset($form['auto_create']);
@@ -88,7 +88,7 @@ class HeiSelection extends DefaultSelection {
 
     // Gather the Institution entity IDs.
     $hei_entity_id = [];
-    foreach ($user_hei as $idx => $array) {
+    foreach ($user_hei as $array) {
       $hei_entity_id[] = $array['target_id'];
     }
 

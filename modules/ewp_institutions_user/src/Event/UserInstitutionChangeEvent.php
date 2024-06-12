@@ -42,10 +42,11 @@ class UserInstitutionChangeEvent extends Event {
    */
   public function __construct(UserInterface $user) {
     $this->user = $user;
+    /** @disregard P1013 */
     $this->hei = $user->get(InstitutionUserBridge::BASE_FIELD)
       ->referencedEntities();
 
-    foreach ($this->hei as $idx => $entity) {
+    foreach ($this->hei as $entity) {
       $this->hei_id[] = $entity->get(InstitutionUserBridge::UNIQUE_FIELD)
         ->getValue()[0]['value'];
     }

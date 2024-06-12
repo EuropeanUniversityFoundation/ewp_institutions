@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains data alter hooks for views.
+ */
+
+/**
  * Implements hook_views_data_alter().
  */
 function ewp_institutions_user_views_data_alter(array &$data) {

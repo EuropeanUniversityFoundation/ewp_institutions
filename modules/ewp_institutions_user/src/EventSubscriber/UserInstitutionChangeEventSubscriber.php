@@ -56,24 +56,24 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
   public function onUserInstitutionChange(UserInstitutionChangeEvent $event) {
     if (empty($event->hei_id)) {
       $message = $this->t('User %user is not associated with an Institution.', [
-        '%user' => $event->user->label()
+        '%user' => $event->user->label(),
       ]);
 
-      // $this->messenger->addWarning($message);
+      $this->messenger->addWarning($message);
     }
     else {
       $hei = [];
 
-      foreach ($event->hei as $idx => $entity) {
+      foreach ($event->hei as $entity) {
         $hei[] = $entity->label();
       }
 
       $message = $this->t('User %user is associated with %hei.', [
         '%user' => $event->user->label(),
-        '%hei' => \implode(', ', $hei)
+        '%hei' => \implode(', ', $hei),
       ]);
 
-      // $this->messenger->addStatus($message);
+      $this->messenger->addStatus($message);
     }
   }
 

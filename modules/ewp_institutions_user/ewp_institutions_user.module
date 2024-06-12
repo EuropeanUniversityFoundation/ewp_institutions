@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains ewp_institutions_user.module.
+ */
+
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Form\FormStateInterface;

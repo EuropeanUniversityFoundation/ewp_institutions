@@ -85,11 +85,11 @@ class SettingsForm extends ConfigFormBase {
 
     // Info text.
     $info = $this
-      ->t('These settings apply to the User\'s Institution base field.');
+      ->t("These settings apply to the User's Institution base field.");
 
     $form['info'] = [
       '#type' => 'markup',
-      '#markup' => '<p>' . $info . '</p>'
+      '#markup' => '<p>' . $info . '</p>',
     ];
 
     // Cardinality.
@@ -98,19 +98,21 @@ class SettingsForm extends ConfigFormBase {
     if (\is_numeric($cardinality) && $cardinality > 0) {
       $default_option = self::LIMITED;
       $default_value = $cardinality;
-    } else {
+    }
+    else {
       $default_option = self::UNLIMITED;
       $default_value = 1;
     }
 
-    $caveat = '<strong>' . $this->t("Warning") . ':</strong> ';
+    $caveat = '<strong>' . $this->t("Warning");
+    $caveat .= ':</strong> ';
     $caveat .= $this
       ->t("This setting only impacts the User form, not the field storage.");
 
     $form['cardinality_label'] = [
       '#type' => 'label',
       '#title' => $this->t('Allowed number of values'),
-      '#description' => $caveat
+      '#description' => $caveat,
     ];
 
     $form['cardinality'] = [
@@ -123,7 +125,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#options' => [
         self::LIMITED   => $this->t('Limited'),
-        self::UNLIMITED => $this->t('Unlimited')
+        self::UNLIMITED => $this->t('Unlimited'),
       ],
       '#default_value' => $default_option,
       '#attributes' => [
@@ -149,7 +151,7 @@ class SettingsForm extends ConfigFormBase {
     $form['required'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Required field'),
-      '#default_value' => ($required) ? $required : FALSE
+      '#default_value' => ($required) ? $required : FALSE,
     ];
 
     // Auto create.
@@ -158,17 +160,18 @@ class SettingsForm extends ConfigFormBase {
     $auto_create_title = $this
       ->t("Create referenced entities if they don't already exist");
 
-    $auto_create_description = '<strong>' . $this->t("Warning") . ':</strong> ';
+    $auto_create_description = '<strong>' . $this->t("Warning");
+    $auto_create_description .= ':</strong> ';
     $auto_create_description .= $this
       ->t("EWP Institutions GET module must be enabled.");
 
     $form['auto_create'] = [
       '#type' => 'checkbox',
       '#title' => $auto_create_title,
-      '#default_value' => ($auto_create) ? $auto_create : FALSE
+      '#default_value' => ($auto_create) ? $auto_create : FALSE,
     ];
 
-    $auto_create_disabled = ! $this->moduleHandler
+    $auto_create_disabled = !$this->moduleHandler
       ->moduleExists('ewp_institutions_get');
 
     if ($auto_create_disabled) {
@@ -196,7 +199,8 @@ class SettingsForm extends ConfigFormBase {
 
     if ($form_state->getValue('options') === self::LIMITED) {
       $cardinality = (int) $form_state->getValue('number');
-    } else {
+    }
+    else {
       $cardinality = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED;
     }
 

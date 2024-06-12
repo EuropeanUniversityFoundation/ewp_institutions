@@ -9,7 +9,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\user\Entity\User;
 use Drupal\ewp_institutions\Entity\InstitutionEntity;
-use Drupal\ewp_institutions_user\InstitutionUserBridge;
 
 /**
  * EWP Institutions User form alter service.
@@ -53,16 +52,18 @@ class InstitutionUserFormAlter {
     ConfigFactoryInterface $config_factory,
     TranslationInterface $string_translation
   ) {
-    $this->currentUser        = $current_user;
-    $this->configFactory      = $config_factory;
-    $this->stringTranslation  = $string_translation;
+    $this->currentUser       = $current_user;
+    $this->configFactory     = $config_factory;
+    $this->stringTranslation = $string_translation;
   }
 
   /**
    * Alter the user form element according to permissions.
    *
    * @param array $form
+   *   The form array.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
     // If the base field is in the user form, changes may be needed,
@@ -94,7 +95,7 @@ class InstitutionUserFormAlter {
 
         // Prepare a placeholder for the hidden form element.
         $markup_empty = $this->t('%warning', [
-          '%warning' => $this->t('Institution is not set.')
+          '%warning' => $this->t('Institution is not set.'),
         ]);
         $markup_items = '';
 
@@ -174,7 +175,7 @@ class InstitutionUserFormAlter {
         }
 
         // Handle single value.
-        if ($cardinality === 1 && ! $excess) {
+        if ($cardinality === 1 && !$excess) {
           $widget['#cardinality_multiple'] = FALSE;
 
           // Copy title and description to the individual widget.
@@ -197,13 +198,15 @@ class InstitutionUserFormAlter {
    * Alter Institution reference autocomplete form element.
    *
    * @param array $elements
+   *   The form elements array.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    * @param array $context
+   *   The context array.
    */
   public function autocompleteAlter(array &$elements, FormStateInterface $form_state, array $context) {
     $target_type = $elements['widget'][0]['target_id']['#target_type'];
     $handler = $elements['widget'][0]['target_id']['#selection_handler'];
-    $settings = $elements['widget'][0]['target_id']['#selection_settings'];
 
     if ($target_type === self::ENTITY_TYPE && $handler === self::HANDLER) {
       // Get the current user.
@@ -223,7 +226,9 @@ class InstitutionUserFormAlter {
    * Set a default value for an Institution reference autocomplete form element.
    *
    * @param array $elements
+   *   The form elements.
    * @param array $user_hei
+   *   The Institutions associated with the User.
    */
   protected function setDefault(array &$elements, array $user_hei) {
     $default_parents = \in_array('default_value_input', $elements['#parents']);
@@ -242,15 +247,18 @@ class InstitutionUserFormAlter {
    * Handle empty value for an Institution reference autocomplete form element.
    *
    * @param array $elements
+   *   The form elements.
    * @param Drupal\user\Entity\User $user
+   *   The User entity.
    * @param array $user_hei
+   *   The Institutions related to the User.
    */
   protected function handleEmpty(array &$elements, User $user, array $user_hei) {
     $settings = $elements['widget'][0]['target_id']['#selection_settings'];
 
     $show_all = $settings[self::SHOW_ALL];
     $negate = $settings[self::NEGATE];
-    
+
     $allowed = $user->hasPermission('select any institution');
 
     if (empty($user_hei) && !$allowed && !$show_all && !$negate) {

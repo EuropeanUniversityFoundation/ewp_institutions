@@ -10,9 +10,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
-use Drupal\ewp_institutions\Entity\InstitutionEntity;
 use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -139,9 +137,11 @@ class InstitutionUserBridge {
     }
 
     // Update required if needed.
+    /** @disregard P1013 */
     $current_required = $override->get('required');
 
     if ($current_required !== $config->get('required')) {
+      /** @disregard P1013 */
       $override->setRequired($config->get('required'));
     }
 
@@ -150,16 +150,19 @@ class InstitutionUserBridge {
 
     if (\array_key_exists('auto_create', $current_handler_settings)) {
       $current_auto_create = $current_handler_settings['auto_create'];
-    } else {
+    }
+    else {
       $current_auto_create = FALSE;
     }
 
     if ($current_auto_create !== $config->get('auto_create')) {
+      /** @disregard P1013 */
       $override->setSetting('handler_settings', [
-        'auto_create' => $config->get('auto_create')
+        'auto_create' => $config->get('auto_create'),
       ]);
     }
 
+    /** @disregard P1013 */
     $override->save();
   }
 
@@ -167,6 +170,7 @@ class InstitutionUserBridge {
    * Check for changes in the user entity to dispatch an event.
    *
    * @param \Drupal\user\UserInterface $user
+   *   The User entity.
    */
   public function checkInstitutionChange(UserInterface $user) {
     $old_value = (empty($user->original)) ? NULL : $user->original
@@ -190,14 +194,14 @@ class InstitutionUserBridge {
    *   The user entity.
    * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
    *   Array of Institution entities.
-   * @param boolean $save
+   * @param bool $save
    *   Whether the user entity should be saved after setting the value.
    */
   public function setUserInstitution(UserInterface $user, array $hei, $save = TRUE) {
     $target_id = [];
     $base_field = self::BASE_FIELD;
 
-    foreach ($hei as $idx => $entity) {
+    foreach ($hei as $entity) {
       $target_id[] = ['target_id' => $entity->id()];
     }
 

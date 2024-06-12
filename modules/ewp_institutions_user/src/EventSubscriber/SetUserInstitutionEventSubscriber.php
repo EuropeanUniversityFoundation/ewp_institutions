@@ -68,24 +68,24 @@ class SetUserInstitutionEventSubscriber implements EventSubscriberInterface {
   public function onSetUserInstitution(SetUserInstitutionEvent $event) {
     if (empty($event->hei)) {
       $message = $this->t('Unsetting Institutions for user %user...', [
-        '%user' => $event->user->label()
+        '%user' => $event->user->label(),
       ]);
 
-      // $this->messenger->addWarning($message);
+      $this->messenger->addWarning($message);
     }
     else {
       $hei = [];
 
-      foreach ($event->hei as $idx => $entity) {
+      foreach ($event->hei as $entity) {
         $hei[] = $entity->label();
       }
 
       $message = $this->t('Setting Institutions %hei for user %user...', [
         '%user' => $event->user->label(),
-        '%hei' => \implode(', ', $hei)
+        '%hei' => \implode(', ', $hei),
       ]);
 
-      // $this->messenger->addStatus($message);
+      $this->messenger->addStatus($message);
     }
 
     $this->bridge->setUserInstitution($event->user, $event->hei, $event->save);
