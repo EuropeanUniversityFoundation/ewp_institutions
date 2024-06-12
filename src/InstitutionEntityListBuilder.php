@@ -27,7 +27,7 @@ class InstitutionEntityListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
+    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $row['id'] = $entity->id();
     $row['hei_id'] = $entity->get('hei_id')->value;
     // $row['hei_id'] = $entity->get('hei_id')->value;

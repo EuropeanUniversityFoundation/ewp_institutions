@@ -6,7 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class InstitutionEntitySettingsForm.
+ * Settings form for the Institution entity.
  *
  * @ingroup ewp_institutions
  */

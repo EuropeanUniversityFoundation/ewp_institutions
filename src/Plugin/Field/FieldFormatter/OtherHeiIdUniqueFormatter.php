@@ -113,8 +113,9 @@ class OtherHeiIdUniqueFormatter extends FormatterBase implements ContainerFactor
     ]);
 
     $summary[] = $this->t('Display ID type: @bool', [
-      '@bool' => ($this->getSetting(self::DISPLAY_LABEL)) ?
-        $this->t('Yes') : $this->t('No'),
+      '@bool' => ($this->getSetting(self::DISPLAY_LABEL))
+        ? $this->t('Yes')
+        : $this->t('No'),
     ]);
 
     return $summary;
@@ -132,9 +133,9 @@ class OtherHeiIdUniqueFormatter extends FormatterBase implements ContainerFactor
       $key = $item->type;
 
       if ($key === $this->getSetting(self::DISPLAYED_ID)) {
-        $type = (array_key_exists($item->type, $types)) ?
-          $types[$item->type]->render() :
-          $item->type ;
+        $type = (array_key_exists($item->type, $types))
+          ? $types[$item->type]->render()
+          : $item->type;
 
         $elements[$delta] = [
           '#theme' => 'other_id_unique',

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains install, update and uninstall hooks.
+ */
+
 use Drupal\Core\Field\BaseFieldDefinition;
 
 /**

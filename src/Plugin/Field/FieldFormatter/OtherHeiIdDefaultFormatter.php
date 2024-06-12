@@ -102,7 +102,7 @@ class OtherHeiIdDefaultFormatter extends FormatterBase implements ContainerFacto
     foreach ($items as $delta => $item) {
       $value = $item->value;
       $key = $item->type;
-      $type = (array_key_exists($key, $types)) ? $types[$key]->render() : $key ;
+      $type = (array_key_exists($key, $types)) ? $types[$key]->render() : $key;
 
       $elements[$delta] = [
         '#theme' => 'other_id',

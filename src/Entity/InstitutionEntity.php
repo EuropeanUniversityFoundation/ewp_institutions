@@ -118,6 +118,7 @@ class InstitutionEntity extends ContentEntityBase implements InstitutionEntityIn
       ->setDisplayConfigurable('view', TRUE)
       ->setRequired(TRUE);
 
+    /** @disregard P1013 */
     $fields['status']
       ->setDisplayOptions('form', [
         'type' => 'boolean_checkbox',

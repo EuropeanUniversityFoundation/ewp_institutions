@@ -2,8 +2,6 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldType;
 
-use Drupal\Component\Utility\Random;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -83,7 +81,7 @@ class OtherHeiIdItem extends FieldItemBase {
 
     $elements['max_length'] = [
       '#type' => 'number',
-      '#title' => t('Maximum length'),
+      '#title' => $this->t('Maximum length'),
       '#default_value' => $this->getSetting('max_length'),
       '#required' => TRUE,
       '#description' => $text,

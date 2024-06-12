@@ -40,15 +40,15 @@ function ewp_institutions_theme($existing, $type, $theme, $path) {
     'other_id' => [
       'variables' => [
         'value' => NULL,
-        'type' => NULL
+        'type' => NULL,
       ],
     ],
     'other_id_unique' => [
       'variables' => [
         'value' => NULL,
-        'type' => NULL
+        'type' => NULL,
       ],
-    ]
+    ],
   ];
 }
 
@@ -84,11 +84,11 @@ function template_preprocess_hei(array &$variables) {
   }
   /** @var InstitutionEntityInterface $entity */
   $entity = $variables['elements']['#hei'];
-  //provide the label
+  // provide the label
   $variables['label'] = $entity->label();
-  //provide the alias
+  // provide the alias
   $variables['url'] = $entity->toUrl()->toString();
-  //provide the view mode
+  // provide the view mode
   $variables['view_mode'] = $variables['elements']['#view_mode'];
 }
 
@@ -108,7 +108,7 @@ function ewp_institutions_entity_bundle_field_info_alter(&$fields, EntityTypeInt
  */
 function ewp_institutions_jsonapi_entity_filter_access(EntityTypeInterface $entity_type, AccountInterface $account) {
   return ([
-    JSONAPI_FILTER_AMONG_ALL => AccessResult::allowed()
+    JSONAPI_FILTER_AMONG_ALL => AccessResult::allowed(),
   ]);
 }
 
@@ -119,7 +119,7 @@ function ewp_institutions_jsonapi_hei_filter_access(EntityTypeInterface $entity_
   return ([
     JSONAPI_FILTER_AMONG_ALL => AccessResult::allowedIfHasPermission($account, 'view unpublished institution entities'),
     JSONAPI_FILTER_AMONG_PUBLISHED => AccessResult::allowedIfHasPermission($account, 'view published institution entities'),
-    JSONAPI_FILTER_AMONG_OWN => AccessResult::allowedIfHasPermission($account, 'view published institution entities')
+    JSONAPI_FILTER_AMONG_OWN => AccessResult::allowedIfHasPermission($account, 'view published institution entities'),
   ]);
 }
 

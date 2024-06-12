@@ -28,7 +28,6 @@ class InstitutionEntityAccessControlHandler extends EntityAccessControlHandler {
           return AccessResult::allowedIfHasPermission($account, 'view unpublished institution entities');
         }
 
-
         return AccessResult::allowedIfHasPermission($account, 'view published institution entities');
 
       case 'update':
@@ -50,6 +49,5 @@ class InstitutionEntityAccessControlHandler extends EntityAccessControlHandler {
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL) {
     return AccessResult::allowedIfHasPermission($account, 'add institution entities');
   }
-
 
 }

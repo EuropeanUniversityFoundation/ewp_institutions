@@ -106,12 +106,12 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
     $summary = [];
 
     $summary[] = $this->t('Textfield size: @size', [
-      '@size' => $this->getSetting('size')
+      '@size' => $this->getSetting('size'),
     ]);
 
     if (!empty($this->getSetting('placeholder'))) {
       $summary[] = $this->t('Placeholder: @placeholder', [
-        '@placeholder' => $this->getSetting('placeholder')
+        '@placeholder' => $this->getSetting('placeholder'),
       ]);
     }
 
@@ -149,7 +149,8 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       if (array_key_exists($default_type, $options)) {
         $default_option = $default_type;
         $default_custom = NULL;
-      } else {
+      }
+      else {
         $default_option = self::CUSTOM;
         $default_custom = $default_type;
       }
@@ -174,7 +175,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       '#states' => [
         'visible' => [
           'select[id="' . $field_name . '-type-' . $delta . '"]' => [
-            'value' => self::CUSTOM
+            'value' => self::CUSTOM,
           ],
         ],
       ],

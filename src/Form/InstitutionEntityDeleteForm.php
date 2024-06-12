@@ -11,5 +11,4 @@ use Drupal\Core\Entity\ContentEntityDeleteForm;
  */
 class InstitutionEntityDeleteForm extends ContentEntityDeleteForm {
 
-
 }
