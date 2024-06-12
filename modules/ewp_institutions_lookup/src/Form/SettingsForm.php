@@ -7,6 +7,8 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\ewp_institutions_get\DataFormatter;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
@@ -25,24 +27,24 @@ class SettingsForm extends ConfigFormBase {
   protected $configFactory;
 
   /**
-  * JSON data fetching service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
-  */
+   * JSON data fetching service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+   */
   protected $jsonDataFetcher;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
 
   /**
-  * Data formatting service.
-  *
-  * @var \Drupal\ewp_institutions_get\DataFormatter
-  */
+   * Data formatting service.
+   *
+   * @var \Drupal\ewp_institutions_get\DataFormatter
+   */
   protected $dataFormatter;
 
   /**
@@ -51,6 +53,13 @@ class SettingsForm extends ConfigFormBase {
    * @var \GuzzleHttp\ClientInterface
    */
   protected $httpClient;
+
+  /**
+   * The logger service.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
 
   /**
    * The constructor.
@@ -65,19 +74,23 @@ class SettingsForm extends ConfigFormBase {
    *   Data formatting service.
    * @param \GuzzleHttp\ClientInterface $http_client
    *   Guzzle\Client instance.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   The logger factory service.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor,
     DataFormatter $data_formatter,
-    ClientInterface $http_client
+    ClientInterface $http_client,
+    LoggerChannelFactoryInterface $logger_factory
   ) {
     parent::__construct($config_factory);
     $this->jsonDataFetcher   = $json_data_fetcher;
     $this->jsonDataProcessor = $json_data_processor;
     $this->dataFormatter     = $data_formatter;
     $this->httpClient        = $http_client;
+    $this->logger            = $logger_factory->get('ewp_institutions_get');
   }
 
   /**
@@ -89,7 +102,8 @@ class SettingsForm extends ConfigFormBase {
       $container->get('ewp_institutions_get.fetch'),
       $container->get('ewp_institutions_get.json'),
       $container->get('ewp_institutions_get.format'),
-      $container->get('http_client')
+      $container->get('http_client'),
+      $container->get('logger.factory'),
     );
   }
 
@@ -148,8 +162,8 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-  * Load the index and display as a table
-  */
+   * Load the index and display as a table.
+   */
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('lookup_endpoint');
 
@@ -164,7 +178,8 @@ class SettingsForm extends ConfigFormBase {
 
       $message = $this->dataFormatter
         ->toTable($title, $data, $columns, $show_attr);
-    } else {
+    }
+    else {
       $message = $this->t('Nothing to display.');
     }
 
@@ -186,12 +201,16 @@ class SettingsForm extends ConfigFormBase {
 
       // Build the HTTP request
       try {
+        /** @disregard P1013 */
         $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();
-      } catch (GuzzleException $e) {
+      }
+      catch (GuzzleException $e) {
+        /** @disregard P1013 */
         $status = $e->getResponse()->getStatusCode();
-      } catch (Exception $e) {
-        watchdog_exception('ewp_institutions_lookup', $e->getMessage());
+      }
+      catch (\Exception $e) {
+        Error::logException($this->logger, $e);
       }
 
       if ($status != '200') {
@@ -216,7 +235,7 @@ class SettingsForm extends ConfigFormBase {
     $refresh = $form_state->getValue('refresh');
 
     if ($refresh && !empty($endpoint)) {
-      $json_data = $this->jsonDataFetcher->load('lookup', $endpoint, TRUE);
+      $this->jsonDataFetcher->load('lookup', $endpoint, TRUE);
     }
 
     return parent::submitForm($form, $form_state);

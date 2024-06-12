@@ -13,8 +13,8 @@ use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 
 /**
-* Institution lookup service.
-*/
+ * Institution lookup service.
+ */
 class InstitutionLookupManager {
 
   use DependencySerializationTrait;
@@ -85,15 +85,15 @@ class InstitutionLookupManager {
    * @param string $hei_id
    *   The Institution ID.
    *
-   * @return array $result
+   * @return array
    *   An array containing the index key keyed by Institution ID.
    */
   public function lookup(string $hei_id): array {
     $data = $this->extract($hei_id);
 
-    if (! empty($data)) {
+    if (!empty($data)) {
       return [
-        $data[self::ID_KEY] => $data[self::ATTR_KEY][self::INDEX_KEY]
+        $data[self::ID_KEY] => $data[self::ATTR_KEY][self::INDEX_KEY],
       ];
     }
 
@@ -117,7 +117,7 @@ class InstitutionLookupManager {
       ->load(self::TEMPSTORE, $endpoint);
     $data = $this->jsonDataProcessor->toArray($json_data);
 
-    foreach ($data as $idx => $item_data) {
+    foreach ($data as $item_data) {
       if ($item_data[self::ID_KEY] === $hei_id) {
         return $item_data;
       }
@@ -160,7 +160,7 @@ class InstitutionLookupManager {
     $route_name = 'entity.hei.import_form';
     $route_parameters = [
       'index_key' => $index_key,
-      'hei_key' => $hei_id
+      'hei_key' => $hei_id,
     ];
 
     return Link::createFromRoute($text, $route_name, $route_parameters);
@@ -170,7 +170,9 @@ class InstitutionLookupManager {
    * Add lookup functionality to the API index key form element.
    *
    * @param array $form
+   *   The form array.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    */
   public function heiFormAlter(&$form, FormStateInterface $form_state) {
     $base_field = InstitutionManager::INDEX_FIELD;
@@ -203,8 +205,8 @@ class InstitutionLookupManager {
   }
 
   /**
-  * Lookup callback.
-  */
+   * Lookup callback.
+   */
   public function lookupCallback(array $form, FormStateInterface $form_state) {
     $base_field = InstitutionManager::INDEX_FIELD;
 

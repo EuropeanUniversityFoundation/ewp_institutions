@@ -113,10 +113,14 @@ class InstitutionLookupForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $hei_id_format = ['#markup' => '<code>domain.tld</code>'];
+
     $form['hei_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Institution ID to lookup'),
-      '#description' => $this->t('Format') . ': <code>domain.tld</code>',
+      '#description' => $this->t('Format: @format', [
+        '@format' => $this->renderer->render($hei_id_format),
+      ]),
       '#weight' => '-10',
     ];
 
@@ -131,7 +135,7 @@ class InstitutionLookupForm extends FormBase {
       '#attributes' => [
         'class' => [
           'button--primary',
-        ]
+        ],
       ],
       '#states' => [
         'disabled' => [
@@ -175,8 +179,8 @@ class InstitutionLookupForm extends FormBase {
 
     $exists = $this->heiManager->getInstitution($hei_id);
 
-    if (! empty($exists)) {
-      foreach ($exists as $id => $hei) {
+    if (!empty($exists)) {
+      foreach ($exists as $hei) {
         $renderable = $hei->toLink()->toRenderable();
       }
       $warning = $this->t('Institution already exists: @link', [
@@ -187,12 +191,12 @@ class InstitutionLookupForm extends FormBase {
     else {
       $lookup = $this->lookupManager->lookup($hei_id);
 
-      if (! empty($lookup)) {
+      if (!empty($lookup)) {
         if ($this->account->hasPermission('add institution entities')) {
           $import_link = $this->lookupManager->importLink($hei_id)->toString();
         }
         $success = $this->t('Institution found. @link', [
-          '@link' => $import_link ?? ''
+          '@link' => $import_link ?? '',
         ]);
         $this->messenger->addMessage($success);
 
@@ -212,4 +216,5 @@ class InstitutionLookupForm extends FormBase {
       ->addCommand(new HtmlCommand('.result_output', $output));
     return $ajax_response;
   }
+
 }
