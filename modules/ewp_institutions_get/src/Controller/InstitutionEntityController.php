@@ -15,6 +15,8 @@ use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Drupal\ewp_institutions_get\InstitutionManager;
 
 /**
+ * Institution entity controller.
+ *
  * Provides additional title callbacks for Institution entities:
  * - An add from external source title callback.
  * - An import title callback.
@@ -36,7 +38,7 @@ class InstitutionEntityController extends EntityController {
   protected $institutionManager;
 
   /**
-   * Constructs an InstitutionEntityController object
+   * Constructs an InstitutionEntityController object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -96,6 +98,8 @@ class InstitutionEntityController extends EntityController {
   /**
    * Automatically imports an Institution.
    *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The Request object.
    * @param string $index_key
    *   The Index key to look up the Institution data.
    * @param string $hei_key
@@ -135,7 +139,7 @@ class InstitutionEntityController extends EntityController {
   public function addExternalTitle($entity_type_id) {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     return $this->t('Add @entity-type from external source', [
-      '@entity-type' => $entity_type->getSingularLabel()
+      '@entity-type' => $entity_type->getSingularLabel(),
     ]);
   }
 
@@ -151,7 +155,7 @@ class InstitutionEntityController extends EntityController {
   public function autoImportTitle($entity_type_id) {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     return $this->t('Look up @entity-type', [
-      '@entity-type' => $entity_type->getPluralLabel()
+      '@entity-type' => $entity_type->getPluralLabel(),
     ]);
   }
 
@@ -167,7 +171,7 @@ class InstitutionEntityController extends EntityController {
   public function importTitle($entity_type_id) {
     $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
     return $this->t('Import @entity-type', [
-      '@entity-type' => $entity_type->getSingularLabel()
+      '@entity-type' => $entity_type->getSingularLabel(),
     ]);
   }
 

@@ -35,7 +35,7 @@ function ewp_institutions_get_help($route_name, RouteMatchInterface $route_match
  */
 function ewp_institutions_get_entity_type_build(array &$entity_types) {
 
-  /** @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
+  /** @var \Drupal\Core\Entity\EntityTypeInterface[] $entity_types */
   $entity_types[InstitutionManager::ENTITY_TYPE]
     ->setFormClass('import', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityImportForm')
     ->setFormClass('update', 'Drupal\\ewp_institutions_get\\Form\\InstitutionEntityUpdateForm')

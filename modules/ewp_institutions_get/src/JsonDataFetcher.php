@@ -6,10 +6,9 @@ use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\TempStore\SharedTempStoreFactory;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\Utility\Error;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Drupal\ewp_institutions_get\InstitutionManager;
-use Drupal\ewp_institutions_get\JsonDataProcessor;
 
 /**
  * JSON data fetching service.
@@ -26,10 +25,10 @@ class JsonDataFetcher {
   protected $httpClient;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
 
   /**
@@ -74,7 +73,7 @@ class JsonDataFetcher {
   }
 
   /**
-   * Load JSON:API data from tempstore or external API
+   * Load JSON:API data from tempstore or external API.
    */
   public function load($temp_store_key, $endpoint, $refresh = FALSE) {
     // If tempstore is empty OR should be refreshed
@@ -82,7 +81,7 @@ class JsonDataFetcher {
       // Get the data from the provided endpoint and store it
       $this->tempStore->set($temp_store_key, $this->get($endpoint));
       $message = $this->t("Loaded @key into temporary storage", [
-        '@key' => $temp_store_key
+        '@key' => $temp_store_key,
       ]);
       $this->logger->notice($message);
     }
@@ -92,7 +91,7 @@ class JsonDataFetcher {
   }
 
   /**
-   * Get JSON:API data from an external API endpoint
+   * Get JSON:API data from an external API endpoint.
    */
   public function get($endpoint) {
     // Prepare the JSON string
@@ -104,10 +103,13 @@ class JsonDataFetcher {
     try {
       $request = $this->httpClient->get($endpoint);
       $response = $request->getBody();
-    } catch (GuzzleException $e) {
+    }
+    catch (GuzzleException $e) {
+      /** @disregard P1013 */
       $response = $e->getResponse()->getBody();
-    } catch (Exception $e) {
-      watchdog_exception('ewp_institutions_get', $e->getMessage());
+    }
+    catch (\Exception $e) {
+      Error::logException($this->logger, $e);
     }
 
     if ($this->jsonDataProcessor->validate($response)) {
@@ -122,18 +124,19 @@ class JsonDataFetcher {
   }
 
   /**
-   * Check the tempstore for the updated date
+   * Check the tempstore for the updated date.
    */
   public function checkUpdated($temp_store_key) {
     if (!empty($this->tempStore->get($temp_store_key))) {
       return $this->tempStore->getMetadata($temp_store_key)->getUpdated();
-    } else {
+    }
+    else {
       return NULL;
     }
   }
 
   /**
-   * Get the updated value from an endpoint
+   * Get the updated value from an endpoint.
    */
   public function getUpdated($temp_store_key, $endpoint) {
     // Check when this item was last updated
@@ -142,7 +145,8 @@ class JsonDataFetcher {
     if ($temp_store_key != InstitutionManager::INDEX_KEYWORD) {
       // Check when the index was last updated
       $index_updated = $this->checkUpdated(InstitutionManager::INDEX_KEYWORD);
-    } else {
+    }
+    else {
       // Assign for comparison
       $index_updated = $item_updated;
     }

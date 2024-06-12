@@ -15,7 +15,6 @@ use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class PreLoadForm extends FormBase {
@@ -58,24 +57,24 @@ class PreLoadForm extends FormBase {
   protected $configFactory;
 
   /**
-  * Data formatting service.
-  *
-  * @var \Drupal\ewp_institutions_get\DataFormatter
-  */
+   * Data formatting service.
+   *
+   * @var \Drupal\ewp_institutions_get\DataFormatter
+   */
   protected $dataFormatter;
 
   /**
-  * JSON data fetching service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
-  */
+   * JSON data fetching service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+   */
   protected $jsonDataFetcher;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
 
   /**
@@ -112,13 +111,13 @@ class PreLoadForm extends FormBase {
     MessengerInterface $messenger,
     TranslationInterface $string_translation
   ) {
-    $this->httpClient         = $http_client;
-    $this->configFactory      = $config_factory;
-    $this->dataFormatter      = $data_formatter;
-    $this->jsonDataFetcher    = $json_data_fetcher;
-    $this->jsonDataProcessor  = $json_data_processor;
-    $this->messenger          = $messenger;
-    $this->stringTranslation  = $string_translation;
+    $this->httpClient        = $http_client;
+    $this->configFactory     = $config_factory;
+    $this->dataFormatter     = $data_formatter;
+    $this->jsonDataFetcher   = $json_data_fetcher;
+    $this->jsonDataProcessor = $json_data_processor;
+    $this->messenger         = $messenger;
+    $this->stringTranslation = $string_translation;
 
     // Load the settings.
     $config = $this->configFactory->get('ewp_institutions_get.settings');
@@ -126,7 +125,7 @@ class PreLoadForm extends FormBase {
     $this->indexLinks = [];
     $this->indexLabels = [];
 
-    if (! empty($this->indexEndpoint)) {
+    if (!empty($this->indexEndpoint)) {
       $json_data = $this->jsonDataFetcher
         ->getUpdated(InstitutionManager::INDEX_KEYWORD, $this->indexEndpoint);
 
@@ -190,7 +189,7 @@ class PreLoadForm extends FormBase {
       '#attributes' => [
         'class' => [
           'button--primary',
-        ]
+        ],
       ],
       '#states' => [
         'disabled' => [
@@ -212,13 +211,13 @@ class PreLoadForm extends FormBase {
   }
 
   /**
-  * Fetch the data and display as a table
-  */
+   * Fetch the data and display as a table.
+   */
   public function getInstitutions(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $endpoint = $this->indexLinks[$index_item];
 
-    if (! empty($endpoint)) {
+    if (!empty($endpoint)) {
       $json_data = $this->jsonDataFetcher->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
@@ -226,10 +225,12 @@ class PreLoadForm extends FormBase {
         $data = $this->jsonDataProcessor->toArray($json_data);
 
         $message = $this->dataFormatter->toTable($title, $data, [], TRUE);
-      } else {
+      }
+      else {
         $message = $this->t('Nothing to display.');
       }
-    } else {
+    }
+    else {
       $message = $this->t('This endpoint is not defined.');
     }
 

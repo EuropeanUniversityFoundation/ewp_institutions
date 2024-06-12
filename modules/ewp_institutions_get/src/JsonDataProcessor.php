@@ -48,7 +48,7 @@ class JsonDataProcessor {
   }
 
   /**
-   * Extract attributes for a single key in JSON data
+   * Extract attributes for a single key in JSON data.
    */
   public function extract($json, $target_key) {
     $decoded = json_decode($json, TRUE);
@@ -70,7 +70,7 @@ class JsonDataProcessor {
   }
 
   /**
-   * Create an array of id => attributes[self::LABEL_KEY] or similar
+   * Create an array of id => attributes[self::LABEL_KEY] or similar.
    */
   public function idLabel($json) {
     $decoded = json_decode($json, TRUE);
@@ -79,19 +79,22 @@ class JsonDataProcessor {
 
     $index = [];
 
-    foreach ($data as $item => $fields) {
+    foreach ($data as $fields) {
       if (array_key_exists(self::ATTR_KEY, $fields)) {
         if (array_key_exists(self::LABEL_KEY, $fields[self::ATTR_KEY])) {
           // the expectation is to find an entity label
           $index[$fields[self::ID_KEY]] = $fields[self::ATTR_KEY][self::LABEL_KEY];
-        } elseif (array_key_exists(self::TITLE_KEY, $fields[self::ATTR_KEY])) {
+        }
+        elseif (array_key_exists(self::TITLE_KEY, $fields[self::ATTR_KEY])) {
           // alternatively one might find a node title instead
           $index[$fields[self::ID_KEY]] = $fields[self::ATTR_KEY][self::TITLE_KEY];
-        } else {
+        }
+        else {
           // when none of these attributes can be found, use the ID itself
           $index[$fields[self::ID_KEY]] = $fields[self::ID_KEY];
         }
-      } else {
+      }
+      else {
         // when no attribute object can be found, use the ID itself
         $index[$fields[self::ID_KEY]] = $fields[self::ID_KEY];
       }
@@ -103,7 +106,7 @@ class JsonDataProcessor {
   }
 
   /**
-   * Create an array of id => links
+   * Create an array of id => links.
    */
   public function idLinks($json, $link_key) {
     $decoded = json_decode($json, TRUE);
@@ -112,16 +115,18 @@ class JsonDataProcessor {
 
     $index = [];
 
-    foreach ($data as $item => $fields) {
+    foreach ($data as $fields) {
       if (array_key_exists(self::LINKS_KEY, $fields) && array_key_exists($link_key, $fields[self::LINKS_KEY])) {
         if (array_key_exists(self::HREF_KEY, $fields[self::LINKS_KEY][$link_key])) {
           // When the link key points to an object
           $index[$fields[self::ID_KEY]] = $fields[self::LINKS_KEY][$link_key][self::HREF_KEY];
-        } else {
+        }
+        else {
           // When the link key points to the URL
           $index[$fields[self::ID_KEY]] = $fields[self::LINKS_KEY][$link_key];
         }
-      } else {
+      }
+      else {
         // when no link can be found, leave it empty
         $index[$fields[self::ID_KEY]] = '';
       }
@@ -131,7 +136,7 @@ class JsonDataProcessor {
   }
 
   /**
-   * Convert JSON:API data to array
+   * Convert JSON:API data to array.
    */
   public function toArray($json, $expand = FALSE) {
     $decoded = json_decode($json, TRUE);
@@ -144,15 +149,15 @@ class JsonDataProcessor {
         // Target the attributes array
         if (array_key_exists(self::ATTR_KEY, $data_array)) {
           foreach ($data_array[self::ATTR_KEY] as $attr => $value) {
-            if (! empty($value)) {
+            if (!empty($value)) {
               // Treat simple values as indexed arrays with a key - value pair
-              if (! is_array($value)) {
+              if (!is_array($value)) {
                 $data[$index][self::ATTR_KEY][$attr] = [
-                  [self::VALUE_KEY => $value]
+                  [self::VALUE_KEY => $value],
                 ];
               }
               // Encapsulate associative arrays in indexed arrays
-              elseif (count(array_filter(array_keys($value),'is_string')) > 0) {
+              elseif (count(array_filter(array_keys($value), 'is_string')) > 0) {
                 $data[$index][self::ATTR_KEY][$attr] = [$value];
               }
             }
@@ -165,23 +170,24 @@ class JsonDataProcessor {
   }
 
   /**
-   * Validate JSON:API data object
+   * Validate JSON:API data object.
    */
   public function validate($json) {
     $decoded = json_decode($json, TRUE);
     $message = '';
     $status = TRUE;
 
-    if (array_key_exists(self::DATA_KEY, $decoded)) {
-      foreach ($decoded[self::DATA_KEY] as $key => $value) {
-        if (! array_key_exists(self::TYPE_KEY, $decoded[self::DATA_KEY][0])) {
+    if ($decoded && array_key_exists(self::DATA_KEY, $decoded)) {
+      foreach ($decoded[self::DATA_KEY] as $value) {
+        if (!array_key_exists(self::TYPE_KEY, $value)) {
           $message = $this->t('Type key is not present.');
         }
-        elseif (! array_key_exists(self::ID_KEY, $decoded[self::DATA_KEY][0])) {
+        elseif (!array_key_exists(self::ID_KEY, $value)) {
           $message = $this->t('ID key is not present.');
         }
       }
-    } else {
+    }
+    else {
       $message = $this->t('Data key is not present.');
     }
 

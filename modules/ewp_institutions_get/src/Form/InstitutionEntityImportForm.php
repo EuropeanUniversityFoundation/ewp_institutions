@@ -3,20 +3,11 @@
 namespace Drupal\ewp_institutions_get\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element\StatusMessages;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions\Form\InstitutionEntityForm;
-use Drupal\ewp_institutions_get\DataFormatter;
-use Drupal\ewp_institutions_get\JsonDataFetcher;
-use Drupal\ewp_institutions_get\JsonDataProcessor;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -123,10 +114,10 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   protected $configFactory;
 
   /**
-  * Data formatting service.
-  *
-  * @var \Drupal\ewp_institutions_get\DataFormatter
-  */
+   * Data formatting service.
+   *
+   * @var \Drupal\ewp_institutions_get\DataFormatter
+   */
   protected $dataFormatter;
 
   /**
@@ -137,17 +128,17 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   protected $institutionManager;
 
   /**
-  * JSON data fetching service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
-  */
+   * JSON data fetching service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+   */
   protected $jsonDataFetcher;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
 
   /**
@@ -188,6 +179,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   public static function create(ContainerInterface $container) {
     // Instantiates this form class.
     $instance = parent::create($container);
+
     $instance->configFactory      = $container->get('config.factory');
     $instance->dataFormatter      = $container->get('ewp_institutions_get.format');
     $instance->institutionManager = $container->get('ewp_institutions_get.manager');
@@ -196,6 +188,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $instance->messenger          = $container->get('messenger');
     $instance->renderer           = $container->get('renderer');
     $instance->stringTranslation  = $container->get('string_translation');
+
     return $instance;
   }
 
@@ -210,14 +203,14 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $index_key = NULL, $hei_key = NULL) {
-    /* @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
+    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add_form'] = parent::buildForm($form, $form_state);
 
     // Build the form header.
     $form['header'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Selected Institution to import'),
-      '#weight' => '-100'
+      '#weight' => '-100',
     ];
 
     $form['header']['messages'] = [
@@ -277,9 +270,11 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $this->heiItemData = [];
 
     // Fill in the header with the extracted information.
-    $header_markup = '<p><strong>' . $this->t('Index entry') . ':</strong> ';
+    $header_markup = '<p><strong>' . $this->t('Index entry') . '</strong>';
+    $header_markup .= ': ';
     $header_markup .= $this->indexLabels[$this->indexKey] . '</p>';
-    $header_markup .= '<p><strong>' . $this->t('Institution') . ':</strong> ';
+    $header_markup .= '<p><strong>' . $this->t('Institution') . '</strong>';
+    $header_markup .= ': ';
     $header_markup .= $this->heiList[$this->heiKey] . '</p>';
     $form['header']['messages']['#markup'] = $header_markup;
 
@@ -318,7 +313,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     // Remove non mapped values from the entity data.
     foreach ($this->heiItemData as $key => $value) {
-      if (! array_key_exists($key, $reciprocal)) {
+      if (!array_key_exists($key, $reciprocal)) {
         unset($this->heiItemData[$key]);
       }
     }
@@ -335,7 +330,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     foreach ($form['add_form'] as $field_name => $array) {
       // Target the fields in the form render array.
       if (
-        (substr($field_name,0,1) !== '#') &&
+        (substr($field_name, 0, 1) !== '#') &&
         (array_key_exists('widget', $array))
       ) {
         // Target the field widget.
@@ -346,13 +341,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
         // Handle non mapped, non required fields.
         if (
-          ! array_key_exists($field_name, $fieldmap) &&
-          ! $array['widget']['#required']
+          !array_key_exists($field_name, $fieldmap) &&
+          !$array['widget']['#required']
         ) {
           switch ($field_name) {
             case 'index_key':
               // Custom base field to hold the API index key.
-              $widget = $this->setDefault($this->indexKey,$widget);
+              $widget = $this->setDefault($this->indexKey, $widget);
               $widget = $this->setReadOnly($widget);
               // Move the form element to the main array.
               $form['add_form'][$field_name]['widget'] = $widget;
@@ -375,7 +370,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           // Handle mapped fields.
           if (array_key_exists($field_name, $this->heiItemData)) {
             // Special cases for certain widgets.
-            if (! array_key_exists('#theme', $widget)) {
+            if (!array_key_exists('#theme', $widget)) {
               switch ($field_name) {
                 case 'status':
                   $default_value = $this->heiItemData[$field_name];
@@ -392,17 +387,17 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               // Extract the field properties from the widget array.
               $field_props = [];
               foreach ($widget[0] as $property => $value) {
-                if (!in_array(substr($property,0,1), ['#', '_'])) {
+                if (!in_array(substr($property, 0, 1), ['#', '_'])) {
                   $field_props[] = $property;
                 }
               }
 
               // Handle single value in the API data (probably empty).
-              if (! is_array($this->heiItemData[$field_name])) {
+              if (!is_array($this->heiItemData[$field_name])) {
                 $data_value = $this->heiItemData[$field_name];
                 // Assign the value to all field properties.
                 $data_array = [];
-                foreach ($field_props as $index => $property) {
+                foreach ($field_props as $property) {
                   $data_array[0][$property] = $data_value;
                 }
                 $this->heiItemData[$field_name] = $data_array;
@@ -414,12 +409,12 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               // Check for a limit on the number of field values.
               $cardinality = $widget['#cardinality'];
               // With unlimited values, the data size is the actual limit.
-              $max = ($cardinality > 0) ? $cardinality : sizeof($data_array);
+              $max = ($cardinality > 0) ? $cardinality : count($data_array);
               $widget['#max_delta'] = $max - 1;
 
-              if ($max > sizeof($data_array)) {
+              if ($max > count($data_array)) {
                 // Delete the widgets that will not be populated.
-                for ($d = sizeof($data_array); $d < $max; $d++) {
+                for ($d = count($data_array); $d < $max; $d++) {
                   unset($widget[$d]);
                 }
               }
@@ -437,9 +432,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
               foreach ($data_slice as $delta => $value) {
                 // Handle each field property individually.
-                foreach ($data_slice[$delta] as $property => $value) {
-                  $widget = $this->setDefault($value,$widget,$delta,$property);
-                  $widget = $this->setReadOnly($widget,$delta,$property);
+                foreach ($data_slice[$delta] as $prop => $value) {
+                  $widget = $this->setDefault($value, $widget, $delta, $prop);
+                  $widget = $this->setReadOnly($widget, $delta, $prop);
                 }
 
                 // Move the form element to the main array.
@@ -472,7 +467,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     // Enable all disabled fields prior to submission.
     if (
-      ! empty($form['add_form']['status']['widget']['#attributes']['disabled'])
+      !empty($form['add_form']['status']['widget']['#attributes']['disabled'])
     ) {
       unset($form['add_form']['status']['widget']['#attributes']['disabled']);
     }
@@ -493,12 +488,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         ->getInstitution($hei_key);
 
       if (!empty($exists)) {
-        foreach ($exists as $id => $hei) {
+        foreach ($exists as $hei) {
+          $code = ['#markup' => '<code>' . $this->t($hei_key) . '</code>'];
           $link = $hei->toLink();
           $renderable = $link->toRenderable();
         }
         $error = $this->t('Institution with ID @hei_id already exists: @link', [
-          '@hei_id' => $this->t('<code>' . $hei_key . '</code>'),
+          '@hei_id' => $this->renderer->render($code),
           '@link' => $this->renderer->render($renderable),
         ]);
       }
@@ -506,7 +502,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
     return $error;
   }
-
 
   /**
    * Populate field widget with default value.
@@ -518,7 +513,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     if ($old_default) {
       // If a default is provided, do not empty the value.
       $default_value = ($new_default) ? $new_default : $old_default;
-    } else {
+    }
+    else {
       // Without a default, copy the new value, even if empty.
       $default_value = $new_default;
     }
@@ -535,12 +531,13 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
     $required = $widget['#required'];
     $default = $widget[$delta][$property]['#default_value'];
 
-    if (! empty($default)) {
+    if (!empty($default)) {
       // Make it readonly if there is a default value.
       $readonly = TRUE;
-    } else {
+    }
+    else {
       // Make it readonly unless required field is empty.
-      $readonly = ($required && empty($default)) ? FALSE : TRUE ;
+      $readonly = ($required && empty($default)) ? FALSE : TRUE;
     }
 
     if ($readonly) {
@@ -554,7 +551,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           if ($default) {
             $options = $widget[$delta][$property]['#options'];
             // The default value might not exist in the options.
-            if (! array_key_exists($default, $options)) {
+            if (!array_key_exists($default, $options)) {
               // Known edge case: Other ID widget
               if (array_key_exists('custom', $widget[$delta])) {
                 // Store the default value in the custom field.
@@ -567,25 +564,27 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                 $widget[$delta]['custom']['#states'] = [
                   'visible' => [
                     'select[id="' . $selector . '"]' => [
-                      'value' => 'custom'
+                      'value' => 'custom',
                     ],
                   ],
                 ];
                 // Set the default value to custom.
                 $default = 'custom';
-              } else {
+              }
+              else {
                 // Generic fallback: use the key as option name.
                 $options[$default] = $default;
               }
             }
 
             $widget[$delta][$property]['#options'] = [
-              $default => $options[$default]
+              $default => $options[$default],
             ];
 
             unset($widget[$delta][$property]['#empty_option']);
             unset($widget[$delta][$property]['#empty_value']);
-          } else {
+          }
+          else {
             $widget[$delta][$property]['#options'] = [];
           }
           break;

@@ -7,8 +7,10 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
+use Drupal\Core\Utility\Error;
 use Drupal\ewp_institutions_get\DataFormatter;
 use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
@@ -29,25 +31,32 @@ class SettingsForm extends ConfigFormBase {
   protected $httpClient;
 
   /**
-  * Data formatting service.
-  *
-  * @var \Drupal\ewp_institutions_get\DataFormatter
-  */
+   * Data formatting service.
+   *
+   * @var \Drupal\ewp_institutions_get\DataFormatter
+   */
   protected $dataFormatter;
 
   /**
-  * JSON data fetching service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
-  */
+   * JSON data fetching service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+   */
   protected $jsonDataFetcher;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
+
+  /**
+   * The logger service.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
 
   /**
    * The constructor.
@@ -62,6 +71,8 @@ class SettingsForm extends ConfigFormBase {
    *   JSON data fetching service.
    * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
    *   JSON data processing service.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   The logger factory service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
@@ -71,6 +82,7 @@ class SettingsForm extends ConfigFormBase {
     DataFormatter $data_formatter,
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor,
+    LoggerChannelFactoryInterface $logger_factory,
     TranslationInterface $string_translation
   ) {
     parent::__construct($config_factory);
@@ -78,6 +90,7 @@ class SettingsForm extends ConfigFormBase {
     $this->dataFormatter     = $data_formatter;
     $this->jsonDataFetcher   = $json_data_fetcher;
     $this->jsonDataProcessor = $json_data_processor;
+    $this->logger            = $logger_factory->get('ewp_institutions_get');
     $this->stringTranslation = $string_translation;
   }
 
@@ -91,6 +104,7 @@ class SettingsForm extends ConfigFormBase {
       $container->get('ewp_institutions_get.format'),
       $container->get('ewp_institutions_get.fetch'),
       $container->get('ewp_institutions_get.json'),
+      $container->get('logger.factory'),
       $container->get('string_translation'),
     );
   }
@@ -159,8 +173,8 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
-  * Load the index and display as a table
-  */
+   * Load the index and display as a table.
+   */
   public function getIndex(array $form, FormStateInterface $form_state) {
     $endpoint = $form_state->getValue('index_endpoint');
 
@@ -175,7 +189,8 @@ class SettingsForm extends ConfigFormBase {
 
       $message = $this->dataFormatter
         ->toTable($title, $data, $columns, $show_attr);
-    } else {
+    }
+    else {
       $message = $this->t('Nothing to display.');
     }
 
@@ -198,10 +213,13 @@ class SettingsForm extends ConfigFormBase {
       try {
         $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();
-      } catch (GuzzleException $e) {
+      }
+      catch (GuzzleException $e) {
+        /** @disregard P1013 */
         $status = $e->getResponse()->getStatusCode();
-      } catch (Exception $e) {
-        watchdog_exception('ewp_institutions_get', $e->getMessage());
+      }
+      catch (\Exception $e) {
+        Error::logException($this->logger, $e);
       }
 
       if ($status != '200') {
@@ -226,7 +244,7 @@ class SettingsForm extends ConfigFormBase {
     $refresh = $form_state->getValue('refresh');
 
     if ($refresh && !empty($endpoint)) {
-      $json_data = $this->jsonDataFetcher
+      $this->jsonDataFetcher
         ->load(InstitutionManager::INDEX_KEYWORD, $endpoint, TRUE);
     }
 

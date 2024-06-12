@@ -4,15 +4,11 @@ namespace Drupal\ewp_institutions_get\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element\StatusMessages;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\ewp_institutions_get\Form\PreLoadForm;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class InstitutionAutoImportForm extends PreLoadForm {
 
@@ -73,10 +69,12 @@ class InstitutionAutoImportForm extends PreLoadForm {
   public static function create(ContainerInterface $container) {
     // Instantiates this form class.
     $instance = parent::create($container);
+
     $instance->entityTypeManager  = $container->get('entity_type.manager');
     $instance->institutionManager = $container->get('ewp_institutions_get.manager');
     $instance->renderer           = $container->get('renderer');
     $instance->requestStack       = $container->get('request_stack');
+
     return $instance;
   }
 
@@ -149,15 +147,15 @@ class InstitutionAutoImportForm extends PreLoadForm {
   }
 
   /**
-  * Fetch the data and build select list
-  */
+   * Fetch the data and build select list.
+   */
   public function getInstitutionList(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     $options = ['' => '- None -'];
 
-    if (! empty($endpoint)) {
+    if (!empty($endpoint)) {
       $json_data = $this->jsonDataFetcher
         ->getUpdated($index_item, $endpoint);
 
@@ -173,20 +171,10 @@ class InstitutionAutoImportForm extends PreLoadForm {
   }
 
   /**
-  * Fetch the data and preview Institution
-  */
+   * Fetch the data and preview Institution.
+   */
   public function previewInstitution(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
-    $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
-
-    $output = '';
-
-    // JSON data has to be stored at this point per previous step
-    $json_data = $this->jsonDataFetcher
-      ->load($index_item, $endpoint);
-    $hei_list = $this->jsonDataProcessor
-      ->idLabel($json_data);
-
     $hei_item = $form_state->getValue('hei_select');
 
     // Create a new Institution if none exists with the same key
@@ -203,7 +191,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
       $view_builder = $this->entityTypeManager
         ->getViewBuilder(InstitutionManager::ENTITY_TYPE);
       $pre_render = $view_builder->view($entity, $view_mode);
-      $html= $this->renderer->render($pre_render);
+      $html = $this->renderer->render($pre_render);
 
       $text = $this->t('This institution is now available for selection.');
       $modal = $this->requestStack->getCurrentRequest()->query->has('modal');

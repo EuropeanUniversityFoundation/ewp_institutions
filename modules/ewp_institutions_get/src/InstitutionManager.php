@@ -14,7 +14,7 @@ use Drupal\ewp_institutions_get\Event\InstitutionIdChangeEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
- * Service for managing Institution entities
+ * Service for managing Institution entities.
  */
 class InstitutionManager {
 
@@ -48,38 +48,38 @@ class InstitutionManager {
   protected $eventDispatcher;
 
   /**
-   * Field mapping
+   * Field mapping.
    *
    * @var array
    */
   protected $fieldmap;
 
   /**
-   * Index endpoint
+   * Index endpoint.
    *
    * @var string
    */
   protected $indexEndpoint;
 
   /**
-   * Data for target Institution
+   * Data for target Institution.
    *
    * @var array
    */
   protected $heiItemData;
 
   /**
-  * JSON data fetching service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataFetcher
-  */
+   * JSON data fetching service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataFetcher
+   */
   protected $jsonDataFetcher;
 
   /**
-  * JSON data processing service.
-  *
-  * @var \Drupal\ewp_institutions_get\JsonDataProcessor
-  */
+   * JSON data processing service.
+   *
+   * @var \Drupal\ewp_institutions_get\JsonDataProcessor
+   */
   protected $jsonDataProcessor;
 
   /**
@@ -136,15 +136,15 @@ class InstitutionManager {
     RendererInterface $renderer,
     TranslationInterface $string_translation
   ) {
-    $this->configFactory      = $config_factory;
-    $this->entityTypeManager  = $entity_type_manager;
-    $this->eventDispatcher    = $event_dispatcher;
-    $this->jsonDataFetcher    = $json_data_fetcher;
-    $this->jsonDataProcessor  = $json_data_processor;
-    $this->logger             = $logger_factory->get('ewp_institutions_get');
-    $this->messenger          = $messenger;
-    $this->renderer           = $renderer;
-    $this->stringTranslation  = $string_translation;
+    $this->configFactory     = $config_factory;
+    $this->entityTypeManager = $entity_type_manager;
+    $this->eventDispatcher   = $event_dispatcher;
+    $this->jsonDataFetcher   = $json_data_fetcher;
+    $this->jsonDataProcessor = $json_data_processor;
+    $this->logger            = $logger_factory->get('ewp_institutions_get');
+    $this->messenger         = $messenger;
+    $this->renderer          = $renderer;
+    $this->stringTranslation = $string_translation;
 
     $this->indexEndpoint = $this->configFactory
       ->get('ewp_institutions_get.settings')
@@ -158,13 +158,14 @@ class InstitutionManager {
   }
 
   /**
-   * Get the ID of an Institution entity;
-   *   optionally, create a new entity from an index key
+   * Get the ID of an Institution entity; optionally, create a new entity.
    *
    * @param string $hei_id
    *   Unique Institution identifier.
    * @param string $create_from
    *   Key found in the API Index.
+   * @param bool $verbose
+   *   Verbose output.
    *
    * @return array
    *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
@@ -184,7 +185,7 @@ class InstitutionManager {
             ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
 
           if ($verbose) {
-            foreach ($exists as $id => $hei) {
+            foreach ($exists as $hei) {
               $renderable = $hei->toLink()->toRenderable();
             }
             $message = $this->t('Institution successfully created: @link', [
@@ -202,7 +203,7 @@ class InstitutionManager {
       }
       else {
         if ($verbose) {
-          foreach ($exists as $id => $hei) {
+          foreach ($exists as $hei) {
             $renderable = $hei->toLink()->toRenderable();
           }
           $message = $this->t('Institution already exists: @link', [
@@ -217,7 +218,7 @@ class InstitutionManager {
   }
 
   /**
-   * Create a new Institution entity
+   * Create a new Institution entity.
    *
    * @param string $index_key
    *   Key found in the API Index.
@@ -255,7 +256,7 @@ class InstitutionManager {
 
     // Remove non mapped values from the entity data
     foreach ($this->heiItemData as $key => $value) {
-      if (! array_key_exists($key, $reciprocal)) {
+      if (!array_key_exists($key, $reciprocal)) {
         unset($this->heiItemData[$key]);
       }
     }
@@ -284,14 +285,14 @@ class InstitutionManager {
   }
 
   /**
-   * Check for errors based on the provided arguments
+   * Check for errors based on the provided arguments.
    *
    * @param string $index_key
    *   Key found in the API Index.
    * @param string $hei_key
    *   Key found in the HEI list.
    *
-   * @return string|NULL
+   * @return string|null
    *   The error message if any error is detected
    */
   public function checkErrors($index_key = NULL, $hei_key = NULL) {
@@ -304,7 +305,7 @@ class InstitutionManager {
       ->load(self::INDEX_KEYWORD, $this->indexEndpoint);
 
     // Check for the actual index data
-    if (! $index_data) {
+    if (!$index_data) {
       return $this->t("No available data.");
     }
 
@@ -314,9 +315,9 @@ class InstitutionManager {
       ->idLabel($index_data);
 
     // Check for an index item matching the index key provided
-    if (! array_key_exists($index_key, $index_links)) {
+    if (!array_key_exists($index_key, $index_links)) {
       return $this->t("Invalid index key: @index_key", [
-        '@index_key' => $index_key
+        '@index_key' => $index_key,
       ]);
     }
 
@@ -334,9 +335,9 @@ class InstitutionManager {
       ->getUpdated($index_key, $item_endpoint);
 
     // Check for the actual index item data
-    if (! $item_data) {
+    if (!$item_data) {
       return $this->t("No available data for @index_item", [
-        '@index_item' => $index_labels[$index_key]
+        '@index_item' => $index_labels[$index_key],
       ]);
     }
 
@@ -344,9 +345,9 @@ class InstitutionManager {
       ->idLabel($item_data);
 
     // Check for an institution matching the key provided
-    if (! array_key_exists($hei_key, $hei_list)) {
+    if (!array_key_exists($hei_key, $hei_list)) {
       return $this->t("Invalid institution key: @hei_key", [
-        '@hei_key' => $hei_key
+        '@hei_key' => $hei_key,
       ]);
     }
 
@@ -359,6 +360,7 @@ class InstitutionManager {
    * Check for changes in the Institution ID to dispatch an event.
    *
    * @param \Drupal\ewp_institutions\Entity\InstitutionEntity $hei
+   *   The Institution entity.
    */
   public function checkIdChange(InstitutionEntity $hei) {
     $old_value = (empty($hei->original)) ? NULL : $hei->original

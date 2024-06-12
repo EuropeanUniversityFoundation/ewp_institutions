@@ -3,8 +3,6 @@
 namespace Drupal\ewp_institutions_get;
 
 /**
- * Class JsonDataKeys
- *
  * Service to handle JSON:API object keys.
  */
 class JsonDataKeys {
@@ -30,7 +28,7 @@ class JsonDataKeys {
       'name',
       'other_id',
       'street_address',
-      'website_url'
+      'website_url',
     ];
 
     return $default_keys;
@@ -44,7 +42,7 @@ class JsonDataKeys {
 
     // Gather the initial keys if not excluded.
     foreach ($keys as $key) {
-      if (! in_array($key, $excluded)) {
+      if (!in_array($key, $excluded)) {
         $assoc[$key] = $key;
       }
     }
@@ -56,4 +54,5 @@ class JsonDataKeys {
 
     return $assoc;
   }
+
 }

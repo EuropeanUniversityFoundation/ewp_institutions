@@ -44,7 +44,7 @@ class DataFormatter {
    * Format data as HTML table.
    */
   public function toTable($title, $data, $columns = [], $show_attr = TRUE) {
-    $header = [self::TYPE_KEY,self::ID_KEY];
+    $header = [self::TYPE_KEY, self::ID_KEY];
 
     // Additional columns.
     if (!empty($columns)) {
@@ -60,7 +60,7 @@ class DataFormatter {
 
     $rows = [];
 
-    foreach ($data as $item => $fields) {
+    foreach ($data as $fields) {
       // Load the default columns first.
       $type = $fields[self::TYPE_KEY];
       $id = $fields[self::ID_KEY];
@@ -78,11 +78,13 @@ class DataFormatter {
               if (count(array_filter(array_keys($array), 'is_string')) > 0) {
                 // A keyed array implies a single value of a complex field.
                 $cell = $this->t('complex');
-              } else {
+              }
+              else {
                 // Otherwise assume a field with multiple values.
                 $cell = $this->t('multiple');
               }
-            } else {
+            }
+            else {
               $cell = $fields[self::ATTR_KEY][$value];
             }
           }
@@ -99,17 +101,19 @@ class DataFormatter {
           $attr_list = [];
 
           foreach ($fields[self::ATTR_KEY] as $key => $value) {
-            if (! empty($value)) {
+            if (!empty($value)) {
               // Handle complex attributes.
               if (is_array($value)) {
                 if (count(array_filter(array_keys($value), 'is_string')) > 0) {
                   // A keyed array implies a single value of a complex field.
                   $attr_list[] = $key . '*';
-                } else {
+                }
+                else {
                   // Otherwise assume a field with multiple values.
                   $attr_list[] = $key . ' (' . count($value) . ')';
                 }
-              } else {
+              }
+              else {
                 $attr_list[] = $key;
               }
             }
@@ -124,11 +128,13 @@ class DataFormatter {
       $rows[] = $row;
     }
 
+    $total = '<p><strong>' . $this->t('Total: @count', [
+      '@count' => count($data),
+    ]) . '</strong></p>';
+
     $build['intro'] = [
       '#type' => 'markup',
-      '#markup' => '<h2>' . $title . '</h2>' .
-        '<p><strong>' . $this->t('Total') . ': </strong>' .
-        count($data) . '</p>',
+      '#markup' => '<h2>' . $title . '</h2>' . $total,
     ];
 
     $build['table'] = [
@@ -139,7 +145,7 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => $this->renderer->render($build)
+      '#markup' => $this->renderer->render($build),
     ];
   }
 
@@ -162,7 +168,7 @@ class DataFormatter {
     $empty = '<em>' . $this->t('empty') . '</em>';
 
     foreach ($attributes as $key => $value) {
-      if (! empty($value)) {
+      if (!empty($value)) {
         // Handle complex attributes.
         if (is_array($value)) {
           $list = '';
@@ -173,14 +179,15 @@ class DataFormatter {
 
             foreach ($attributes[$key] as $subkey => $subvalue) {
               if ($subvalue || $show_empty) {
-                $subvalue = ($subvalue) ? $subvalue : $empty ;
+                $subvalue = ($subvalue) ? $subvalue : $empty;
                 $list .= '<li><strong>' . $subkey . ':</strong> ';
                 $list .= $subvalue . '</li>';
               }
             }
 
             $list .= '</ul>';
-          } else {
+          }
+          else {
             // Otherwise assume a field with multiple values.
             $list .= '<ol start="0">';
 
@@ -193,7 +200,7 @@ class DataFormatter {
 
                 foreach ($attributes[$key][$delta] as $subkey => $subvalue) {
                   if ($subvalue || $show_empty) {
-                    $subvalue = ($subvalue) ? $subvalue : $empty ;
+                    $subvalue = ($subvalue) ? $subvalue : $empty;
                     $sublist .= '<li><strong>' . $subkey . ':</strong> ';
                     $sublist .= $subvalue . '</li>';
                   }
@@ -202,7 +209,8 @@ class DataFormatter {
                 $sublist .= '</ul>';
 
                 $submarkup = $sublist;
-              } else {
+              }
+              else {
                 $submarkup = ' ' . $value . '<br />';
               }
 
@@ -213,15 +221,17 @@ class DataFormatter {
           }
 
           $markup = $list;
-        } else {
+        }
+        else {
           $markup = ' ' . $value . '<br />';
         }
-      } else {
+      }
+      else {
         $markup = ' ' . $empty . '<br />';
       }
 
       $content .= '<strong>' . $key . ':</strong>';
-      $content .=  $markup;
+      $content .= $markup;
     }
 
     $build['data'] = [
@@ -231,7 +241,7 @@ class DataFormatter {
 
     return [
       '#type' => '#markup',
-      '#markup' => $this->renderer->render($build)
+      '#markup' => $this->renderer->render($build),
     ];
   }
 

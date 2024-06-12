@@ -5,7 +5,6 @@ namespace Drupal\ewp_institutions_get\Form;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\ewp_institutions_get\Form\PreLoadForm;
 
 class PreviewForm extends PreLoadForm {
 
@@ -67,7 +66,7 @@ class PreviewForm extends PreLoadForm {
       '#attributes' => [
         'class' => [
           'button--primary',
-        ]
+        ],
       ],
       '#states' => [
         'disabled' => [
@@ -89,15 +88,15 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Fetch the data and build select list
-  */
+   * Fetch the data and build select list.
+   */
   public function getInstitutionList(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
     $options = ['' => '- None -'];
 
-    if (! empty($endpoint)) {
+    if (!empty($endpoint)) {
       $json_data = $this->jsonDataFetcher->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
@@ -111,8 +110,8 @@ class PreviewForm extends PreLoadForm {
   }
 
   /**
-  * Fetch the data and preview Institution
-  */
+   * Fetch the data and preview Institution.
+   */
   public function previewInstitution(array $form, FormStateInterface $form_state) {
     $index_item = $form_state->getValue('index_select');
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';

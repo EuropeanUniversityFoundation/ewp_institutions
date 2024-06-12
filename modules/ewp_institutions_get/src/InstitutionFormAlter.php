@@ -7,7 +7,6 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Url;
-use Drupal\ewp_institutions_get\InstitutionManager;
 
 /**
  * EWP Institutions GET form alter service.
@@ -49,14 +48,18 @@ class InstitutionFormAlter {
    * Alter Institution reference autocomplete form element.
    *
    * @param array $elements
+   *   The form elements.
    * @param Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    * @param array $context
+   *   The context array.
    */
   public function autocompleteAlter(array &$elements, FormStateInterface $form_state, array $context) {
     $target_type = $elements[self::OBJ][0][self::PROP]['#target_type'];
     $selection_settings = $elements[self::OBJ][0][self::PROP][self::SEL];
-    $auto_create = (array_key_exists(self::AC, $selection_settings)) ?
-      $selection_settings[self::AC] : FALSE ;
+    $auto_create = (array_key_exists(self::AC, $selection_settings))
+      ? $selection_settings[self::AC]
+      : FALSE;
 
     if ($target_type === InstitutionManager::ENTITY_TYPE && $auto_create) {
       foreach ($elements as $key => $value) {
@@ -72,7 +75,7 @@ class InstitutionFormAlter {
         '#type' => 'link',
         '#title' => $this->t('Click here to look up more Institutions'),
         '#url' => Url::fromRoute('entity.hei.auto_import_form', [], [
-          'query' => ['modal' => '']
+          'query' => ['modal' => ''],
         ]),
         '#attributes' => [
           'class' => ['use-ajax'],
@@ -90,7 +93,8 @@ class InstitutionFormAlter {
         $break = (!empty($elements[self::OBJ][self::DESC])) ?
           '<br/>' : '';
         $elements[self::OBJ][self::DESC] .= $break . $markup;
-      } else {
+      }
+      else {
         $break = (!empty($elements[self::OBJ][0][self::PROP][self::DESC])) ?
           '<br/>' : '';
         $elements[self::OBJ][0][self::PROP][self::DESC] .= $break . $markup;
