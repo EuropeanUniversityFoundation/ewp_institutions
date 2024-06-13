@@ -82,7 +82,7 @@ function template_preprocess_hei(array &$variables) {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
-  /** @var InstitutionEntityInterface $entity */
+  /** @var \Drupal\ewp_institutions\Entity\InstitutionEntityInterface $entity */
   $entity = $variables['elements']['#hei'];
   // provide the label
   $variables['label'] = $entity->label();

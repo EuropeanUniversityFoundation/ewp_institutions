@@ -51,6 +51,8 @@ class InstitutionEntityHtmlRouteProvider extends AdminHtmlRouteProvider {
 
       return $route;
     }
+
+    return NULL;
   }
 
 }

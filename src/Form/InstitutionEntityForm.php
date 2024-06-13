@@ -34,7 +34,6 @@ class InstitutionEntityForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form = parent::buildForm($form, $form_state);
 
     return $form;
@@ -60,7 +59,12 @@ class InstitutionEntityForm extends ContentEntityForm {
           '%label' => $entity->label(),
         ]));
     }
-    $form_state->setRedirect('entity.hei.canonical', ['hei' => $entity->id()]);
+
+    $id = $entity->id();
+
+    $form_state->setRedirect('entity.hei.canonical', ['hei' => $id]);
+
+    return $id;
   }
 
 }
