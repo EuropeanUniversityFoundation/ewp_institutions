@@ -10,6 +10,7 @@ use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
 use Drupal\ewp_institutions_get\InstitutionManager;
@@ -105,10 +106,10 @@ class InstitutionEntityController extends EntityController {
    * @param string $hei_key
    *   The Institution key to import.
    *
-   * @return array
-   *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
+   * @return \Symfony\Component\HttpFoundation\RedirectResponse
+   *   Redirects to the relevant route.
    */
-  public function autoImport(Request $request, $index_key, $hei_key) {
+  public function autoImport(Request $request, $index_key, $hei_key): RedirectResponse {
     // Create a new Institution if none exists with the same key.
     $hei = $this->institutionManager
       ->getInstitution($hei_key, $index_key, TRUE);

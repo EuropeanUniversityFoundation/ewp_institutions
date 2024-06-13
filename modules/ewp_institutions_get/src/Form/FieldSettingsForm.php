@@ -32,7 +32,7 @@ class FieldSettingsForm extends ConfigFormBase {
     'uuid',
     'langcode',
     'created',
-    'changed'
+    'changed',
   ];
 
   /**
@@ -131,7 +131,7 @@ class FieldSettingsForm extends ConfigFormBase {
       '#description' => $this
         ->t('Check the @fields to be excluded from field mapping, @example.', [
           '@fields' => 'target entity fields',
-          '@example' => 'such as base fields and Entity References'
+          '@example' => 'such as base fields and Entity References',
         ]),
     ];
 
@@ -144,8 +144,10 @@ class FieldSettingsForm extends ConfigFormBase {
       ->getFieldDefinitions(self::ENTITY_TYPE, self::ENTITY_TYPE);
 
     // Generate the options
+    $options = [];
+
     foreach ($fields as $field_name => $field) {
-      if (! in_array($field_name, $this->baseFieldsExclude)) {
+      if (!in_array($field_name, $this->baseFieldsExclude)) {
         $options[$field_name] = $field->getLabel();
       }
     }
@@ -172,7 +174,7 @@ class FieldSettingsForm extends ConfigFormBase {
       '#title' => t('Exclude remote keys'),
       '#description' => $this
         ->t('Check the @keys to exclude from the field mapping options.', [
-          '@keys' => 'default remote keys'
+          '@keys' => 'default remote keys',
         ]),
     ];
 
@@ -201,7 +203,7 @@ class FieldSettingsForm extends ConfigFormBase {
       '#description' => $this
         ->t('List the @keys to include in the field mapping options @howto.', [
           '@keys' => 'additional remote keys',
-          '@howto' => '(one per line)'
+          '@howto' => '(one per line)',
         ]),
       '#default_value' => $default_text,
       '#rows' => 5,
@@ -245,7 +247,7 @@ class FieldSettingsForm extends ConfigFormBase {
       }
     }
 
-    $config->set('remote_exclude', $excluded_keys);
+    $config->set('remote_exclude', $excluded_keys ?? []);
 
     // Remote keys to include
     $key_include = $form_state->getValue('keys')['key_include'];

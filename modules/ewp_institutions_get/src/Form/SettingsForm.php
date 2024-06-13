@@ -16,7 +16,7 @@ use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\BadResponseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class SettingsForm extends ConfigFormBase {
@@ -214,9 +214,10 @@ class SettingsForm extends ConfigFormBase {
         $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();
       }
-      catch (GuzzleException $e) {
-        /** @disregard P1013 */
-        $status = $e->getResponse()->getStatusCode();
+      catch (BadResponseException $e) {
+        if ($e->hasResponse()) {
+          $status = $e->getResponse()->getStatusCode();
+        }
       }
       catch (\Exception $e) {
         Error::logException($this->logger, $e);
@@ -235,6 +236,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $endpoint = $form_state->getValue('index_endpoint');
+
     $config = $this->config('ewp_institutions_get.settings');
 
     $config->set('index_endpoint', $form_state->getValue('index_endpoint'));

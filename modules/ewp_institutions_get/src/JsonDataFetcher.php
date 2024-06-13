@@ -8,7 +8,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Core\Utility\Error;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\BadResponseException;
 
 /**
  * JSON data fetching service.
@@ -46,6 +46,13 @@ class JsonDataFetcher {
   protected $tempStore;
 
   /**
+   * The string translation service.
+   *
+   * @var \Drupal\Core\StringTranslation\TranslationInterface
+   */
+  protected $stringTranslation;
+
+  /**
    * Constructs a new JsonDataFetcher.
    *
    * @param \GuzzleHttp\Client $http_client
@@ -70,6 +77,7 @@ class JsonDataFetcher {
     $this->jsonDataProcessor = $json_data_processor;
     $this->logger = $logger_factory->get('ewp_institutions_get');
     $this->tempStore = $temp_store_factory->get('ewp_institutions_get');
+    $this->stringTranslation = $string_translation;
   }
 
   /**
@@ -104,8 +112,7 @@ class JsonDataFetcher {
       $request = $this->httpClient->get($endpoint);
       $response = $request->getBody();
     }
-    catch (GuzzleException $e) {
-      /** @disregard P1013 */
+    catch (BadResponseException $e) {
       $response = $e->getResponse()->getBody();
     }
     catch (\Exception $e) {

@@ -3,13 +3,13 @@
 namespace Drupal\ewp_institutions_get;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
-use Drupal\ewp_institutions\Entity\InstitutionEntity;
 use Drupal\ewp_institutions_get\Event\InstitutionIdChangeEvent;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -230,7 +230,7 @@ class InstitutionManager {
    */
   public function createInstitution($index_key, $hei_key) {
     if (!empty($this->checkErrors($index_key, $hei_key))) {
-      return NULL;
+      return [];
     }
 
     $index_data = $this->jsonDataFetcher
@@ -359,10 +359,11 @@ class InstitutionManager {
   /**
    * Check for changes in the Institution ID to dispatch an event.
    *
-   * @param \Drupal\ewp_institutions\Entity\InstitutionEntity $hei
+   * @param \Drupal\Core\Entity\EntityInterface $hei
    *   The Institution entity.
    */
-  public function checkIdChange(InstitutionEntity $hei) {
+  public function checkIdChange(EntityInterface $hei) {
+    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $hei */
     $old_value = (empty($hei->original)) ? NULL : $hei->original
       ->get(self::UNIQUE_FIELD)->getValue();
     $new_value = $hei

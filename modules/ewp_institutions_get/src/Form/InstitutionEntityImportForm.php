@@ -203,7 +203,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $index_key = NULL, $hei_key = NULL) {
-    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add_form'] = parent::buildForm($form, $form_state);
 
     // Build the form header.

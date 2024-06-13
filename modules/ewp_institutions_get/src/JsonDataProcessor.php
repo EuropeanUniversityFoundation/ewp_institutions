@@ -33,6 +33,13 @@ class JsonDataProcessor {
   protected $logger;
 
   /**
+   * The string translation service.
+   *
+   * @var \Drupal\Core\StringTranslation\TranslationInterface
+   */
+  protected $stringTranslation;
+
+  /**
    * Constructs a new JsonDataProcessor.
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
@@ -45,6 +52,7 @@ class JsonDataProcessor {
     TranslationInterface $string_translation
   ) {
     $this->logger = $logger_factory->get('ewp_institutions_get');
+    $this->stringTranslation = $string_translation;
   }
 
   /**

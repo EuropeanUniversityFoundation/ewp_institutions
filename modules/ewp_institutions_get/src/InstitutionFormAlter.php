@@ -49,7 +49,7 @@ class InstitutionFormAlter {
    *
    * @param array $elements
    *   The form elements.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    * @param array $context
    *   The context array.

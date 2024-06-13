@@ -26,6 +26,13 @@ class DataFormatter {
   protected $renderer;
 
   /**
+   * The string translation service.
+   *
+   * @var \Drupal\Core\StringTranslation\TranslationInterface
+   */
+  protected $stringTranslation;
+
+  /**
    * Constructs a new DataFormatter.
    *
    * @param \Drupal\Core\Render\RendererInterface $renderer
@@ -38,6 +45,7 @@ class DataFormatter {
     TranslationInterface $string_translation
   ) {
     $this->renderer = $renderer;
+    $this->stringTranslation = $string_translation;
   }
 
   /**
@@ -167,7 +175,7 @@ class DataFormatter {
     $content = '';
     $empty = '<em>' . $this->t('empty') . '</em>';
 
-    foreach ($attributes as $key => $value) {
+    foreach ($attributes ?? [] as $key => $value) {
       if (!empty($value)) {
         // Handle complex attributes.
         if (is_array($value)) {
@@ -211,7 +219,7 @@ class DataFormatter {
                 $submarkup = $sublist;
               }
               else {
-                $submarkup = ' ' . $value . '<br />';
+                $submarkup = ' ' . $fieldvalue . '<br />';
               }
 
               $list .= '<li>' . $submarkup . '</li>';

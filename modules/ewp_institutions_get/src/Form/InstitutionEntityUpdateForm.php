@@ -16,7 +16,6 @@ class InstitutionEntityUpdateForm extends InstitutionEntityForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\ewp_institutions\Entity\InstitutionEntity $entity */
     $form['add-form'] = parent::buildForm($form, $form_state);
 
     foreach ($form['add-form'] as $name => $array) {
