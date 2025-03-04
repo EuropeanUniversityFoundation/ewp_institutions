@@ -2,7 +2,7 @@ name: 'EWP Institutions User bridge'
 type: module
 description: 'Associate Users with Institutions'
 core: 8.x
-core_version_requirement: ^8 || ^9 || ^10
+core_version_requirement: ^8 || ^9 || ^10 || ^11
 package: 'EWP'
 dependencies:
   - ewp_institutions:ewp_institutions
