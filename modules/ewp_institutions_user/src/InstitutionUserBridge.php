@@ -212,4 +212,24 @@ class InstitutionUserBridge {
     }
   }
 
+  /**
+   * Get entity reference to Institutions from a user entity.
+   *
+   * Output is similar to that of the entity type manager.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user entity.
+   *
+   * @return array
+   *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
+   */
+  public function getUserInstitution(UserInterface $user): array {
+    $referenced = $user->get(self::BASE_FIELD)->referencedEntities();
+    $hei = [];
+    foreach ($referenced as $entity) {
+      $hei[$entity->id()] = $entity;
+    }
+    return $hei;
+  }
+
 }
