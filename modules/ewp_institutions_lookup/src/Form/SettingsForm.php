@@ -5,6 +5,7 @@ namespace Drupal\ewp_institutions_lookup\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -66,6 +67,8 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \Drupal\ewp_institutions_get\JsonDataFetcher $json_data_fetcher
    *   JSON data fetching service.
    * @param \Drupal\ewp_institutions_get\JsonDataProcessor $json_data_processor
@@ -79,13 +82,14 @@ class SettingsForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typedConfigManager,
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor,
     DataFormatter $data_formatter,
     ClientInterface $http_client,
     LoggerChannelFactoryInterface $logger_factory
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
     $this->jsonDataFetcher   = $json_data_fetcher;
     $this->jsonDataProcessor = $json_data_processor;
     $this->dataFormatter     = $data_formatter;
@@ -99,6 +103,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('ewp_institutions_get.fetch'),
       $container->get('ewp_institutions_get.json'),
       $container->get('ewp_institutions_get.format'),

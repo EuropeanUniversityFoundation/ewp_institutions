@@ -5,6 +5,7 @@ namespace Drupal\ewp_institutions_get\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
@@ -63,6 +64,8 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \GuzzleHttp\Client $http_client
    *   HTTP Client for API calls.
    * @param \Drupal\ewp_institutions_get\DataFormatter $data_formatter
@@ -78,6 +81,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typedConfigManager,
     Client $http_client,
     DataFormatter $data_formatter,
     JsonDataFetcher $json_data_fetcher,
@@ -85,7 +89,7 @@ class SettingsForm extends ConfigFormBase {
     LoggerChannelFactoryInterface $logger_factory,
     TranslationInterface $string_translation
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
     $this->httpClient        = $http_client;
     $this->dataFormatter     = $data_formatter;
     $this->jsonDataFetcher   = $json_data_fetcher;
@@ -100,6 +104,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('http_client'),
       $container->get('ewp_institutions_get.format'),
       $container->get('ewp_institutions_get.fetch'),

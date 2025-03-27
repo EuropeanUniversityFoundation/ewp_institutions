@@ -3,6 +3,7 @@
 namespace Drupal\ewp_institutions_user\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\ConfigFormBase;
@@ -41,17 +42,20 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   The typed config manager.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    * @param \Drupal\ewp_institutions_user\InstitutionUserBridge $user_bridge
    *   The EWP Institutions User bridge service.
    */
   public function __construct(
-      ConfigFactoryInterface $config_factory,
-      ModuleHandlerInterface $module_handler,
-      InstitutionUserBridge $user_bridge
+    ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $typedConfigManager,
+    ModuleHandlerInterface $module_handler,
+    InstitutionUserBridge $user_bridge
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $typedConfigManager);
     $this->moduleHandler = $module_handler;
     $this->userBridge = $user_bridge;
   }
@@ -62,6 +66,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('module_handler'),
       $container->get('ewp_institutions_user.bridge')
     );
