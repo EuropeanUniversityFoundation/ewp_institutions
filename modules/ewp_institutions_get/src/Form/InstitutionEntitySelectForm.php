@@ -157,31 +157,36 @@ class InstitutionEntitySelectForm extends PreviewForm {
           'button--primary',
         ],
       ],
-      '#states' => [
-        'disabled' => [
-          ':input[name="hei_select"]' => ['value' => ''],
-        ],
-        'visible' => [
-          ':input[name="data_status"]' => ['value' => ''],
-        ],
-      ],
     ];
 
     $form['actions']['load'] = [
       '#type' => 'submit',
       '#submit' => ['::loadImportForm'],
       '#value' => $this->t('Load Import form'),
-      '#states' => [
-        'disabled' => [
-          ':input[name="hei_select"]' => ['value' => ''],
-        ],
-        'visible' => [
-          ':input[name="data_status"]' => ['value' => ''],
-        ],
-      ],
     ];
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $index_item = $form_state->getValue('index_select');
+    $hei_id = $form_state->getValue('hei_select');
+
+    if (empty($index_item)) {
+      $error = $this->t('Select an entry from the Index.');
+      $target = 'index_select';
+    }
+    elseif (empty($hei_id)) {
+      $error = $this->t('Select an Institution from the list.');
+      $target = 'hei_select';
+    }
+
+    if (!empty($error)) {
+      $form_state->setErrorByName($target, $error);
+    }
   }
 
   /**
