@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -53,6 +54,8 @@ class InstitutionEntityController extends EntityController {
    *   The string translation.
    * @param \Drupal\Core\Routing\UrlGeneratorInterface $url_generator
    *   The url generator.
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *   The route match.
    * @param \Symfony\Component\Routing\Matcher\UrlMatcherInterface $access_unaware_router
    *   A router implementation which does not check access.
    * @param \Drupal\ewp_institutions_get\InstitutionManager $institution_manager
@@ -65,6 +68,7 @@ class InstitutionEntityController extends EntityController {
     RendererInterface $renderer,
     TranslationInterface $string_translation,
     UrlGeneratorInterface $url_generator,
+    RouteMatchInterface $route_match,
     UrlMatcherInterface $access_unaware_router,
     InstitutionManager $institution_manager
   ) {
@@ -74,7 +78,8 @@ class InstitutionEntityController extends EntityController {
       $entity_repository,
       $renderer,
       $string_translation,
-      $url_generator
+      $url_generator,
+      $route_match
     );
     $this->accessUnawareRouter = $access_unaware_router;
     $this->institutionManager = $institution_manager;
@@ -91,6 +96,7 @@ class InstitutionEntityController extends EntityController {
       $container->get('renderer'),
       $container->get('string_translation'),
       $container->get('url_generator'),
+      $container->get('current_route_match'),
       $container->get('router.no_access_checks'),
       $container->get('ewp_institutions_get.manager')
     );

@@ -339,10 +339,11 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         // Reordering field values with dragtable is still possible.
 
         // Handle non mapped, non required fields.
-        if (
-          !array_key_exists($field_name, $fieldmap) &&
-          !$array['widget']['#required']
-        ) {
+        $is_required = ($array['widget']['#required'] ??
+          ($array['widget'][0]['#required'] ??
+          $array['widget'][0]['target_id']['#required']));
+
+        if (!array_key_exists($field_name, $fieldmap) && !$is_required) {
           switch ($field_name) {
             case 'index_key':
               // Custom base field to hold the API index key.
@@ -369,7 +370,11 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
           // Handle mapped fields.
           if (array_key_exists($field_name, $this->heiItemData)) {
             // Special cases for certain widgets.
-            if (!array_key_exists('#theme', $widget)) {
+            $has_theme = array_key_exists('#theme', $widget);
+            $has_type = array_key_exists('#type', $widget);
+            $is_select = $has_type && $widget['#type'] === 'select';
+
+            if (!$has_theme && !$is_select) {
               switch ($field_name) {
                 case 'status':
                   $default_value = $this->heiItemData[$field_name];
@@ -385,11 +390,17 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             else {
               // Extract the field properties from the widget array.
               $field_props = [];
-              foreach ($widget[0] as $property => $value) {
+              foreach ($widget[0] ?? [] as $property => $value) {
                 if (!in_array(substr($property, 0, 1), ['#', '_'])) {
                   $field_props[] = $property;
                 }
               }
+
+              if (empty($field_props) && $is_select) {
+                $field_props[] = $widget['#key_column'];
+              }
+
+              if ($is_select) { $widget = [$widget]; }
 
               // Handle single value in the API data (probably empty).
               if (!is_array($this->heiItemData[$field_name])) {
@@ -406,7 +417,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               $data_array = $this->heiItemData[$field_name];
 
               // Check for a limit on the number of field values.
-              $cardinality = $widget['#cardinality'];
+              $cardinality = $widget['#cardinality'] ?? -1;
               // With unlimited values, the data size is the actual limit.
               $max = ($cardinality > 0) ? $cardinality : count($data_array);
               $widget['#max_delta'] = $max - 1;
@@ -429,11 +440,30 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
               // Truncate the data array if needed.
               $data_slice = array_slice($data_array, 0, $max);
 
+              if ($is_select) {
+                // Reshape like other form elements.
+                $key_column = $widget[0]['#key_column'];
+                $default = $widget[0]['#default_value'];
+                $widget[0][$key_column]['#default_value'] = $default;
+                $widget[0][$key_column]['#type'] = $widget[0]['#type'];
+                $widget[0][$key_column]['#options'] = $widget[0]['#options'];
+                $widget['#required'] = $widget[0]['#required'];
+              }
+
               foreach ($data_slice as $delta => $value) {
                 // Handle each field property individually.
                 foreach ($data_slice[$delta] as $prop => $value) {
                   $widget = $this->setDefault($value, $widget, $delta, $prop);
                   $widget = $this->setReadOnly($widget, $delta, $prop);
+                }
+
+                if ($is_select) {
+                  // Return some items to the original place.
+                  $widget = $widget[0];
+                  foreach ($widget[$key_column] as $key => $val) {
+                    $widget[$key] = $val;
+                  }
+                  unset($widget[$key_column]);
                 }
 
                 // Move the form element to the main array.
