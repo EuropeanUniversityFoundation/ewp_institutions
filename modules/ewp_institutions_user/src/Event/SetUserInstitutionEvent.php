@@ -38,7 +38,7 @@ class SetUserInstitutionEvent extends Event {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user entity.
-   * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
+   * @param \Drupal\ewp_institutions\Entity\InstitutionEntity[] $hei
    *   Array of Institution entities.
    * @param bool $save
    *   Whether the user entity should be saved after setting the value.

@@ -20,20 +20,13 @@ class UserBaseFieldTest extends KernelTestBase {
   /**
    * Modules to enable.
    *
-   * @var array
+   * @var array<string>
    */
   protected static $modules = [
     'user',
     'ewp_institutions',
     'ewp_institutions_user',
   ];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp(): void {
-    parent::setUp();
-  }
 
   /**
    * Tests that the base field definitions exist.

@@ -12,7 +12,7 @@ use Drupal\ewp_institutions_user\InstitutionUserBridge;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Settings for the Institution User bridge.
  */
 class SettingsForm extends ConfigFormBase {
 
