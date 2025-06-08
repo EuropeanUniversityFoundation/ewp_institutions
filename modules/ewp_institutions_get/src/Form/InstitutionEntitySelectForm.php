@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class InstitutionEntitySelectForm extends PreviewForm {
 
   /**
+   * The current user.
+   *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $account;
@@ -61,7 +63,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     // Give a user with permission the opportunity to add an entity manually.
     if ($this->account->hasPermission('bypass import institution entities')) {
-      $add_link = Link::fromTextAndUrl(t('add a new Institution'),
+      $add_link = Link::fromTextAndUrl($this->t('add a new Institution'),
         Url::fromRoute('entity.hei.add_form'))->toString();
 
       $warning = $this->t('You can bypass this form and @add_link manually.', [
@@ -184,7 +186,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
       $target = 'hei_select';
     }
 
-    if (!empty($error)) {
+    if (!empty($error) && !empty($target)) {
       $form_state->setErrorByName($target, $error);
     }
   }
@@ -264,7 +266,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
 
     if (!empty($exists)) {
       foreach ($exists as $hei) {
-        $code = ['#markup' => '<code>' . $this->t($hei_id) . '</code>'];
+        $code = ['#markup' => '<code>' . $hei_id . '</code>'];
         $link = $hei->toLink();
         $renderable = $link->toRenderable();
       }

@@ -12,7 +12,7 @@ use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Settings for field mapping.
  */
 class FieldSettingsForm extends ConfigFormBase {
 
@@ -179,11 +179,11 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $form['keys']['key_exclude'] = [
       '#type' => 'checkboxes',
-      '#title' => t('Exclude remote keys'),
-      '#description' => $this
-        ->t('Check the @keys to exclude from the field mapping options.', [
-          '@keys' => 'default remote keys',
-        ]),
+      '#title' => $this->t('Exclude remote keys'),
+      '#description' => $this->t('Check @keys to exclude from @options.', [
+        '@keys' => 'the default remote keys',
+        '@options' => 'the field mapping options',
+      ]),
     ];
 
     $this->remoteKeys = $this->dataKeys->getDefaultKeys();
@@ -207,12 +207,12 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $form['keys']['key_include'] = [
       '#type' => 'textarea',
-      '#title' => t('Include remote keys'),
-      '#description' => $this
-        ->t('List the @keys to include in the field mapping options @howto.', [
-          '@keys' => 'additional remote keys',
-          '@howto' => '(one per line)',
-        ]),
+      '#title' => $this->t('Include remote keys'),
+      '#description' => $this->t('List @keys to include in @options @howto.', [
+        '@keys' => 'the additional remote keys',
+        '@options' => 'the field mapping options',
+        '@howto' => '(one per line)',
+      ]),
       '#default_value' => $default_text,
       '#rows' => 5,
     ];
@@ -261,11 +261,7 @@ class FieldSettingsForm extends ConfigFormBase {
     $key_include = $form_state->getValue('keys')['key_include'];
 
     $included_keys = array_filter(
-      array_map(
-        'trim', explode(
-          "\n", $key_include
-        )
-      ), 'strlen'
+      array_map('trim', explode("\n", $key_include))
     );
 
     $config->set('remote_include', $included_keys);

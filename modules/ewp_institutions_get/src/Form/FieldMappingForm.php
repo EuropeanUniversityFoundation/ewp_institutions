@@ -12,7 +12,7 @@ use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Form for mapping remote API keys and local entity fields.
  */
 class FieldMappingForm extends ConfigFormBase {
 

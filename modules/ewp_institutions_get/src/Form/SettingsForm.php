@@ -21,7 +21,7 @@ use GuzzleHttp\Exception\BadResponseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Settings form for EWP Institutions GET.
  */
 class SettingsForm extends ConfigFormBase {
 

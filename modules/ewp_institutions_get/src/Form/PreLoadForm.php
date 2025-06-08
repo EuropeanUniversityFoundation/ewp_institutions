@@ -18,7 +18,7 @@ use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Simple form to preload remote API data.
  */
 class PreLoadForm extends FormBase {
 

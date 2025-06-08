@@ -7,7 +7,7 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 
 /**
- *
+ * Form to preview Institution data from remote API.
  */
 class PreviewForm extends PreLoadForm {
 

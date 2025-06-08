@@ -11,7 +11,7 @@ use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * Form to trigger automatic import of an Institution.
  */
 class InstitutionAutoImportForm extends PreLoadForm {
 
