@@ -4,7 +4,6 @@ namespace Drupal\ewp_institutions_lookup\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -16,21 +15,16 @@ use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- *
+ * AJAX form for Institution lookup.
  */
 class InstitutionLookupForm extends FormBase {
 
   /**
+   * The current user.
+   *
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $account;
-
-  /**
-   * Config factory.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
 
   /**
    * Institution lookup service.
@@ -65,8 +59,6 @@ class InstitutionLookupForm extends FormBase {
    *
    * @param \Drupal\Core\Session\AccountProxyInterface $account
    *   The current user account.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
    * @param \Drupal\ewp_institutions_lookup\InstitutionLookupManager $lookup_manager
    *   Institution lookup service.
    * @param \Drupal\ewp_institutions_get\InstitutionManager $hei_manager
@@ -78,7 +70,6 @@ class InstitutionLookupForm extends FormBase {
    */
   public function __construct(
     AccountProxyInterface $account,
-    ConfigFactoryInterface $config_factory,
     InstitutionLookupManager $lookup_manager,
     InstitutionManager $hei_manager,
     MessengerInterface $messenger,
@@ -97,7 +88,6 @@ class InstitutionLookupForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('current_user'),
-      $container->get('config.factory'),
       $container->get('ewp_institutions_lookup.manager'),
       $container->get('ewp_institutions_get.manager'),
       $container->get('messenger'),
@@ -169,7 +159,7 @@ class InstitutionLookupForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    return parent::submitForm($form, $form_state);
+    // Return parent::submitForm($form, $form_state);.
   }
 
   /**

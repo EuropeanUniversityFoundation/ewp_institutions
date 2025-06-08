@@ -149,7 +149,7 @@ class InstitutionLookupManager {
    * @param string $hei_id
    *   The Institution ID.
    *
-   * @return Drupal\Core\Link
+   * @return \Drupal\Core\Link
    *   A Link object pointing to the import form route.
    */
   public function importLink(string $hei_id): Link {
@@ -171,7 +171,7 @@ class InstitutionLookupManager {
    *
    * @param array $form
    *   The form array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public function heiFormAlter(&$form, FormStateInterface $form_state) {
