@@ -9,16 +9,22 @@ class OtherIdTypeManager {
 
   /**
    * An array of type key => type name pairs where type must be unique.
+   *
+   * @var array|null
    */
   protected $otherIdUniqueTypes;
 
   /**
    * An array of type key => type name pairs where type can be not unique.
+   *
+   * @var array|null
    */
   protected $otherIdNonUniqueTypes;
 
   /**
    * An array of type key => type name pairs.
+   *
+   * @var array|null
    */
   protected $otherIdTypes;
 

@@ -93,7 +93,10 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       '#type' => 'textfield',
       '#title' => $this->t('Placeholder'),
       '#default_value' => $this->getSetting('placeholder'),
-      '#description' => $this->t($text . ' ' . $hint),
+      '#description' => $this->t('@text @hint', [
+        '@text' => $text,
+        '@hint' => $hint,
+      ]),
     ];
 
     return $elements;
