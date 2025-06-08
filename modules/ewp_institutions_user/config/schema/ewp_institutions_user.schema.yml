@@ -5,6 +5,9 @@ ewp_institutions_user.settings:
     cardinality:
       type: integer
       label: 'Allowed number of values'
+      constraints:
+        Range:
+          min: -1
     required:
       type: boolean
       label: 'Required field'

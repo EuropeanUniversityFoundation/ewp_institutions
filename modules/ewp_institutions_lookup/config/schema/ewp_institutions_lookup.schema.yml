@@ -3,5 +3,5 @@ ewp_institutions_lookup.settings:
   label: 'External API lookup settings'
   mapping:
     lookup_endpoint:
-      type: text
+      type: uri
       label: 'Lookup endpoint'
