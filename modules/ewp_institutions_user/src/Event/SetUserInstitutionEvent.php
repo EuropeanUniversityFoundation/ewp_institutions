@@ -29,7 +29,7 @@ class SetUserInstitutionEvent extends Event {
   /**
    * Whether the user entity should be saved after setting the value.
    *
-   * @var boolean
+   * @var bool
    */
   public $save;
 

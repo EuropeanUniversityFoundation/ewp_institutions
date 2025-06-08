@@ -130,7 +130,7 @@ class OtherIdTypeManager {
    *   An array of type key => type name pairs.
    */
   public function getOptions() {
-    // Build a list from the defined types
+    // Build a list from the defined types.
     $options = $this->getDefinedTypes();
 
     return $options;

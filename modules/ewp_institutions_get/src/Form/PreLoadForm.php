@@ -17,6 +17,9 @@ use Drupal\ewp_institutions_get\InstitutionManager;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class PreLoadForm extends FormBase {
 
   use StringTranslationTrait;
@@ -109,7 +112,7 @@ class PreLoadForm extends FormBase {
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor,
     MessengerInterface $messenger,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->httpClient        = $http_client;
     $this->configFactory     = $config_factory;

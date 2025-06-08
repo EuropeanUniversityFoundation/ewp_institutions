@@ -15,6 +15,9 @@ use Drupal\ewp_institutions_get\InstitutionManager;
 use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class InstitutionLookupForm extends FormBase {
 
   /**
@@ -79,7 +82,7 @@ class InstitutionLookupForm extends FormBase {
     InstitutionLookupManager $lookup_manager,
     InstitutionManager $hei_manager,
     MessengerInterface $messenger,
-    RendererInterface $renderer
+    RendererInterface $renderer,
   ) {
     $this->account       = $account;
     $this->lookupManager = $lookup_manager;

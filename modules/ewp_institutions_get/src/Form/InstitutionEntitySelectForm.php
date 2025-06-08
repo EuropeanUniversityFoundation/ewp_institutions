@@ -59,7 +59,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // Give a user with permission the opportunity to add an entity manually
+    // Give a user with permission the opportunity to add an entity manually.
     if ($this->account->hasPermission('bypass import institution entities')) {
       $add_link = Link::fromTextAndUrl(t('add a new Institution'),
         Url::fromRoute('entity.hei.add_form'))->toString();
@@ -75,7 +75,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
       ];
     }
 
-    // Build the form header with the AJAX components
+    // Build the form header with the AJAX components.
     $form['header'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Select an Institution to import'),
@@ -230,7 +230,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
         ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
-        // Build the options list
+        // Build the options list.
         $options += $this->jsonDataProcessor
           ->idLabel($json_data);
       }
@@ -249,7 +249,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
 
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
-    // JSON data has to be stored at this point per previous step
+    // JSON data has to be stored at this point per previous step.
     $json_data = $this->jsonDataFetcher
       ->load($index_item, $endpoint);
 
@@ -258,7 +258,7 @@ class InstitutionEntitySelectForm extends PreviewForm {
 
     $hei_id = $form_state->getValue('hei_select');
 
-    // Check if an entity with the same hei_id already exists
+    // Check if an entity with the same hei_id already exists.
     $exists = $this->entityTypeManager->getStorage('hei')
       ->loadByProperties(['hei_id' => $hei_id]);
 

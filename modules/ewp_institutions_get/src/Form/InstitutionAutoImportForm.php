@@ -10,6 +10,9 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class InstitutionAutoImportForm extends PreLoadForm {
 
   use StringTranslationTrait;
@@ -160,7 +163,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
         ->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
-        // Build the options list
+        // Build the options list.
         $options += $this->jsonDataProcessor
           ->idLabel($json_data);
       }
@@ -177,7 +180,7 @@ class InstitutionAutoImportForm extends PreLoadForm {
     $index_item = $form_state->getValue('index_select');
     $hei_item = $form_state->getValue('hei_select');
 
-    // Create a new Institution if none exists with the same key
+    // Create a new Institution if none exists with the same key.
     $hei = $this->institutionManager
       ->getInstitution($hei_item, $index_item);
     if (!empty($hei)) {

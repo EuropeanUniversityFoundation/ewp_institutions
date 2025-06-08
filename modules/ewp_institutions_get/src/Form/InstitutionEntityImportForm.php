@@ -168,7 +168,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
   public function __construct(
     EntityRepositoryInterface $entity_repository,
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
-    TimeInterface $time
+    TimeInterface $time,
   ) {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
   }
@@ -337,7 +337,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         // Remove the Add more button for unlimited cardinality fields.
         unset($widget['add_more']);
         // Reordering field values with dragtable is still possible.
-
         // Handle non mapped, non required fields.
         $is_required = ($array['widget']['#required'] ??
           ($array['widget'][0]['#required'] ??
@@ -400,7 +399,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                 $field_props[] = $widget['#key_column'];
               }
 
-              if ($is_select) { $widget = [$widget]; }
+              if ($is_select) {
+                $widget = [$widget];
+              }
 
               // Handle single value in the API data (probably empty).
               if (!is_array($this->heiItemData[$field_name])) {
@@ -581,7 +582,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             $options = $widget[$delta][$property]['#options'];
             // The default value might not exist in the options.
             if (!array_key_exists($default, $options)) {
-              // Known edge case: Other ID widget
+              // Known edge case: Other ID widget.
               if (array_key_exists('custom', $widget[$delta])) {
                 // Store the default value in the custom field.
                 $widget[$delta]['custom']['#default_value'] = $default;

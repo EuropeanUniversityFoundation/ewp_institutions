@@ -50,7 +50,7 @@ class InstitutionUserFormAlter {
   public function __construct(
     AccountProxy $current_user,
     ConfigFactoryInterface $config_factory,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->currentUser       = $current_user;
     $this->configFactory     = $config_factory;
@@ -66,7 +66,7 @@ class InstitutionUserFormAlter {
    *   The form state.
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
-    // If the base field is in the user form, changes may be needed,
+    // If the base field is in the user form, changes may be needed,.
     if (\array_key_exists(self::BASE_FIELD, $form)) {
       $current_user_id = $this->currentUser->id();
       $form_user_id = $form_state->getformObject()->getEntity()->id();

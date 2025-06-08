@@ -73,7 +73,7 @@ class InstitutionUserBridge {
     ConfigFactoryInterface $config_factory,
     EntityFieldManagerInterface $entity_field_manager,
     EventDispatcherInterface $event_dispatcher,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->currentUser        = $current_user;
     $this->configFactory      = $config_factory;

@@ -25,7 +25,7 @@ class UserBaseFieldTest extends KernelTestBase {
   protected static $modules = [
     'user',
     'ewp_institutions',
-    'ewp_institutions_user'
+    'ewp_institutions_user',
   ];
 
   /**
@@ -47,4 +47,5 @@ class UserBaseFieldTest extends KernelTestBase {
     // Test whether the field is a base field.
     $this->assertInstanceOf(BaseFieldDefinition::class, $fields[self::NEW_BASE_FIELD]);
   }
+
 }

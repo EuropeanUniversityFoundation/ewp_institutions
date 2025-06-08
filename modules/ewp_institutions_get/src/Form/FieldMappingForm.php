@@ -11,6 +11,9 @@ use Drupal\ewp_institutions_get\JsonDataKeys;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class FieldMappingForm extends ConfigFormBase {
 
   const ENTITY_TYPE = InstitutionManager::ENTITY_TYPE;
@@ -73,7 +76,7 @@ class FieldMappingForm extends ConfigFormBase {
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
     EntityFieldManagerInterface $entity_field_manager,
-    JsonDataKeys $data_keys
+    JsonDataKeys $data_keys,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->entityFieldManager = $entity_field_manager;
@@ -127,18 +130,18 @@ class FieldMappingForm extends ConfigFormBase {
     ];
 
     $this->remoteKeys = $this->dataKeys->getDefaultKeys();
-    // Build the select options
+    // Build the select options.
     $options = $this->dataKeys->getAssocKeys(
       $this->remoteKeys,
       $this->remoteKeysExclude,
       $this->remoteKeysInclude
     );
 
-    // Load the individual entity fields
+    // Load the individual entity fields.
     $fields = $this->entityFieldManager
       ->getFieldDefinitions(self::ENTITY_TYPE, self::ENTITY_TYPE);
 
-    // Then exclude fields as defined in the field settings
+    // Then exclude fields as defined in the field settings.
     foreach ($this->entityFieldsExclude as $excluded) {
       if (array_key_exists($excluded, $fields)) {
         unset($fields[$excluded]);
@@ -146,7 +149,7 @@ class FieldMappingForm extends ConfigFormBase {
     }
 
     foreach ($fields as $field_name => $field) {
-      $default = isset($fieldmap[$field_name]) ? $fieldmap[$field_name] : '';
+      $default = $fieldmap[$field_name] ?? '';
 
       $form['field_mapping'][$field_name] = [
         '#type' => 'select',

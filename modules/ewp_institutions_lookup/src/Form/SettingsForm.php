@@ -18,6 +18,9 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class SettingsForm extends ConfigFormBase {
 
   /**
@@ -87,7 +90,7 @@ class SettingsForm extends ConfigFormBase {
     JsonDataProcessor $json_data_processor,
     DataFormatter $data_formatter,
     ClientInterface $http_client,
-    LoggerChannelFactoryInterface $logger_factory
+    LoggerChannelFactoryInterface $logger_factory,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->jsonDataFetcher   = $json_data_fetcher;
@@ -204,7 +207,7 @@ class SettingsForm extends ConfigFormBase {
     if ($endpoint) {
       $status = NULL;
 
-      // Build the HTTP request
+      // Build the HTTP request.
       try {
         /** @disregard P1013 */
         $request = $this->httpClient->get($endpoint);

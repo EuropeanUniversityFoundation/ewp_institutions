@@ -6,6 +6,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 
+/**
+ *
+ */
 class PreviewForm extends PreLoadForm {
 
   /**
@@ -100,7 +103,7 @@ class PreviewForm extends PreLoadForm {
       $json_data = $this->jsonDataFetcher->getUpdated($index_item, $endpoint);
 
       if ($json_data) {
-        // Build the options list
+        // Build the options list.
         $options += $this->jsonDataProcessor->idLabel($json_data);
       }
     }
@@ -116,7 +119,7 @@ class PreviewForm extends PreLoadForm {
     $index_item = $form_state->getValue('index_select');
     $endpoint = ($index_item) ? $this->indexLinks[$index_item] : '';
 
-    // JSON data has to be stored at this point per previous step
+    // JSON data has to be stored at this point per previous step.
     $json_data = $this->jsonDataFetcher->load($index_item, $endpoint);
     $hei_list = $this->jsonDataProcessor->idLabel($json_data);
 

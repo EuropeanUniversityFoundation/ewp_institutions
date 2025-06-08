@@ -11,6 +11,9 @@ use Drupal\ewp_institutions_get\JsonDataKeys;
 use Drupal\ewp_institutions_get\InstitutionManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class FieldSettingsForm extends ConfigFormBase {
 
   const ENTITY_TYPE = InstitutionManager::ENTITY_TYPE;
@@ -87,7 +90,7 @@ class FieldSettingsForm extends ConfigFormBase {
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
     EntityFieldManagerInterface $entity_field_manager,
-    JsonDataKeys $data_keys
+    JsonDataKeys $data_keys,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->entityFieldManager = $entity_field_manager;
@@ -144,11 +147,11 @@ class FieldSettingsForm extends ConfigFormBase {
       '#type' => 'checkboxes',
     ];
 
-    // Load the individual entity fields
+    // Load the individual entity fields.
     $fields = $this->entityFieldManager
       ->getFieldDefinitions(self::ENTITY_TYPE, self::ENTITY_TYPE);
 
-    // Generate the options
+    // Generate the options.
     $options = [];
 
     foreach ($fields as $field_name => $field) {
@@ -159,7 +162,7 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $form['fields']['field_exclude']['#options'] = $options;
 
-    // Get the excluded fields from configuration
+    // Get the excluded fields from configuration.
     $this->entityFieldsExclude = (array) $config->get('field_exclude');
 
     foreach ($this->entityFieldsExclude as $field) {
@@ -184,19 +187,19 @@ class FieldSettingsForm extends ConfigFormBase {
     ];
 
     $this->remoteKeys = $this->dataKeys->getDefaultKeys();
-    // Build the checkbox options
+    // Build the checkbox options.
     $options = $this->dataKeys->getAssocKeys($this->remoteKeys);
 
     $form['keys']['key_exclude']['#options'] = $options;
 
-    // Get the excluded keys from configuration
+    // Get the excluded keys from configuration.
     $this->remoteExclude = (array) $config->get('remote_exclude');
 
     foreach ($this->remoteExclude as $field) {
       $form['keys']['key_exclude'][$field]['#default_value'] = TRUE;
     }
 
-    // Get the included keys from configuration
+    // Get the included keys from configuration.
     $this->remoteInclude = (array) $config->get('remote_include');
 
     $default_text = ($this->remoteInclude) ?
@@ -230,7 +233,7 @@ class FieldSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $config = $this->config('ewp_institutions_get.field_settings');
 
-    // Fields to exclude
+    // Fields to exclude.
     $excluded_fields = $this->baseFieldsExclude;
 
     $field_exclude = $form_state->getValue('fields')['field_exclude'];
@@ -243,7 +246,7 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $config->set('field_exclude', $excluded_fields);
 
-    // Remote keys to exclude
+    // Remote keys to exclude.
     $key_exclude = $form_state->getValue('keys')['key_exclude'];
 
     foreach ($key_exclude as $key => $value) {
@@ -254,7 +257,7 @@ class FieldSettingsForm extends ConfigFormBase {
 
     $config->set('remote_exclude', $excluded_keys ?? []);
 
-    // Remote keys to include
+    // Remote keys to include.
     $key_include = $form_state->getValue('keys')['key_include'];
 
     $included_keys = array_filter(

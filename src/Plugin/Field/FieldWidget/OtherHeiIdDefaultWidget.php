@@ -37,13 +37,13 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
    * {@inheritdoc}
    */
   public function __construct(
-      $plugin_id,
-      $plugin_definition,
-      FieldDefinitionInterface $field_definition,
-      array $settings,
-      array $third_party_settings,
-      OtherIdTypeManager $other_id_manager
-    ) {
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    array $third_party_settings,
+    OtherIdTypeManager $other_id_manager,
+  ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->otherIdManager = $other_id_manager;
   }

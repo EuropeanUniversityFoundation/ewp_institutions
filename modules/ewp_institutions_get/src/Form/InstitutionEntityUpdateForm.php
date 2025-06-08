@@ -19,24 +19,24 @@ class InstitutionEntityUpdateForm extends InstitutionEntityForm {
     $form['add-form'] = parent::buildForm($form, $form_state);
 
     foreach ($form['add-form'] as $name => $array) {
-      // Target the fields
+      // Target the fields.
       if ((substr($name, 0, 1) !== '#')
         && (array_key_exists('widget', $array))) {
         foreach ($array['widget'] as $idx => $widget) {
-          // Target the field deltas
+          // Target the field deltas.
           if (ctype_digit((string) $idx)) {
-            // Target the field properties
+            // Target the field properties.
             foreach ($widget as $key => $prop) {
               if (!in_array(substr($key, 0, 1), ['#', '_'])) {
-                // Requires different handling depending on form field type
+                // Requires different handling depending on form field type.
                 switch ($prop['#type']) {
                   case 'select':
-                    // Eliminate the options in select lists
+                    // Eliminate the options in select lists.
                     $form['add-form'][$name]['widget'][$idx][$key]['#options'] = [];
                     break;
 
                   default:
-                    // Make the form field readonly
+                    // Make the form field readonly.
                     $form['add-form'][$name]['widget'][$idx][$key]['#attributes'] = [
                       'readonly' => 'readonly',
                     ];
@@ -50,7 +50,6 @@ class InstitutionEntityUpdateForm extends InstitutionEntityForm {
     }
 
     // dpm($form);
-
     return $form;
   }
 
