@@ -20,6 +20,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Settings form for EWP Institutions GET.
+ */
 class SettingsForm extends ConfigFormBase {
 
   use StringTranslationTrait;
@@ -87,7 +90,7 @@ class SettingsForm extends ConfigFormBase {
     JsonDataFetcher $json_data_fetcher,
     JsonDataProcessor $json_data_processor,
     LoggerChannelFactoryInterface $logger_factory,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->httpClient        = $http_client;
@@ -214,7 +217,7 @@ class SettingsForm extends ConfigFormBase {
 
     if ($endpoint) {
       $status = NULL;
-      // Build the HTTP request
+      // Build the HTTP request.
       try {
         $request = $this->httpClient->get($endpoint);
         $status = $request->getStatusCode();

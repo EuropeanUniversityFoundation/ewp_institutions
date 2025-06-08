@@ -13,7 +13,7 @@ class DataFormatter {
 
   use StringTranslationTrait;
 
-  // JSON data keys
+  // JSON data keys.
   const TYPE_KEY = 'type';
   const ID_KEY = 'id';
   const ATTR_KEY = 'attributes';
@@ -42,7 +42,7 @@ class DataFormatter {
    */
   public function __construct(
     RendererInterface $renderer,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->renderer = $renderer;
     $this->stringTranslation = $string_translation;

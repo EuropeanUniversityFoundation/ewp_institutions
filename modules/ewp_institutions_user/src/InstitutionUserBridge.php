@@ -30,6 +30,8 @@ class InstitutionUserBridge {
 
   /**
    * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
    */
   protected $currentUser;
 
@@ -73,7 +75,7 @@ class InstitutionUserBridge {
     ConfigFactoryInterface $config_factory,
     EntityFieldManagerInterface $entity_field_manager,
     EventDispatcherInterface $event_dispatcher,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->currentUser        = $current_user;
     $this->configFactory      = $config_factory;
@@ -85,7 +87,8 @@ class InstitutionUserBridge {
   /**
    * Attach an entity reference as a base field.
    *
-   * @return array $fields[]
+   * @return array
+   *   An array of fields containing the new base field.
    */
   public function attachBaseField(): array {
     $desc = $this->t('The Institution with which the User is associated.');
@@ -125,23 +128,23 @@ class InstitutionUserBridge {
 
     // Get the existing field config.
     $fields = $this->entityFieldManager->getFieldDefinitions('user', 'user');
+    $base_field_definition = $fields[self::BASE_FIELD];
 
     // Define the BaseFieldOverride.
-    if ($fields[self::BASE_FIELD] instanceof BaseFieldOverride) {
-      $override = $fields[self::BASE_FIELD];
+    if ($base_field_definition instanceof BaseFieldOverride) {
+      $override = $base_field_definition;
     }
     else {
+      /** @var \Drupal\Core\Field\BaseFieldDefinition $base_field_definition */
       $override = BaseFieldOverride::createFromBaseFieldDefinition(
-        $fields[self::BASE_FIELD], 'user'
+        $base_field_definition, 'user'
       );
     }
 
     // Update required if needed.
-    /** @disregard P1013 */
     $current_required = $override->get('required');
 
     if ($current_required !== $config->get('required')) {
-      /** @disregard P1013 */
       $override->setRequired($config->get('required'));
     }
 
@@ -156,13 +159,11 @@ class InstitutionUserBridge {
     }
 
     if ($current_auto_create !== $config->get('auto_create')) {
-      /** @disregard P1013 */
       $override->setSetting('handler_settings', [
         'auto_create' => $config->get('auto_create'),
       ]);
     }
 
-    /** @disregard P1013 */
     $override->save();
   }
 
@@ -192,7 +193,7 @@ class InstitutionUserBridge {
    *
    * @param \Drupal\user\UserInterface $user
    *   The user entity.
-   * @param \Drupal\ewp_institutions\entity\InstitutionEntity[] $hei
+   * @param \Drupal\ewp_institutions\Entity\InstitutionEntity[] $hei
    *   Array of Institution entities.
    * @param bool $save
    *   Whether the user entity should be saved after setting the value.
@@ -205,7 +206,7 @@ class InstitutionUserBridge {
       $target_id[] = ['target_id' => $entity->id()];
     }
 
-    $user->$base_field = $target_id;
+    $user->set($base_field, $target_id);
 
     if ($save) {
       $user->save();

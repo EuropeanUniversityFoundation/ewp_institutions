@@ -134,7 +134,7 @@ class InstitutionManager {
     LoggerChannelFactoryInterface $logger_factory,
     MessengerInterface $messenger,
     RendererInterface $renderer,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->configFactory     = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
@@ -171,7 +171,7 @@ class InstitutionManager {
    *   An array of [id => Drupal\ewp_institutions\Entity\InstitutionEntity]
    */
   public function getInstitution($hei_id, $create_from = NULL, $verbose = FALSE) {
-    // Check if an entity with the same hei_id already exists
+    // Check if an entity with the same hei_id already exists.
     $exists = $this->entityTypeManager
       ->getStorage(self::ENTITY_TYPE)
       ->loadByProperties([self::UNIQUE_FIELD => $hei_id]);
@@ -245,7 +245,7 @@ class InstitutionManager {
     $this->heiItemData = $this->jsonDataProcessor
       ->extract($hei_data, $hei_key);
 
-    // Remove empty values from the fieldmap
+    // Remove empty values from the fieldmap.
     foreach ($this->fieldmap as $key => $value) {
       if (empty($this->fieldmap[$key])) {
         unset($this->fieldmap[$key]);
@@ -254,14 +254,14 @@ class InstitutionManager {
 
     $reciprocal = array_flip($this->fieldmap);
 
-    // Remove non mapped values from the entity data
+    // Remove non mapped values from the entity data.
     foreach ($this->heiItemData as $key => $value) {
       if (!array_key_exists($key, $reciprocal)) {
         unset($this->heiItemData[$key]);
       }
     }
 
-    // Change data keys to field names
+    // Change data keys to field names.
     foreach ($this->heiItemData as $key => $value) {
       if (empty($this->fieldmap[$key])) {
         $this->heiItemData[$reciprocal[$key]] = $value;
@@ -269,7 +269,7 @@ class InstitutionManager {
       }
     }
 
-    // Add the Index key to the item data
+    // Add the Index key to the item data.
     $this->heiItemData[self::INDEX_FIELD] = $index_key;
 
     $new_entity = $this->entityTypeManager
@@ -296,7 +296,7 @@ class InstitutionManager {
    *   The error message if any error is detected
    */
   public function checkErrors($index_key = NULL, $hei_key = NULL) {
-    // Check for the API index endpoint
+    // Check for the API index endpoint.
     if (empty($this->indexEndpoint)) {
       return $this->t("Index endpoint is not defined.");
     }
@@ -304,7 +304,7 @@ class InstitutionManager {
     $index_data = $this->jsonDataFetcher
       ->load(self::INDEX_KEYWORD, $this->indexEndpoint);
 
-    // Check for the actual index data
+    // Check for the actual index data.
     if (!$index_data) {
       return $this->t("No available data.");
     }
@@ -314,27 +314,26 @@ class InstitutionManager {
     $index_labels = $this->jsonDataProcessor
       ->idLabel($index_data);
 
-    // Check for an index item matching the index key provided
+    // Check for an index item matching the index key provided.
     if (!array_key_exists($index_key, $index_links)) {
       return $this->t("Invalid index key: @index_key", [
         '@index_key' => $index_key,
       ]);
     }
 
-    // SUCCESS! First argument is validated
-
+    // SUCCESS! First argument is validated.
     $item_endpoint = $index_links[$index_key];
 
-    // Check for the API endpoint for this index item
+    // Check for the API endpoint for this index item.
     if (empty($item_endpoint)) {
       return $this->t("Item endpoint is not defined.");
     }
 
-    // Load the data for this index item
+    // Load the data for this index item.
     $item_data = $this->jsonDataFetcher
       ->getUpdated($index_key, $item_endpoint);
 
-    // Check for the actual index item data
+    // Check for the actual index item data.
     if (!$item_data) {
       return $this->t("No available data for @index_item", [
         '@index_item' => $index_labels[$index_key],
@@ -344,15 +343,14 @@ class InstitutionManager {
     $hei_list = $this->jsonDataProcessor
       ->idLabel($item_data);
 
-    // Check for an institution matching the key provided
+    // Check for an institution matching the key provided.
     if (!array_key_exists($hei_key, $hei_list)) {
       return $this->t("Invalid institution key: @hei_key", [
         '@hei_key' => $hei_key,
       ]);
     }
 
-    // SUCCESS! Second argument is validated
-
+    // SUCCESS! Second argument is validated.
     return NULL;
   }
 

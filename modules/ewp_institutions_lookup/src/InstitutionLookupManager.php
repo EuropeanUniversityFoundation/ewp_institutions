@@ -71,7 +71,7 @@ class InstitutionLookupManager {
     ConfigFactoryInterface $config_factory,
     DataFormatter $data_formatter,
     JsonDataFetcher $json_data_fetcher,
-    JsonDataProcessor $json_data_processor
+    JsonDataProcessor $json_data_processor,
   ) {
     $this->configFactory     = $config_factory;
     $this->dataFormatter     = $data_formatter;
@@ -149,7 +149,7 @@ class InstitutionLookupManager {
    * @param string $hei_id
    *   The Institution ID.
    *
-   * @return Drupal\Core\Link
+   * @return \Drupal\Core\Link
    *   A Link object pointing to the import form route.
    */
   public function importLink(string $hei_id): Link {
@@ -171,13 +171,13 @@ class InstitutionLookupManager {
    *
    * @param array $form
    *   The form array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public function heiFormAlter(&$form, FormStateInterface $form_state) {
     $base_field = InstitutionManager::INDEX_FIELD;
 
-    // If the base field is in the Institution form, changes may be needed,
+    // If the base field is in the Institution form, changes may be needed,.
     if (\array_key_exists($base_field, $form)) {
       // When no default value is set, provide the option to look it up.
       if (empty($form[$base_field]['widget'][0]['value']['#default_value'])) {

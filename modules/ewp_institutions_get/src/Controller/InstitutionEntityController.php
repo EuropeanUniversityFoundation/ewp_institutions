@@ -70,7 +70,7 @@ class InstitutionEntityController extends EntityController {
     UrlGeneratorInterface $url_generator,
     RouteMatchInterface $route_match,
     UrlMatcherInterface $access_unaware_router,
-    InstitutionManager $institution_manager
+    InstitutionManager $institution_manager,
   ) {
     parent::__construct(
       $entity_type_manager,

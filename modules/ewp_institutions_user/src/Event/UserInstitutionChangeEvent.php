@@ -32,7 +32,7 @@ class UserInstitutionChangeEvent extends Event {
    *
    * @var array
    */
-  public $hei_id = [];
+  public $heiId = [];
 
   /**
    * Constructs the object.
@@ -42,12 +42,12 @@ class UserInstitutionChangeEvent extends Event {
    */
   public function __construct(UserInterface $user) {
     $this->user = $user;
-    /** @disregard P1013 */
+
     $this->hei = $user->get(InstitutionUserBridge::BASE_FIELD)
       ->referencedEntities();
 
     foreach ($this->hei as $entity) {
-      $this->hei_id[] = $entity->get(InstitutionUserBridge::UNIQUE_FIELD)
+      $this->heiId[] = $entity->get(InstitutionUserBridge::UNIQUE_FIELD)
         ->getValue()[0]['value'];
     }
   }

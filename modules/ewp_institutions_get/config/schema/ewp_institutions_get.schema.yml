@@ -3,7 +3,7 @@ ewp_institutions_get.settings:
   label: 'External API settings'
   mapping:
     index_endpoint:
-      type: text
+      type: uri
       label: 'Index endpoint'
 
 ewp_institutions_get.fieldmap:
@@ -13,8 +13,10 @@ ewp_institutions_get.fieldmap:
     field_mapping:
       type: sequence
       label: 'Entity fields'
+      constraints:
+        FullyValidatable: ~
       sequence:
-        type: string
+        type: machine_name
 
 ewp_institutions_get.field_settings:
   type: config_object
@@ -23,15 +25,28 @@ ewp_institutions_get.field_settings:
     field_exclude:
       type: sequence
       label: 'Entity fields to exclude from mapping'
+      constraints:
+        FullyValidatable: ~
       sequence:
-        type: string
+        type: machine_name
     remote_exclude:
       type: sequence
       label: 'Remote keys to exclude from mapping'
+      constraints:
+        FullyValidatable: ~
       sequence:
         type: string
+        constraints:
+          Regex:
+            pattern: /^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$/
     remote_include:
       type: sequence
       label: 'Remote keys to include in mapping'
+      constraints:
+        FullyValidatable: ~
       sequence:
         type: string
+        constraints:
+          Regex:
+            pattern: /^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$/
+# see https://jsonapi.org/format/#document-member-names-allowed-characters

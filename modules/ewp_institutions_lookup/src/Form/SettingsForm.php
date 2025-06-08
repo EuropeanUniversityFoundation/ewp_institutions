@@ -15,9 +15,12 @@ use Drupal\ewp_institutions_get\JsonDataFetcher;
 use Drupal\ewp_institutions_get\JsonDataProcessor;
 use Drupal\ewp_institutions_lookup\InstitutionLookupManager;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Settings for Institutions Lookup.
+ */
 class SettingsForm extends ConfigFormBase {
 
   /**
@@ -87,7 +90,7 @@ class SettingsForm extends ConfigFormBase {
     JsonDataProcessor $json_data_processor,
     DataFormatter $data_formatter,
     ClientInterface $http_client,
-    LoggerChannelFactoryInterface $logger_factory
+    LoggerChannelFactoryInterface $logger_factory,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->jsonDataFetcher   = $json_data_fetcher;
@@ -204,14 +207,12 @@ class SettingsForm extends ConfigFormBase {
     if ($endpoint) {
       $status = NULL;
 
-      // Build the HTTP request
+      // Build the HTTP request.
       try {
-        /** @disregard P1013 */
-        $request = $this->httpClient->get($endpoint);
+        $request = $this->httpClient->request('GET', $endpoint);
         $status = $request->getStatusCode();
       }
-      catch (GuzzleException $e) {
-        /** @disregard P1013 */
+      catch (ClientException $e) {
         $status = $e->getResponse()->getStatusCode();
       }
       catch (\Exception $e) {

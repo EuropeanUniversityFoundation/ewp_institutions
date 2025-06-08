@@ -38,7 +38,7 @@ class InstitutionFormAlter {
    */
   public function __construct(
     RendererInterface $renderer,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->renderer          = $renderer;
     $this->stringTranslation = $string_translation;
