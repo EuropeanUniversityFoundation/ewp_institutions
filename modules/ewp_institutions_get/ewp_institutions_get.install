@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the EWP Institutions GET module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_install().
+ */
+function ewp_institutions_get_install(): void {
+  \Drupal::messenger()
+    ->addStatus(t('Module EWP Institutions GET has been installed.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ewp_institutions_get_uninstall(): void {
+  \Drupal::messenger()
+    ->addStatus(t('Module EWP Institutions GET has been uninstalled.'));
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function ewp_institutions_get_requirements($phase) {
+  if ($phase !== 'runtime') {
+    return [];
+  }
+
+  $requirements = [];
+
+  // Check for the lookup endpoint in configuration.
+  $endpoint = \Drupal::configFactory()
+    ->get('ewp_institutions_get.settings')
+    ->get('index_endpoint');
+
+  if (empty($endpoint)) {
+    $text = t('Index endpoint must be defined.');
+    $url = Url::fromRoute('ewp_institutions_get.settings');
+    $requirements['index_endpoint'] = [
+      'title' => t('EWP Institutions GET endpoint'),
+      'value' => Link::fromTextAndUrl($text, $url)->toString(),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+  else {
+    $requirements['index_endpoint'] = [
+      'title' => t('EWP Institutions GET endpoint'),
+      'value' => $endpoint,
+      'severity' => REQUIREMENT_OK,
+    ];
+  }
+
+  return $requirements;
+}

@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the EWP Institutions Lookup module.
+ */
+
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_install().
+ */
+function ewp_institutions_lookup_install(): void {
+  \Drupal::messenger()
+    ->addStatus(t('Module EWP Institutions Lookup has been installed.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ewp_institutions_lookup_uninstall(): void {
+  \Drupal::messenger()
+    ->addStatus(t('Module EWP Institutions Lookup has been uninstalled.'));
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function ewp_institutions_lookup_requirements($phase) {
+  if ($phase !== 'runtime') {
+    return [];
+  }
+
+  $requirements = [];
+
+  // Check for the lookup endpoint in configuration.
+  $endpoint = \Drupal::configFactory()
+    ->get('ewp_institutions_lookup.settings')
+    ->get('lookup_endpoint');
+
+  if (empty($endpoint)) {
+    $text = t('Lookup endpoint must be defined.');
+    $url = Url::fromRoute('ewp_institutions_lookup.settings');
+    $requirements['lookup_endpoint'] = [
+      'title' => t('EWP Institutions Lookup endpoint'),
+      'value' => Link::fromTextAndUrl($text, $url)->toString(),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+  else {
+    $requirements['lookup_endpoint'] = [
+      'title' => t('EWP Institutions Lookup endpoint'),
+      'value' => $endpoint,
+      'severity' => REQUIREMENT_OK,
+    ];
+  }
+
+  return $requirements;
+}
