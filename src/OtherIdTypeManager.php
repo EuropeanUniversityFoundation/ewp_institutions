@@ -2,10 +2,13 @@
 
 namespace Drupal\ewp_institutions;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ewp_core\SelectOptionsProviderInterface;
+
 /**
  * Provides lists of Other ID types.
  */
-class OtherIdTypeManager {
+class OtherIdTypeManager implements OtherIdTypeManagerInterface, SelectOptionsProviderInterface {
 
   /**
    * An array of type key => type name pairs where type must be unique.
@@ -34,33 +37,28 @@ class OtherIdTypeManager {
    * @return array
    *   An array of type key => type name pairs where type must be unique.
    */
-  public static function getUniqueTypes() {
+  public static function getUniqueTypes(): array {
     $unique_types = [
-      'erasmus' => t('Erasmus institutional code'),
-      'erasmus-charter' => t('Erasmus Charter number'),
-      'pic' => t('PIC identifier'),
+      'erasmus' => new TranslatableMarkup('Erasmus institutional code'),
+      'erasmus-charter' => new TranslatableMarkup('Erasmus Charter number'),
+      'pic' => new TranslatableMarkup('PIC identifier'),
     ];
 
     return $unique_types;
   }
 
   /**
-   * Get an array of type key => type name pairs, as options.
-   *
-   * @return array
-   *   An array of type key => type name pairs.
+   * {@inheritdoc}
    *
    * @see \Drupal\ewp_institutions\OtherIdTypeManager::getUniqueTypes()
    */
-  public function getUniqueTypeList() {
+  public function getUniqueTypeList(): array {
     // Populate the type list if it is not already populated.
     if (!isset($this->otherIdUniqueTypes)) {
       $this->otherIdUniqueTypes = static::getUniqueTypes();
     }
 
-    $unique = $this->otherIdUniqueTypes;
-
-    return $unique;
+    return $this->otherIdUniqueTypes;
   }
 
   /**
@@ -69,43 +67,35 @@ class OtherIdTypeManager {
    * @return array
    *   An array of type key => type name pairs where type can be not unique.
    */
-  public static function getNonUniqueTypes() {
+  public static function getNonUniqueTypes(): array {
     $non_unique_types = [
-      'previous-schac' => t('Previous SCHAC'),
+      'previous-schac' => new TranslatableMarkup('Previous SCHAC'),
     ];
 
     return $non_unique_types;
   }
 
   /**
-   * Get an array of type key => type name pairs, as options.
-   *
-   * @return array
-   *   An array of type key => type name pairs.
+   * {@inheritdoc}
    *
    * @see \Drupal\ewp_institutions\OtherIdTypeManager::getNonUniqueTypes()
    */
-  public function getNonUniqueTypeList() {
+  public function getNonUniqueTypeList(): array {
     // Populate the type list if it is not already populated.
     if (!isset($this->otherIdNonUniqueTypes)) {
       $this->otherIdNonUniqueTypes = static::getNonUniqueTypes();
     }
 
-    $non_unique = $this->otherIdNonUniqueTypes;
-
-    return $non_unique;
+    return $this->otherIdNonUniqueTypes;
   }
 
   /**
-   * Get an array of type key => type name pairs, as options.
-   *
-   * @return array
-   *   An array of type key => type name pairs.
+   * {@inheritdoc}
    *
    * @see \Drupal\ewp_institutions\OtherIdTypeManager::getUniqueTypes()
    * @see \Drupal\ewp_institutions\OtherIdTypeManager::getNonUniqueTypes()
    */
-  public function getDefinedTypes() {
+  public function getDefinedTypes(): array {
     // Populate the defined type list if it is not already populated.
     if (!isset($this->otherIdTypes)) {
       // Populate the unique type list if it is not already populated.
@@ -124,22 +114,15 @@ class OtherIdTypeManager {
       );
     }
 
-    $defined_types = $this->otherIdTypes;
-
-    return $defined_types;
+    return $this->otherIdTypes;
   }
 
   /**
-   * Get an array of type key => type name pairs, as options.
-   *
-   * @return array
-   *   An array of type key => type name pairs.
+   * {@inheritdoc}
    */
-  public function getOptions() {
+  public function getSelectOptions(): array {
     // Build a list from the defined types.
-    $options = $this->getDefinedTypes();
-
-    return $options;
+    return $this->getDefinedTypes();
   }
 
 }

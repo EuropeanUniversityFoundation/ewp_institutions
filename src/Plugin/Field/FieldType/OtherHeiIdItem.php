@@ -2,6 +2,7 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldType;
 
+use Drupal\Core\Field\Attribute\FieldType;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,20 +11,20 @@ use Drupal\Core\TypedData\DataDefinition;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id' field type.
- *
- * @FieldType(
- *   id = "ewp_other_hei_id",
- *   label = @Translation("Other HEI ID"),
- *   description = {
- *     @Translation("Stores pairs of ID type and value."),
- *     @Translation("Allows selection of predefined ID types."),
- *     @Translation("Allows custom ID types."),
- *   },
- *   category = "ewp_institutions",
- *   default_widget = "ewp_other_hei_id_default",
- *   default_formatter = "ewp_other_hei_id_default"
- * )
  */
+#[FieldType(
+  id: "ewp_other_hei_id",
+  module: "ewp_institutions",
+  label: new TranslatableMarkup("Other HEI ID"),
+  description: [
+    new TranslatableMarkup("Stores pairs of ID type and value."),
+    new TranslatableMarkup("Allows selection of predefined ID types."),
+    new TranslatableMarkup("Allows custom ID types."),
+  ],
+  category: "ewp_institutions",
+  default_widget: "ewp_other_hei_id_default",
+  default_formatter: "ewp_other_hei_id_default",
+)]
 class OtherHeiIdItem extends FieldItemBase {
 
   /**

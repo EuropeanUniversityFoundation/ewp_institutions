@@ -2,31 +2,32 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldFormatter;
 
+use Drupal\Core\Field\Attribute\FieldFormatter;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\ewp_institutions\OtherIdTypeManager;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ewp_institutions\OtherIdTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id_default' formatter.
- *
- * @FieldFormatter(
- *   id = "ewp_other_hei_id_default",
- *   label = @Translation("Default"),
- *   field_types = {
- *     "ewp_other_hei_id"
- *   }
- * )
  */
+#[FieldFormatter(
+  id: 'ewp_other_hei_id_default',
+  label: new TranslatableMarkup('Default'),
+  field_types: [
+    'ewp_other_hei_id',
+  ],
+)]
 class OtherHeiIdDefaultFormatter extends FormatterBase implements ContainerFactoryPluginInterface {
 
   /**
    * Other ID type manager.
    *
-   * @var \Drupal\ewp_institutions\OtherIdTypeManager
+   * @var \Drupal\ewp_institutions\OtherIdTypeManagerInterface
    */
   protected $otherIdManager;
 
@@ -41,7 +42,7 @@ class OtherHeiIdDefaultFormatter extends FormatterBase implements ContainerFacto
     $label,
     $view_mode,
     array $third_party_settings,
-    OtherIdTypeManager $other_id_manager,
+    OtherIdTypeManagerInterface $other_id_manager,
   ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
     $this->otherIdManager = $other_id_manager;

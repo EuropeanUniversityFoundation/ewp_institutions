@@ -1,5 +1,4 @@
 # Schema for the configuration of the Other ID field type.
-
 field.storage_settings.ewp_other_hei_id:
   type: mapping
   label: 'String settings'
