@@ -43,7 +43,7 @@ class SetUserInstitutionEventSubscriber implements EventSubscriberInterface {
   public function __construct(
     InstitutionUserBridge $bridge,
     MessengerInterface $messenger,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->bridge            = $bridge;
     $this->messenger         = $messenger;

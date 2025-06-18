@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\ewp_institutions_user\InstitutionUserBridge;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Settings for the Institution User bridge.
+ */
 class SettingsForm extends ConfigFormBase {
 
   const LIMITED   = 'limited';
@@ -53,7 +56,7 @@ class SettingsForm extends ConfigFormBase {
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $typedConfigManager,
     ModuleHandlerInterface $module_handler,
-    InstitutionUserBridge $user_bridge
+    InstitutionUserBridge $user_bridge,
   ) {
     parent::__construct($config_factory, $typedConfigManager);
     $this->moduleHandler = $module_handler;

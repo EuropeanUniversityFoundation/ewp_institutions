@@ -32,7 +32,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
    */
   public function __construct(
     MessengerInterface $messenger,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->messenger         = $messenger;
     $this->stringTranslation = $string_translation;

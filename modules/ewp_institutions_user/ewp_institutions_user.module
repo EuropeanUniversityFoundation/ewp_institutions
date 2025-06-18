@@ -45,5 +45,6 @@ function ewp_institutions_user_field_widget_complete_entity_reference_autocomple
  */
 function ewp_institutions_user_user_presave(EntityInterface $user) {
   $bridge = \Drupal::service('ewp_institutions_user.bridge');
+  /** @var Drupal\user\UserInterface $user */
   $bridge->checkInstitutionChange($user);
 }

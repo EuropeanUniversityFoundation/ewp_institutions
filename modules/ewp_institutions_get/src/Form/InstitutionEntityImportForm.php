@@ -2,9 +2,6 @@
 
 namespace Drupal\ewp_institutions_get\Form;
 
-use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Entity\EntityRepositoryInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ewp_institutions\Form\InstitutionEntityForm;
@@ -154,24 +151,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    * @var \Drupal\Core\Render\RendererInterface
    */
   protected $renderer;
-
-  /**
-   * The constructor.
-   *
-   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
-   *   The entity repository service.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
-   *   The time service.
-   */
-  public function __construct(
-    EntityRepositoryInterface $entity_repository,
-    EntityTypeBundleInfoInterface $entity_type_bundle_info,
-    TimeInterface $time
-  ) {
-    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
-  }
 
   /**
    * {@inheritdoc}
@@ -337,7 +316,6 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
         // Remove the Add more button for unlimited cardinality fields.
         unset($widget['add_more']);
         // Reordering field values with dragtable is still possible.
-
         // Handle non mapped, non required fields.
         $is_required = ($array['widget']['#required'] ??
           ($array['widget'][0]['#required'] ??
@@ -400,7 +378,9 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                 $field_props[] = $widget['#key_column'];
               }
 
-              if ($is_select) { $widget = [$widget]; }
+              if ($is_select) {
+                $widget = [$widget];
+              }
 
               // Handle single value in the API data (probably empty).
               if (!is_array($this->heiItemData[$field_name])) {
@@ -457,7 +437,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
                   $widget = $this->setReadOnly($widget, $delta, $prop);
                 }
 
-                if ($is_select) {
+                if ($is_select && !empty($key_column)) {
                   // Return some items to the original place.
                   $widget = $widget[0];
                   foreach ($widget[$key_column] as $key => $val) {
@@ -518,7 +498,8 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
 
       if (!empty($exists)) {
         foreach ($exists as $hei) {
-          $code = ['#markup' => '<code>' . $this->t($hei_key) . '</code>'];
+
+          $code = ['#markup' => '<code>' . $hei_key . '</code>'];
           $link = $hei->toLink();
           $renderable = $link->toRenderable();
         }
@@ -581,7 +562,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
             $options = $widget[$delta][$property]['#options'];
             // The default value might not exist in the options.
             if (!array_key_exists($default, $options)) {
-              // Known edge case: Other ID widget
+              // Known edge case: Other ID widget.
               if (array_key_exists('custom', $widget[$delta])) {
                 // Store the default value in the custom field.
                 $widget[$delta]['custom']['#default_value'] = $default;

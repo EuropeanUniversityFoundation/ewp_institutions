@@ -2,26 +2,24 @@
 
 namespace Drupal\ewp_institutions\Plugin\Field\FieldWidget;
 
+use Drupal\Core\Field\Attribute\FieldWidget;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\ewp_institutions\OtherIdTypeManager;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\ewp_core\SelectOptionsProviderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'ewp_other_hei_id_default' widget.
- *
- * @FieldWidget(
- *   id = "ewp_other_hei_id_default",
- *   module = "ewp_institutions",
- *   label = @Translation("Default"),
- *   field_types = {
- *     "ewp_other_hei_id"
- *   }
- * )
  */
+#[FieldWidget(
+  id: 'ewp_other_hei_id_default',
+  label: new TranslatableMarkup('Default'),
+  field_types: ['ewp_other_hei_id'],
+)]
 class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPluginInterface {
 
   const CUSTOM = 'custom';
@@ -29,7 +27,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
   /**
    * Other ID type manager.
    *
-   * @var \Drupal\ewp_institutions\OtherIdTypeManager
+   * @var \Drupal\ewp_core\SelectOptionsProviderInterface
    */
   protected $otherIdManager;
 
@@ -37,13 +35,13 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
    * {@inheritdoc}
    */
   public function __construct(
-      $plugin_id,
-      $plugin_definition,
-      FieldDefinitionInterface $field_definition,
-      array $settings,
-      array $third_party_settings,
-      OtherIdTypeManager $other_id_manager
-    ) {
+    $plugin_id,
+    $plugin_definition,
+    FieldDefinitionInterface $field_definition,
+    array $settings,
+    array $third_party_settings,
+    SelectOptionsProviderInterface $other_id_manager,
+  ) {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
     $this->otherIdManager = $other_id_manager;
   }
@@ -93,7 +91,10 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
       '#type' => 'textfield',
       '#title' => $this->t('Placeholder'),
       '#default_value' => $this->getSetting('placeholder'),
-      '#description' => $this->t($text . ' ' . $hint),
+      '#description' => $this->t('@text @hint', [
+        '@text' => $text,
+        '@hint' => $hint,
+      ]),
     ];
 
     return $elements;
@@ -135,7 +136,7 @@ class OtherHeiIdDefaultWidget extends WidgetBase implements ContainerFactoryPlug
     $field_name = $items->getFieldDefinition()->getName();
 
     // Get the options from the Other ID type manager service.
-    $options = $this->otherIdManager->getOptions();
+    $options = $this->otherIdManager->getSelectOptions();
     $options[self::CUSTOM] = '- ' . $this->t('custom type') . ' -';
 
     // Get the field defaults.

@@ -3,6 +3,7 @@
 namespace Drupal\ewp_institutions_user;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountProxy;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -27,6 +28,8 @@ class InstitutionUserFormAlter {
 
   /**
    * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxy
    */
   protected $currentUser;
 
@@ -38,22 +41,33 @@ class InstitutionUserFormAlter {
   protected $configFactory;
 
   /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * The constructor.
    *
    * @param \Drupal\Core\Session\AccountProxy $current_user
    *   A proxied implementation of AccountInterface.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
     AccountProxy $current_user,
     ConfigFactoryInterface $config_factory,
-    TranslationInterface $string_translation
+    EntityTypeManagerInterface $entity_type_manager,
+    TranslationInterface $string_translation,
   ) {
     $this->currentUser       = $current_user;
     $this->configFactory     = $config_factory;
+    $this->entityTypeManager = $entity_type_manager;
     $this->stringTranslation = $string_translation;
   }
 
@@ -62,20 +76,22 @@ class InstitutionUserFormAlter {
    *
    * @param array $form
    *   The form array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public function userFormAlter(&$form, FormStateInterface $form_state) {
-    // If the base field is in the user form, changes may be needed,
+    // If the base field is in the user form, changes may be needed,.
     if (\array_key_exists(self::BASE_FIELD, $form)) {
       $current_user_id = $this->currentUser->id();
-      $form_user_id = $form_state->getformObject()->getEntity()->id();
+      $form_object = $form_state->getformObject();
+      /** @var \Drupal\user\ProfileForm $form_object */
+      $form_user_id = $form_object->getEntity()->id();
 
       // Determine whether the current user is allowed to set the value.
       $can_set_any = $this->currentUser
-        ->hasPermission('set any user institution', $this->currentUser);
+        ->hasPermission('set any user institution');
       $can_set_own = $this->currentUser
-        ->hasPermission('set own user institution', $this->currentUser);
+        ->hasPermission('set own user institution');
       $own_form = ($current_user_id === $form_user_id);
 
       $allowed = ($can_set_any || ($own_form && $can_set_own));
@@ -199,7 +215,7 @@ class InstitutionUserFormAlter {
    *
    * @param array $elements
    *   The form elements array.
-   * @param Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    * @param array $context
    *   The context array.
@@ -210,8 +226,11 @@ class InstitutionUserFormAlter {
 
     if ($target_type === self::ENTITY_TYPE && $handler === self::HANDLER) {
       // Get the current user.
-      $user = User::load($this->currentUser->id());
-      // Get the referenced Institutions from the user account.
+      $user = $this->entityTypeManager
+        ->getStorage('user')
+        ->load($this->currentUser->id());
+
+      // Get the referenced Institutions from the current user.
       $user_hei = $user->get(self::BASE_FIELD)->getValue();
 
       // Set a default value.
@@ -248,7 +267,7 @@ class InstitutionUserFormAlter {
    *
    * @param array $elements
    *   The form elements.
-   * @param Drupal\user\Entity\User $user
+   * @param \Drupal\user\Entity\User $user
    *   The User entity.
    * @param array $user_hei
    *   The Institutions related to the User.

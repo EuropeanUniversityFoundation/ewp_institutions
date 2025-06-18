@@ -5,7 +5,7 @@ services:
 
   ewp_institutions_user.form_alter:
     class: Drupal\ewp_institutions_user\InstitutionUserFormAlter
-    arguments: ['@current_user', '@config.factory', '@string_translation']
+    arguments: ['@current_user', '@config.factory', '@entity_type.manager', '@string_translation']
 
   ewp_institutions_user.change_event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber

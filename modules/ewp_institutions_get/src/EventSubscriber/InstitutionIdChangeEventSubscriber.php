@@ -43,7 +43,7 @@ class InstitutionIdChangeEventSubscriber implements EventSubscriberInterface {
   public function __construct(
     LoggerChannelFactoryInterface $logger_factory,
     RendererInterface $renderer,
-    TranslationInterface $string_translation
+    TranslationInterface $string_translation,
   ) {
     $this->logger            = $logger_factory->get('ewp_institutions_get');
     $this->renderer          = $renderer;
