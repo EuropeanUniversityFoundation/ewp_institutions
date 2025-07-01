@@ -1,4 +1,19 @@
 # Schema for the configuration of the Other ID field type.
+field.value.ewp_other_hei_id:
+  type: mapping
+  label: Default value
+  mapping:
+    type:
+      type: string
+      label: 'Type'
+      constraints:
+        NotNull: []
+    value:
+      type: string
+      label: 'Value'
+      constraints:
+        NotNull: []
+
 field.storage_settings.ewp_other_hei_id:
   type: mapping
   label: 'String settings'
