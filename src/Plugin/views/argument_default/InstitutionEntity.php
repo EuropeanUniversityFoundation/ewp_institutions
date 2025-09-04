@@ -12,7 +12,7 @@ use Drupal\ewp_institutions\Entity\InstitutionEntityInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Default argument plugin to extract a node.
+ * Default argument plugin to extract an Institution.
  */
 #[ViewsArgumentDefault(
   id: 'hei',
