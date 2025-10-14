@@ -9,12 +9,12 @@ services:
 
   ewp_institutions_user.change_event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\UserInstitutionChangeEventSubscriber
-    arguments: ['@messenger', '@string_translation']
+    arguments: ['@logger.factory', '@string_translation']
     tags:
       - { name: event_subscriber }
 
   ewp_institutions_user.set_event_subscriber:
     class: Drupal\ewp_institutions_user\EventSubscriber\SetUserInstitutionEventSubscriber
-    arguments: ['@ewp_institutions_user.bridge', '@messenger', '@string_translation']
+    arguments: ['@ewp_institutions_user.bridge', '@logger.factory', '@string_translation']
     tags:
       - { name: event_subscriber }

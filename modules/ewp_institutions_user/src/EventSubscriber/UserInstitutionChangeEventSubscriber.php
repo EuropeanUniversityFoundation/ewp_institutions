@@ -2,7 +2,7 @@
 
 namespace Drupal\ewp_institutions_user\EventSubscriber;
 
-use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\ewp_institutions_user\Event\UserInstitutionChangeEvent;
@@ -16,25 +16,25 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
   use StringTranslationTrait;
 
   /**
-   * The messenger.
+   * The logger service.
    *
-   * @var \Drupal\Core\Messenger\MessengerInterface
+   * @var \Psr\Log\LoggerInterface
    */
-  protected $messenger;
+  protected $logger;
 
   /**
    * Constructs event subscriber.
    *
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   The messenger.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   The logger factory service.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
    */
   public function __construct(
-    MessengerInterface $messenger,
+    LoggerChannelFactoryInterface $logger_factory,
     TranslationInterface $string_translation,
   ) {
-    $this->messenger         = $messenger;
+    $this->logger            = $logger_factory->get('ewp_institutions_user');
     $this->stringTranslation = $string_translation;
   }
 
@@ -54,12 +54,12 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
    *   The event object.
    */
   public function onUserInstitutionChange(UserInstitutionChangeEvent $event) {
-    if (empty($event->hei_id)) {
+    if (empty($event->heiId)) {
       $message = $this->t('User %user is not associated with an Institution.', [
         '%user' => $event->user->label(),
       ]);
 
-      $this->messenger->addWarning($message);
+      $this->logger->notice($message);
     }
     else {
       $hei = [];
@@ -73,7 +73,7 @@ class UserInstitutionChangeEventSubscriber implements EventSubscriberInterface {
         '%hei' => \implode(', ', $hei),
       ]);
 
-      $this->messenger->addStatus($message);
+      $this->logger->notice($message);
     }
   }
 
