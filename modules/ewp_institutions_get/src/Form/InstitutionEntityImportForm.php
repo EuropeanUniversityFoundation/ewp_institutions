@@ -517,7 +517,7 @@ class InstitutionEntityImportForm extends InstitutionEntityForm {
    * Populate field widget with default value.
    */
   protected function setDefault($data_value, array &$widget, $delta = 0, $property = 'value') {
-    $old_default = $widget[$delta][$property]['#default_value'];
+    $old_default = $widget[$delta][$property]['#default_value'] ?? NULL;
     $new_default = $data_value;
 
     if ($old_default) {
